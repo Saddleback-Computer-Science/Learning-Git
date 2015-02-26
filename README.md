@@ -21,9 +21,11 @@ Rules:
     
 
 
-If you want to be a contributor and you are a Saddleback Computer Science Lab * 
+If you want to be a contributor and you are a Saddleback Computer Science Lab Aide* 
 
-    please email saddlebackcomputerscience@gmail.com 
+please email:
+
+    saddlebackcomputerscience@gmail.com 
 
   *We will be keeping the contributors small for the time being and we will add as needed.
 
