@@ -2,17 +2,14 @@
 This is a resource repository for students at the Saddleback Computer Science Department
 
 General Purpose:
-
     For students who want to master the distributed version control system: Git
     This repository is also intended to help us founders and future contributors to master Git.
     ONLY WAY TO LEARN SOMETHING IS TO DO IT!
 
 Goal: 
-
     To simplify the learning process to a very useful tool
 
 Rules:
-
     1) Read Copyrights at the bottom of the README file.
     2) Respect all other contributors.
     3) Be patient and understanding of the fact that we are all students.
@@ -21,7 +18,7 @@ Rules:
 
 
 If you want to be a contributor and you are a Saddleback Computer Science Lab * 
-
+    
     please email saddlebackcomputerscience@gmail.com 
 
   * We will be keeping the contributors small for the time being and we will add as needed.
