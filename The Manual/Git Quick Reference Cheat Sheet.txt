@@ -1,0 +1,143 @@
+Basic Git Commands Cheat Sheet
+---------------------------------
+
+Contribution by Anthony Ramirez (aramirez7412)
+aramirez7412@gmail.com
+
+
+Hello all,
+
+ Below are some useful Git commands to use as areference. I am not stating that all commands below 
+are all of the commands you need to be succesful in Git. Also, the descriptions I provide are fairly
+breif so the utility of certain commands exceed the scope of this reference sheet. Feel free to email
+ me if there are any additions or corrections that you find.
+ **Constructive criticism and contributions are welcomed!**
+ If you ever feel lost in the command line, 
+enter 'git help', utilize Google, stackoverflow.com (really any programming forum) or feel free to email me.
+Include Git Command Cheat Sheet in subjet heading of email.
+
+Remember to have fun and embrace the learning experience. 
+Git may be intimidating, but you can do it! Be patient and diligent and you will be succesful!
+
+Cheers,
+Anthony R.
+
+
+aramirez7412@gmail.com
+
+_______________________________________________________________________________________________
+Key
+----------------------------------------------------------------------------------------------
+Cheat Sheet format
+git 'someCommand' -> "Explanation and commenting on the command" 
+
+Please note that the ' ' and -> are NOT to be included in the command line entry
+
+
+
+BEGIN HERE-----------------------------------------------------------------------------------
+
+Basic Commands in the Git command line
+_________________________________________
+How do I traverse through my file directories?
+
+cd .. 	           -> takes you back one directory/folder
+ls                 -> allows you to view what is inside the folder you are in
+cd someFolderName  -> changes the directory to the folder you choose
+		      
+
+
+Help
+____________________________________________________________________________________________
+	git help    -> view commonly used git commands if you ever forget ;)
+
+
+	'git help -a and git help -g' lists avaliable subcommands and some concept guides. 
+
+	See 'git help <someCommand> e.g 'git help add' or
+	    'git help <concept>' to read about a specific subcommand or concept
+
+
+
+	git init  -> Initializes a folder to a brand new git repository. 
+		    Initilizing the new folder will allow you to begin tracking files using git
+
+
+	git remote add origin "url" (No quotes & include https://)
+				
+		   -> ^^^To push our local repository (the one you created with git init)
+		 	 we'll need to add a remote repository.	In the command line you
+			 will no be able to right click->paste so right clean the window 
+			 title (bar with the minamize maximize X option) and
+			 right click-> Edit -> paste 					
+	
+	git status   -> Extremely useful to check the current status of the project
+		        utilize this command frequently to be sure project is not 				
+			unpredictable git add file.txt -> Before using add, you must add a new file to the folder you have
+   		        initilized. (See git init) This command will tell git to start tracking changes made to "file.txt" 
+			We first need to add it to the staging area by using git add
+
+
+	git add fileName
+
+	git add --all    -> Similar to git add, this command will add all new files you included in the folder to the 
+			    staging area. Remember, all files must be staged before they can be tracked and pushed to your
+		            respective repository. 
+			    Note: Yeah, that's right, TWO dashes
+
+	git commit -m "Commit Message" -> Utilize the git commit after you stage (aka. add)
+					  files to your local repository or whenever you
+ 				          feel it is necessary to keep a paper trail of all
+				          of your actions in the git command line. Especially include a commit message before
+				          pushing. Git commit "message" will create a logged entry of your activity. 
+					  This will be convenient for your collaborators so they can view your  
+					  progress, additions, and contributions to the repositoty at a glance. 
+	
+
+	git push -u origin master -> Wohooo! Name our our remote is origin and the default 
+				     branch name is master. The -u tells git to remember the
+				     parameters, so next time we can simply use
+				     git push origin
+
+	git diff HEAD -> Useful to view difference of branches in the repository. To see the 
+		         difference of the most recent commit we can refer to using the 
+			 HEAD pointer.    git diff also works fine
+
+			Note* Another great use for diff is looking at changes within files
+			      that have already been staged. Remember, staged files are
+			      files we have told git that are ready to be committed and
+			      pushed
+
+	git diff --staged  -> see changes you have staged! ^^
+
+	
+	git reset fileName.txt -> you can UNSTAGE tiles by using the git reset command
+
+
+
+	git checkout --fileName.txt  -> git reset does a great job unstaging fileName.txt 
+					it'll still be there, just not staged anymore. Files
+					can be changed back to how they were at the last 
+				        commit by using the command git checkout -- <target>
+
+	git branch branch_Name   -> Create a new local branch. 
+	
+
+	git checkout branch_Name  -> This is different than git checkout --<target>. This 
+				     command will set you on the branch of your choosing
+			             You can switch between master, newBranch,oldBranch etc
+	
+	git rm '*txt'	-> rm removes files, and '*.txt' acts as a "wild card" and removes
+			   all files that are of type .txt
+
+
+	git merge some_Branch  -> Allows a merge to happen between the current branch
+			          and some_Branch
+
+	git push     -> allows you to push. Remember to commit -m "message" first!!
+
+	
+	git log  -> Acts as a journal for all pushes and activity on the repository 
+
+
+END HERE -----------------------------------------------------------------------------------
