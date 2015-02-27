@@ -19,6 +19,11 @@ Rules:
 * Please let us know if we have missed something, or have incorrect information or instructions.
 * Never stop learning or trying to make yourself a better programmer!
     
+Check it Out:
+
+    There are plenty of resources in this repository. Check out 'The Manual' folder to find useful resources. 
+    Happy coding.
+
 
 
 If you want to be a contributor and you are a Saddleback Computer Science Lab Aide* 
