@@ -1,4 +1,6 @@
-So you guys want to learn git? One way is to read all the documentation and cheat sheets that we have provided. But for the more visually-oriented folks that need constant stimulation when learning, Github has provided the following *awesome* online interactive shell tutorial that will undoubtedly help you start out in style:
+So you guys want to learn git? One way is to read all the documentation and cheat sheets that we have provided. 
+But for the more visually-oriented folks that need constant stimulation when learning, Github has provided the 
+following *awesome* online interactive shell tutorial that will undoubtedly help you start out in style:
 
 https://try.github.io/
 
