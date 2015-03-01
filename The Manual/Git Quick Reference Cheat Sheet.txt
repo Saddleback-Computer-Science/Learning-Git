@@ -69,7 +69,12 @@ ________________________________________________________________________________
 		 	 we'll need to add a remote repository.	In the command line you
 			 will no be able to right click->paste so right clean the window 
 			 title (bar with the minamize maximize X option) and
-			 right click-> Edit -> paste 					
+			 right click-> Edit -> paste
+
+	git pull origin master -> after you pull the remote repository, you must pull any folders.
+				  even when the folder is empty, it may still have a READme.txt file and
+				  git will not allow you perform any operations (such as pushing) until you
+				  pull the latest version of the repository. 					
 	
 	git status   -> Extremely useful to check the current status of the project
 		        utilize this command frequently to be sure project is not 				
