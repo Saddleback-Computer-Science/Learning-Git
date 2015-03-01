@@ -9,12 +9,12 @@ Hello all,
 
  Below are some useful Git commands to use as areference. I am not stating that all commands below 
 are all of the commands you need to be succesful in Git. Also, the descriptions I provide are fairly
-breif so the utility of certain commands exceed the scope of this reference sheet. Feel free to email
- me if there are any additions or corrections that you find.
+breif so the utility of certain commands exceed the scope of this reference sheet. Feel free to contact
+ me if there are any additions you may want to add or corrections that you find.
  **Constructive criticism and contributions are welcomed!**
  If you ever feel lost in the command line, 
 enter 'git help', utilize Google, stackoverflow.com (really any programming forum) or feel free to email me.
-Include Git Command Cheat Sheet in subjet heading of email.
+Include Git Command Cheat Sheet in subject heading of email.
 
 Remember to have fun and embrace the learning experience. 
 Git may be intimidating, but you can do it! Be patient and diligent and you will be succesful!
