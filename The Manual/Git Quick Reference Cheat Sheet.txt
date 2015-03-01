@@ -11,6 +11,11 @@ Hello all,
 are all of the commands you need to be succesful in Git. Also, the descriptions I provide are fairly
 breif so the utility of certain commands exceed the scope of this reference sheet. Feel free to contact
  me if there are any additions you may want to add or corrections that you find.
+
+***I will be updating this cheet as time goes on. I am actively attempting to expand my knowledge of Git***
+***so as I learn, I will update this sheet with new commands and modify the documentation               ***
+
+
  **Constructive criticism and contributions are welcomed!**
  If you ever feel lost in the command line, 
 enter 'git help', utilize Google, stackoverflow.com (really any programming forum) or feel free to email me.
@@ -34,11 +39,11 @@ git 'someCommand' -> "Explanation and commenting on the command"
 Please note that the ' ' and -> are NOT to be included in the command line entry
 
 
-
-BEGIN HERE-----------------------------------------------------------------------------------
-
+************************************************************************************************
+BEGIN HERE--------------------------------------------------------------------------------------
+************************************************************************************************
 Basic Commands in the Git command line
-_________________________________________
+________________________________________________________________________________________________
 How do I traverse through my file directories?
 
 cd .. 	           -> takes you back one directory/folder
@@ -54,6 +59,12 @@ ________________________________________________________________________________
 
 	'git help -a and git help -g' lists avaliable subcommands and some concept guides. 
 
+	************************************************************
+	*****If you are stuck in the VIM - press 'q' and enter******
+	************************************************************
+	Also see the learning Git 
+
+		
 	See 'git help <someCommand> e.g 'git help add' or
 	    'git help <concept>' to read about a specific subcommand or concept
 
@@ -70,6 +81,13 @@ ________________________________________________________________________________
 			 will no be able to right click->paste so right clean the window 
 			 title (bar with the minamize maximize X option) and
 			 right click-> Edit -> paste
+
+
+	git fetch origin   -> Similar to git pull (but not the same!), you can fetch the latest
+			      version of the repository by using git fetch. I recommend using 
+			      "git status" frequently  to see the conflicts and differences. Git provides
+			     descriptive information on on what the differences are between your local repo
+			      and your remote
 
 	git pull origin master -> after you pull the remote repository, you must pull any folders.
 				  even when the folder is empty, it may still have a READme.txt file and
@@ -144,5 +162,6 @@ ________________________________________________________________________________
 	
 	git log  -> Acts as a journal for all pushes and activity on the repository 
 
-
-END HERE -----------------------------------------------------------------------------------
+************************************************************************************************
+END HERE ---------------------------------------------------------------------------------------
+************************************************************************************************
