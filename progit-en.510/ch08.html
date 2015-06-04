@@ -1,0 +1,1836 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Pro Git</title>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script>
+    <link rel="stylesheet" type="text/css" href="theme/html/html.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <body data-type="book">
+    <div class="navbar">
+      <h1>Pro Git</h1>
+      <p><a href="toc01.html">Table of Contents</a></p>
+    </div>
+    <section data-type="chapter" data-pdf-bookmark="Chapter 8. Customizing Git" id="_customizing_git">
+<h1>Customizing Git</h1>
+
+
+<p>So far, we’ve covered the basics of how Git works and how to use it, and we’ve introduced a number of tools that Git provides to help you use it easily and efficiently.
+In this chapter, we’ll see how you can make Git operate in a more customized fashion, by introducing several important configuration settings and the hooks system.
+With these tools, it’s easy to get Git to work exactly the way you, your company, or your group needs it to.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git Configuration" id="_git_config">
+<h1>Git Configuration</h1>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="config" id="idp24760688"/>
+As you briefly saw in <a data-type="xref" href="ch01.html#_getting_started">Chapter 1</a>, you can specify Git configuration settings with the <code>git config</code> command.
+One of the first things you did was set up your name and e-mail address:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global user.name <code class="s2">"John Doe"</code>
+<code class="gp">$</code> git config --global user.email johndoe@example.com</pre>
+
+<p>Now you’ll learn a few of the more interesting options that you can set in this manner to customize your Git usage.</p>
+
+<p>First, a quick review: Git uses a series of configuration files to determine non-default behavior that you may want.
+The first place Git looks for these values is in an <code>/etc/gitconfig</code> file, which contains values for every user on the system and all of their repositories.
+If you pass the option <code>--system</code> to <code>git config</code>, it reads and writes from this file specifically.</p>
+
+<p>The next place Git looks is the <code>~/.gitconfig</code> (or <code>~/.config/git/config</code>) file, which is specific to each user.
+You can make Git read and write to this file by passing the <code>--global</code> option.</p>
+
+<p>Finally, Git looks for configuration values in the configuration file in the Git directory (<code>.git/config</code>) of whatever repository you’re currently using.
+These values are specific to that single repository.</p>
+
+<p>Each of these “levels” (system, global, local) overwrites values in the previous level, so values in <code>.git/config</code> trump those in <code>/etc/gitconfig</code>, for instance.</p>
+<div data-type="note">
+<p>Git’s configuration files are plain-text, so you can also set these values by manually editing the file and inserting the correct syntax.
+It’s generally easier to run the <code>git config</code> command, though.</p>
+</div>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Basic Client Configuration" id="idp24827472">
+<h2>Basic Client Configuration</h2>
+
+<p>The configuration options recognized by Git fall into two categories: client-side and server-side.
+The majority of the options are client-side – configuring your personal working preferences.
+Many, <em>many</em> configuration options are supported, but a large fraction of them are only useful in certain edge cases.
+We’ll only be covering the most common and most useful here.
+If you want to see a list of all the options your version of Git recognizes, you can run</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> man git-config</pre>
+
+<p>This command lists all the available options in quite a bit of detail.
+You can also find this reference material at <a href="http://git-scm.com/docs/git-config.html"><em class="hyperlink">http://git-scm.com/docs/git-config.html</em></a>.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="core.editor" id="idp24831712">
+<h3><code>core.editor</code></h3>
+
+<p><a data-type="indexterm" data-primary="$EDITOR" id="idp22654768"/><a data-type="indexterm" data-primary="$VISUAL" data-secondary="see $EDITOR" id="idp22655696"/>
+By default, Git uses whatever you’ve set as your default text editor (<code>$VISUAL</code> or <code>$EDITOR</code>) or else falls back to the <code>vi</code> editor to create and edit your commit and tag messages.
+To change that default to something else, you can use the <code>core.editor</code> setting:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global core.editor emacs</pre>
+
+<p>Now, no matter what is set as your default shell editor, Git will fire up Emacs to edit messages.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="commit.template" id="idp24940000">
+<h3><code>commit.template</code></h3>
+
+<p><a data-type="indexterm" data-primary="commit templates" id="idp24941408"/>
+If you set this to the path of a file on your system, Git will use that file as the default message when you commit.
+For instance, suppose you create a template file at <code>~/.gitmessage.txt</code> that looks like this:</p>
+
+<pre data-type="programlisting">subject line
+
+what happened
+
+[ticket: X]</pre>
+
+<p>To tell Git to use it as the default message that appears in your editor when you run <code>git commit</code>, set the <code>commit.template</code> configuration value:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global commit.template ~/.gitmessage.txt
+<code class="gp">$</code> git commit</pre>
+
+<p>Then, your editor will open to something like this for your placeholder commit message when you commit:</p>
+
+<pre data-type="programlisting">subject line
+
+what happened
+
+[ticket: X]
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#   (use "git reset HEAD &lt;file&gt;..." to unstage)
+#
+# modified:   lib/test.rb
+#
+~
+~
+".git/COMMIT_EDITMSG" 14L, 297C</pre>
+
+<p>If your team has a commit-message policy, then putting a template for that policy on your system and configuring Git to use it by default can help increase the chance of that policy being followed regularly.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="core.pager" id="idp24864752">
+<h3><code>core.pager</code></h3>
+
+<p><a data-type="indexterm" data-primary="pager" id="idp24865904"/>
+This setting determines which pager is used when Git pages output such as <code>log</code> and <code>diff</code>.
+You can set it to <code>more</code> or to your favorite pager (by default, it’s <code>less</code>), or you can turn it off by setting it to a blank string:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global core.pager <code class="s1">''</code></pre>
+
+<p>If you run that, Git will page the entire output of all commands, no matter how long they are.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="user.signingkey" id="idp24909664">
+<h3><code>user.signingkey</code></h3>
+
+<p><a data-type="indexterm" data-primary="GPG" id="idp24911104"/>
+If you’re making signed annotated tags (as discussed in <a data-type="xref" href="ch07.html#_signing">“Signing Your Work”</a>), setting your GPG signing key as a configuration setting makes things easier.
+Set your key ID like so:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global user.signingkey &lt;gpg-key-id&gt;</pre>
+
+<p>Now, you can sign tags without having to specify your key every time with the <code>git tag</code> command:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git tag -s &lt;tag-name&gt;</pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="core.excludesfile" id="idp24917056">
+<h3><code>core.excludesfile</code></h3>
+
+<p><a data-type="indexterm" data-primary="excludes" id="idp25040560"/><a data-type="indexterm" data-primary=".gitignore" id="idp25041264"/>
+You can put patterns in your project’s <code>.gitignore</code> file to have Git not see them as untracked files or try to stage them when you run <code>git add</code> on them, as discussed in <a data-type="xref" href="ch02.html#_ignoring">“Ignoring Files”</a>.</p>
+
+<p>But sometimes you want to ignore certain files for all repositories that you work with.
+If your computer is running Mac OS X, you’re probably familiar with <code>.DS_Store</code> files.
+If your preferred editor is Emacs or Vim, you know about files that end with a <code>~</code>.</p>
+
+<p>This setting lets you write a kind of global <code>.gitignore</code> file.
+If you create a <code>~/.gitignore_global</code> file with these contents:</p>
+
+<pre data-type="programlisting">*~
+.DS_Store</pre>
+
+<p>…and you run <code>git config --global core.excludesfile ~/.gitignore_global</code>, Git will never again bother you about those files.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="help.autocorrect" id="idp24799904">
+<h3><code>help.autocorrect</code></h3>
+
+<p><a data-type="indexterm" data-primary="autocorrect" id="idp24801440"/>
+If you mistype a command, it shows you something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git chekcout master
+<code class="go">git: 'chekcout' is not a git command. See 'git --help'.</code>
+
+<code class="go">Did you mean this?</code>
+<code class="go">    checkout</code></pre>
+
+<p>Git helpfully tries to figure out what you meant, but it still refuses to do it.
+If you set <code>help.autocorrect</code> to 1, Git will actually run this command for you:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git chekcout master
+<code class="go">WARNING: You called a Git command named 'chekcout', which does not exist.</code>
+<code class="go">Continuing under the assumption that you meant 'checkout'</code>
+<code class="go">in 0.1 seconds automatically...</code></pre>
+
+<p>Note that “0.1 seconds” business. <code>help.autocorrect</code> is actually an integer which represents tenths of a second.
+So if you set it to 50, Git will give you 5 seconds to change your mind before executing the autocorrected command.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Colors in Git" id="idp24828128">
+<h2>Colors in Git</h2>
+
+<p><a data-type="indexterm" data-primary="color" id="idp24771456"/>
+Git fully supports colored terminal output, which greatly aids in visually parsing command output quickly and easily.
+A number of options can help you set the coloring to your preference.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="color.ui" id="idp24772624">
+<h3><code>color.ui</code></h3>
+
+<p>Git automatically colors most of its output, but there’s a master switch if you don’t like this behavior.
+To turn off all Git’s colored terminal output, do this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global color.ui <code class="nb">false</code></pre>
+
+<p>The default setting is <code>auto</code>, which colors output when it’s going straight to a terminal, but omits the color-control codes when the output is redirected to a pipe or a file.</p>
+
+<p>You can also set it to <code>always</code> to ignore the difference between terminals and pipes.
+You’ll rarely want this; in most scenarios, if you want color codes in your redirected output, you can instead pass a <code>--color</code> flag to the Git command to force it to use color codes.
+The default setting is almost always what you’ll want.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="color.*" id="idp24997808">
+<h3><code>color.*</code></h3>
+
+<p>If you want to be more specific about which commands are colored and how, Git provides verb-specific coloring settings.
+Each of these can be set to <code>true</code>, <code>false</code>, or <code>always</code>:</p>
+<pre>color.branch
+color.diff
+color.interactive
+color.status</pre>
+
+<p>In addition, each of these has subsettings you can use to set specific colors for parts of the output, if you want to override each color.
+For example, to set the meta information in your diff output to blue foreground, black background, and bold text, you can run</p>
+<pre>$ git config --global color.diff.meta "blue black bold"</pre>
+
+<p>You can set the color to any of the following values: <code>normal</code>, <code>black</code>, <code>red</code>, <code>green</code>, <code>yellow</code>, <code>blue</code>, <code>magenta</code>, <code>cyan</code>, or <code>white</code>.
+If you want an attribute like bold in the previous example, you can choose from <code>bold</code>, <code>dim</code>, <code>ul</code> (underline), <code>blink</code>, and <code>reverse</code> (swap foreground and background).</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="External Merge and Diff Tools" id="_external_merge_tools">
+<h2>External Merge and Diff Tools</h2>
+
+<p><a data-type="indexterm" data-primary="mergetool" id="idp24972128"/><a data-type="indexterm" data-primary="difftool" id="idp24972720"/>
+Although Git has an internal implementation of diff, which is what we’ve been showing in this book, you can set up an external tool instead.
+You can also set up a graphical merge-conflict-resolution tool instead of having to resolve conflicts manually.
+We’ll demonstrate setting up the Perforce Visual Merge Tool (P4Merge) to do your diffs and merge resolutions, because it’s a nice graphical tool and it’s free.</p>
+
+<p>If you want to try this out, P4Merge works on all major platforms, so you should be able to do so.
+We’ll use path names in the examples that work on Mac and Linux systems; for Windows, you’ll have to change <code>/usr/local/bin</code> to an executable path in your environment.</p>
+
+<p>To begin, download P4Merge from <a href="http://www.perforce.com/downloads/Perforce/"><em class="hyperlink">http://www.perforce.com/downloads/Perforce/</em></a>.
+Next, you’ll set up external wrapper scripts to run your commands.
+We’ll use the Mac path for the executable; in other systems, it will be where your <code>p4merge</code> binary is installed.
+Set up a merge wrapper script named <code>extMerge</code> that calls your binary with all the arguments provided:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat /usr/local/bin/extMerge
+<code class="gp">#</code>!/bin/sh
+<code class="go">/Applications/p4merge.app/Contents/MacOS/p4merge $*</code></pre>
+
+<p>The diff wrapper checks to make sure seven arguments are provided and passes two of them to your merge script.
+By default, Git passes the following arguments to the diff program:</p>
+
+<pre data-type="programlisting">path old-file old-hex old-mode new-file new-hex new-mode</pre>
+
+<p>Because you only want the <code>old-file</code> and <code>new-file</code> arguments, you use the wrapper script to pass the ones you need.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat /usr/local/bin/extDiff
+<code class="gp">#</code>!/bin/sh
+<code class="go">[ $# -eq 7 ] &amp;&amp; /usr/local/bin/extMerge "$2" "$5"</code></pre>
+
+<p>You also need to make sure these tools are executable:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> sudo chmod +x /usr/local/bin/extMerge
+<code class="gp">$</code> sudo chmod +x /usr/local/bin/extDiff</pre>
+
+<p>Now you can set up your config file to use your custom merge resolution and diff tools.
+This takes a number of custom settings: <code>merge.tool</code> to tell Git what strategy to use, <code>mergetool.&lt;tool&gt;.cmd</code> to specify how to run the command, <code>mergetool.&lt;tool&gt;.trustExitCode</code> to tell Git if the exit code of that program indicates a successful merge resolution or not, and <code>diff.external</code> to tell Git what command to run for diffs.
+So, you can either run four config commands</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global merge.tool extMerge
+<code class="gp">$</code> git config --global mergetool.extMerge.cmd <code class="se">\</code>
+<code class="go">  'extMerge \"$BASE\" \"$LOCAL\" \"$REMOTE\" \"$MERGED\"'</code>
+<code class="gp">$</code> git config --global mergetool.extMerge.trustExitCode <code class="nb">false</code>
+<code class="gp">$</code><code class="nb"> </code>git config --global diff.external extDiff</pre>
+
+<p>or you can edit your <code>~/.gitconfig</code> file to add these lines:</p>
+
+<pre data-type="programlisting" data-code-language="ini"><code class="k">[merge]</code>
+  <code class="na">tool</code> <code class="o">=</code> <code class="s">extMerge</code>
+<code class="k">[mergetool "extMerge"]</code>
+  <code class="na">cmd</code> <code class="o">=</code> <code class="s">extMerge "$BASE" "$LOCAL" "$REMOTE" "$MERGED"</code>
+<code class="s">  trustExitCode = false</code>
+<code class="k">[diff]</code>
+  <code class="na">external</code> <code class="o">=</code> <code class="s">extDiff</code></pre>
+
+<p>After all this is set, if you run diff commands such as this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git diff 32d1776b1^ 32d1776b1</pre>
+
+<p>Instead of getting the diff output on the command line, Git fires up P4Merge, which looks something like this:</p>
+
+<figure><div class="border-box"><img src="book/08-customizing-git/images/p4merge.png" alt="P4Merge."/></div><figcaption>P4Merge.</figcaption></figure>
+
+<p>If you try to merge two branches and subsequently have merge conflicts, you can run the command <code>git mergetool</code>; it starts P4Merge to let you resolve the conflicts through that GUI tool.</p>
+
+<p>The nice thing about this wrapper setup is that you can change your diff and merge tools easily.
+For example, to change your <code>extDiff</code> and <code>extMerge</code> tools to run the KDiff3 tool instead, all you have to do is edit your <code>extMerge</code> file:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat /usr/local/bin/extMerge
+<code class="gp">#</code>!/bin/sh
+<code class="go">/Applications/kdiff3.app/Contents/MacOS/kdiff3 $*</code></pre>
+
+<p>Now, Git will use the KDiff3 tool for diff viewing and merge conflict resolution.</p>
+
+<p>Git comes preset to use a number of other merge-resolution tools without your having to set up the cmd configuration.
+To see a list of the tools it supports, try this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git mergetool --tool-help
+<code class="go">'git mergetool --tool=&lt;tool&gt;' may be set to one of the following:</code>
+<code class="go">        emerge</code>
+<code class="go">        gvimdiff</code>
+<code class="go">        gvimdiff2</code>
+<code class="go">        opendiff</code>
+<code class="go">        p4merge</code>
+<code class="go">        vimdiff</code>
+<code class="go">        vimdiff2</code>
+
+<code class="go">The following tools are valid, but not currently available:</code>
+<code class="go">        araxis</code>
+<code class="go">        bc3</code>
+<code class="go">        codecompare</code>
+<code class="go">        deltawalker</code>
+<code class="go">        diffmerge</code>
+<code class="go">        diffuse</code>
+<code class="go">        ecmerge</code>
+<code class="go">        kdiff3</code>
+<code class="go">        meld</code>
+<code class="go">        tkdiff</code>
+<code class="go">        tortoisemerge</code>
+<code class="go">        xxdiff</code>
+
+<code class="go">Some of the tools listed above only work in a windowed</code>
+<code class="go">environment. If run in a terminal-only session, they will fail.</code></pre>
+
+<p>If you’re not interested in using KDiff3 for diff but rather want to use it just for merge resolution, and the kdiff3 command is in your path, then you can run</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global merge.tool kdiff3</pre>
+
+<p>If you run this instead of setting up the <code>extMerge</code> and <code>extDiff</code> files, Git will use KDiff3 for merge resolution and the normal Git diff tool for diffs.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Formatting and Whitespace" id="idp24970864">
+<h2>Formatting and Whitespace</h2>
+
+<p><a data-type="indexterm" data-primary="whitespace" id="idp25244176"/>
+Formatting and whitespace issues are some of the more frustrating and subtle problems that many developers encounter when collaborating, especially cross-platform.
+It’s very easy for patches or other collaborated work to introduce subtle whitespace changes because editors silently introduce them, and if your files ever touch a Windows system, their line endings might be replaced.
+Git has a few configuration options to help with these issues.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="core.autocrlf" id="idp25245600">
+<h3><code>core.autocrlf</code></h3>
+
+<p><a data-type="indexterm" data-primary="crlf" id="idp25247168"/><a data-type="indexterm" data-primary="line endings" id="idp25247904"/>
+If you’re programming on Windows and working with people who are not (or vice-versa), you’ll probably run into line-ending issues at some point.
+This is because Windows uses both a carriage-return character and a linefeed character for newlines in its files, whereas Mac and Linux systems use only the linefeed character.
+This is a subtle but incredibly annoying fact of cross-platform work; many editors on Windows silently replace existing LF-style line endings with CRLF, or insert both line-ending characters when the user hits the enter key.</p>
+
+<p>Git can handle this by auto-converting CRLF line endings into LF when you add a file to the index, and vice versa when it checks out code onto your filesystem.
+You can turn on this functionality with the <code>core.autocrlf</code> setting.
+If you’re on a Windows machine, set it to <code>true</code> – this converts LF endings into CRLF when you check out code:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global core.autocrlf <code class="nb">true</code></pre>
+
+<p>If you’re on a Linux or Mac system that uses LF line endings, then you don’t want Git to automatically convert them when you check out files; however, if a file with CRLF endings accidentally gets introduced, then you may want Git to fix it.
+You can tell Git to convert CRLF to LF on commit but not the other way around by setting <code>core.autocrlf</code> to input:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global core.autocrlf input</pre>
+
+<p>This setup should leave you with CRLF endings in Windows checkouts, but LF endings on Mac and Linux systems and in the repository.</p>
+
+<p>If you’re a Windows programmer doing a Windows-only project, then you can turn off this functionality, recording the carriage returns in the repository by setting the config value to <code>false</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global core.autocrlf <code class="nb">false</code></pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="core.whitespace" id="idp25259536">
+<h3><code>core.whitespace</code></h3>
+
+<p>Git comes preset to detect and fix some whitespace issues.
+It can look for six primary whitespace issues – three are enabled by default and can be turned off, and three are disabled by default but can be activated.</p>
+
+<p>The ones that are turned on by default are <code>blank-at-eol</code>, which looks for spaces at the end of a line; <code>blank-at-eof</code>, which notices blank lines at the end of a file; and <code>space-before-tab</code>, which looks for spaces before tabs at the beginning of a line.</p>
+
+<p>The three that are disabled by default but can be turned on are <code>indent-with-non-tab</code>, which looks for lines that begin with spaces instead of tabs (and is controlled by the <code>tabwidth</code> option); <code>tab-in-indent</code>, which watches for tabs in the indentation portion of a line; and <code>cr-at-eol</code>, which tells Git that carriage returns at the end of lines are OK.</p>
+
+<p>You can tell Git which of these you want enabled by setting <code>core.whitespace</code> to the values you want on or off, separated by commas.
+You can disable settings by either leaving them out of the setting string or prepending a <code>-</code> in front of the value.
+For example, if you want all but <code>cr-at-eol</code> to be set, you can do this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global core.whitespace <code class="se">\</code>
+<code class="go">    trailing-space,space-before-tab,indent-with-non-tab</code></pre>
+
+<p>Git will detect these issues when you run a <code>git diff</code> command and try to color them so you can possibly fix them before you commit.
+It will also use these values to help you when you apply patches with <code>git apply</code>.
+When you’re applying patches, you can ask Git to warn you if it’s applying patches with the specified whitespace issues:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git apply --whitespace<code class="o">=</code>warn &lt;patch&gt;</pre>
+
+<p>Or you can have Git try to automatically fix the issue before applying the patch:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git apply --whitespace<code class="o">=</code>fix &lt;patch&gt;</pre>
+
+<p>These options apply to the <code>git rebase</code> command as well.
+If you’ve committed whitespace issues but haven’t yet pushed upstream, you can run <code>git rebase --whitespace=fix</code> to have Git automatically fix whitespace issues as it’s rewriting the patches.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Server Configuration" id="idp25465616">
+<h2>Server Configuration</h2>
+
+<p>Not nearly as many configuration options are available for the server side of Git, but there are a few interesting ones you may want to take note of.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="receive.fsckObjects" id="idp25467344">
+<h3><code>receive.fsckObjects</code></h3>
+
+<p>Git is capable of making sure every object received during a push still matches its SHA-1 checksum and points to valid objects.
+However, it doesn’t do this by default; it’s a fairly expensive operation, and might slow down the operation, especially on large repositories or pushes.
+If you want Git to check object consistency on every push, you can force it to do so by setting <code>receive.fsckObjects</code> to true:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --system receive.fsckObjects <code class="nb">true</code></pre>
+
+<p>Now, Git will check the integrity of your repository before each push is accepted to make sure faulty (or malicious) clients aren’t introducing corrupt data.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="receive.denyNonFastForwards" id="idp25461792">
+<h3><code>receive.denyNonFastForwards</code></h3>
+
+<p>If you rebase commits that you’ve already pushed and then try to push again, or otherwise try to push a commit to a remote branch that doesn’t contain the commit that the remote branch currently points to, you’ll be denied.
+This is generally good policy; but in the case of the rebase, you may determine that you know what you’re doing and can force-update the remote branch with a <code>-f</code> flag to your push command.</p>
+
+<p>To tell Git to refuse force-pushes, set <code>receive.denyNonFastForwards</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --system receive.denyNonFastForwards <code class="nb">true</code></pre>
+
+<p>The other way you can do this is via server-side receive hooks, which we’ll cover in a bit.
+That approach lets you do more complex things like deny non-fast-forwards to a certain subset of users.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="receive.denyDeletes" id="idp25587616">
+<h3><code>receive.denyDeletes</code></h3>
+
+<p>One of the workarounds to the <code>denyNonFastForwards</code> policy is for the user to delete the branch and then push it back up with the new reference.
+To avoid this, set <code>receive.denyDeletes</code> to true:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --system receive.denyDeletes <code class="nb">true</code></pre>
+
+<p>This denies any deletion of branches or tags – no user can do it.
+To remove remote branches, you must remove the ref files from the server manually.
+There are also more interesting ways to do this on a per-user basis via ACLs, as you’ll learn in <a data-type="xref" href="#_an_example_git_enforced_policy">“An Example Git-Enforced Policy”</a>.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git Attributes" id="idp24759440">
+<h1>Git Attributes</h1>
+
+<p><a data-type="indexterm" data-primary="attributes" id="idp25511952"/>
+Some of these settings can also be specified for a path, so that Git applies those settings only for a subdirectory or subset of files.
+These path-specific settings are called Git attributes and are set either in a <code>.gitattributes</code> file in one of your directories (normally the root of your project) or in the <code>.git/info/attributes</code> file if you don’t want the attributes file committed with your project.</p>
+
+<p>Using attributes, you can do things like specify separate merge strategies for individual files or directories in your project, tell Git how to diff non-text files, or have Git filter content before you check it into or out of Git.
+In this section, you’ll learn about some of the attributes you can set on your paths in your Git project and see a few examples of using this feature in practice.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Binary Files" id="idp25514816">
+<h2>Binary Files</h2>
+
+<p><a data-type="indexterm" data-primary="binary files" id="idp25516016"/>
+One cool trick for which you can use Git attributes is telling Git which files are binary (in cases it otherwise may not be able to figure out) and giving Git special instructions about how to handle those files.
+For instance, some text files may be machine generated and not diffable, whereas some binary files can be diffed.
+You’ll see how to tell Git which is which.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Identifying Binary Files" id="idp25560608">
+<h3>Identifying Binary Files</h3>
+
+<p>Some files look like text files but for all intents and purposes are to be treated as binary data.
+For instance, Xcode projects on the Mac contain a file that ends in <code>.pbxproj</code>, which is basically a JSON (plain-text Javascript data format) dataset written out to disk by the IDE, which records your build settings and so on.
+Although it’s technically a text file (because it’s all UTF-8), you don’t want to treat it as such because it’s really a lightweight database – you can’t merge the contents if two people change it, and diffs generally aren’t helpful.
+The file is meant to be consumed by a machine.
+In essence, you want to treat it like a binary file.</p>
+
+<p>To tell Git to treat all <code>pbxproj</code> files as binary data, add the following line to your <code>.gitattributes</code> file:</p>
+
+<pre data-type="programlisting">*.pbxproj binary</pre>
+
+<p>Now, Git won’t try to convert or fix CRLF issues; nor will it try to compute or print a diff for changes in this file when you run <code>git show</code> or <code>git diff</code> on your project.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Diffing Binary Files" id="idp25566768">
+<h3>Diffing Binary Files</h3>
+
+<p>You can also use the Git attributes functionality to effectively diff binary files.
+You do this by telling Git how to convert your binary data to a text format that can be compared via the normal diff.</p>
+
+<p>First, you’ll use this technique to solve one of the most annoying problems known to humanity: version-controlling Microsoft Word documents.
+Everyone knows that Word is the most horrific editor around, but oddly, everyone still uses it.
+If you want to version-control Word documents, you can stick them in a Git repository and commit every once in a while; but what good does that do?
+If you run <code>git diff</code> normally, you only see something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git diff
+<code class="go">diff --git a/chapter1.docx b/chapter1.docx</code>
+<code class="go">index 88839c4..4afcb7c 100644</code>
+<code class="go">Binary files a/chapter1.docx and b/chapter1.docx differ</code></pre>
+
+<p>You can’t directly compare two versions unless you check them out and scan them manually, right?
+It turns out you can do this fairly well using Git attributes.
+Put the following line in your <code>.gitattributes</code> file:</p>
+
+<pre data-type="programlisting">*.docx diff=word</pre>
+
+<p>This tells Git that any file that matches this pattern (<code>.docx</code>) should use the “word” filter when you try to view a diff that contains changes.
+What is the “word” filter?
+You have to set it up.
+Here you’ll configure Git to use the <code>docx2txt</code> program to convert Word documents into readable text files, which it will then diff properly.</p>
+
+<p>First, you’ll need to install <code>docx2txt</code>; you can download it from <a href="http://docx2txt.sourceforge.net"><em class="hyperlink">http://docx2txt.sourceforge.net</em></a>. Follow the instructions in the <code>INSTALL</code> file to put it somewhere your shell can find it.
+Next, you’ll write a wrapper script to convert output to the format Git expects.
+Create a file that’s somewhere in your path called <code>docx2txt</code>, and add these contents:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">#</code>!/bin/bash
+<code class="go">docx2txt.pl $1 -</code></pre>
+
+<p>Don’t forget to <code>chmod a+x</code> that file.
+Finally, you can configure Git to use this script:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config diff.word.textconv docx2txt</pre>
+
+<p>Now Git knows that if it tries to do a diff between two snapshots, and any of the files end in <code>.docx</code>, it should run those files through the “word” filter, which is defined as the <code>docx2txt</code> program.
+This effectively makes nice text-based versions of your Word files before attempting to diff them.</p>
+
+<p>Here’s an example: Chapter 1 of this book was converted to Word format and committed in a Git repository.
+Then a new paragraph was added.
+Here’s what <code>git diff</code> shows:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git diff
+<code class="go">diff --git a/chapter1.docx b/chapter1.docx</code>
+<code class="go">index 0b013ca..ba25db5 100644</code>
+<code class="go">--- a/chapter1.docx</code>
+<code class="go">+++ b/chapter1.docx</code>
+<code class="go">@@ -2,6 +2,7 @@</code>
+<code class="go"> This chapter will be about getting started with Git. We will begin at the beginning by explaining some background on version control tools, then move on to how to get Git running on your system and finally how to get it setup to start working with. At the end of this chapter you should understand why Git is around, why you should use it and you should be all setup to do so.</code>
+<code class="go"> 1.1. About Version Control</code>
+<code class="go"> What is "version control", and why should you care? Version control is a system that records changes to a file or set of files over time so that you can recall specific versions later. For the examples in this book you will use software source code as the files being version controlled, though in reality you can do this with nearly any type of file on a computer.</code>
+<code class="go">+Testing: 1, 2, 3.</code>
+<code class="go"> If you are a graphic or web designer and want to keep every version of an image or layout (which you would most certainly want to), a Version Control System (VCS) is a very wise thing to use. It allows you to revert files back to a previous state, revert the entire project back to a previous state, compare changes over time, see who last modified something that might be causing a problem, who introduced an issue and when, and more. Using a VCS also generally means that if you screw things up or lose files, you can easily recover. In addition, you get all this for very little overhead.</code>
+<code class="go"> 1.1.1. Local Version Control Systems</code>
+<code class="go"> Many people's version-control method of choice is to copy files into another directory (perhaps a time-stamped directory, if they're clever). This approach is very common because it is so simple, but it is also incredibly error prone. It is easy to forget which directory you're in and accidentally write to the wrong file or copy over files you don't mean to.</code></pre>
+
+<p>Git successfully and succinctly tells us that we added the string “Testing: 1, 2, 3.”, which is correct.
+It’s not perfect – formatting changes wouldn’t show up here – but it certainly works.</p>
+
+<p>Another interesting problem you can solve this way involves diffing image files.
+One way to do this is to run image files through a filter that extracts their EXIF information – metadata that is recorded with most image formats.
+If you download and install the <code>exiftool</code> program, you can use it to convert your images into text about the metadata, so at least the diff will show you a textual representation of any changes that happened:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">echo</code> <code class="s1">'*.png diff=exif'</code> &gt;&gt; .gitattributes
+<code class="gp">$</code> git config diff.exif.textconv exiftool</pre>
+
+<p>If you replace an image in your project and run <code>git diff</code>, you see something like this:</p>
+
+<pre data-type="programlisting">diff --git a/image.png b/image.png
+index 88839c4..4afcb7c 100644
+--- a/image.png
++++ b/image.png
+@@ -1,12 +1,12 @@
+ ExifTool Version Number         : 7.74
+-File Size                       : 70 kB
+-File Modification Date/Time     : 2009:04:21 07:02:45-07:00
++File Size                       : 94 kB
++File Modification Date/Time     : 2009:04:21 07:02:43-07:00
+ File Type                       : PNG
+ MIME Type                       : image/png
+-Image Width                     : 1058
+-Image Height                    : 889
++Image Width                     : 1056
++Image Height                    : 827
+ Bit Depth                       : 8
+ Color Type                      : RGB with Alpha</pre>
+
+<p>You can easily see that the file size and image dimensions have both changed.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Keyword Expansion" id="_keyword_expansion">
+<h2>Keyword Expansion</h2>
+
+<p><a data-type="indexterm" data-primary="keyword expansion" id="idp25336864"/>
+SVN- or CVS-style keyword expansion is often requested by developers used to those systems.
+The main problem with this in Git is that you can’t modify a file with information about the commit after you’ve committed, because Git checksums the file first.
+However, you can inject text into a file when it’s checked out and remove it again before it’s added to a commit.
+Git attributes offers you two ways to do this.</p>
+
+<p>First, you can inject the SHA-1 checksum of a blob into an <code>$Id$</code> field in the file automatically.
+If you set this attribute on a file or set of files, then the next time you check out that branch, Git will replace that field with the SHA-1 of the blob.
+It’s important to notice that it isn’t the SHA-1 of the commit, but of the blob itself:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">echo</code> <code class="s1">'*.txt ident'</code> &gt;&gt; .gitattributes
+<code class="gp">$</code> <code class="nb">echo</code> <code class="s1">'$Id$'</code> &gt; test.txt</pre>
+
+<p>The next time you check out this file, Git injects the SHA-1 of the blob:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> rm test.txt
+<code class="gp">$</code> git checkout -- test.txt
+<code class="gp">$</code> cat test.txt
+<code class="gp">$</code>Id: 42812b7653c7b88933f8a9d6cad0ca16714b9bb3 <code class="err">$</code></pre>
+
+<p>However, that result is of limited use.
+If you’ve used keyword substitution in CVS or Subversion, you can include a datestamp – the SHA-1 isn’t all that helpful, because it’s fairly random and you can’t tell if one SHA-1 is older or newer than another just by looking at them.</p>
+
+<p>It turns out that you can write your own filters for doing substitutions in files on commit/checkout.
+These are called “clean” and “smudge” filters.
+In the <code>.gitattributes</code> file, you can set a filter for particular paths and then set up scripts that will process files just before they’re checked out (“smudge”, see <a data-type="xref" href="#filters_a">Figure 8-2</a>) and just before they’re staged (“clean”, see <a data-type="xref" href="#filters_b">Figure 8-3</a>).
+These filters can be set to do all sorts of fun things.</p>
+
+<figure id="filters_a"><div class="border-box"><img src="book/08-customizing-git/images/smudge.png" alt="The ``smudge'' filter is run on checkout."/></div><figcaption>The “smudge” filter is run on checkout.</figcaption></figure>
+
+<figure id="filters_b"><div class="border-box"><img src="book/08-customizing-git/images/clean.png" alt="The ``clean'' filter is run when files are staged."/></div><figcaption>The “clean” filter is run when files are staged.</figcaption></figure>
+
+<p>The original commit message for this feature gives a simple example of running all your C source code through the <code>indent</code> program before committing.
+You can set it up by setting the filter attribute in your <code>.gitattributes</code> file to filter <code>*.c</code> files with the “indent” filter:</p>
+
+<pre data-type="programlisting">*.c filter=indent</pre>
+
+<p>Then, tell Git what the “indent” filter does on smudge and clean:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global filter.indent.clean indent
+<code class="gp">$</code> git config --global filter.indent.smudge cat</pre>
+
+<p>In this case, when you commit files that match <code>*.c</code>, Git will run them through the indent program before it stages them and then run them through the <code>cat</code> program before it checks them back out onto disk.
+The <code>cat</code> program does essentially nothing: it spits out the same data that it comes in.
+This combination effectively filters all C source code files through <code>indent</code> before committing.</p>
+
+<p>Another interesting example gets <code>$Date$</code> keyword expansion, RCS style.
+To do this properly, you need a small script that takes a filename, figures out the last commit date for this project, and inserts the date into the file.
+Here is a small Ruby script that does that:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="c1">#! /usr/bin/env ruby</code>
+<code class="n">data</code> <code class="o">=</code> <code class="no">STDIN</code><code class="o">.</code><code class="n">read</code>
+<code class="n">last_date</code> <code class="o">=</code> <code class="sb">`git log --pretty=format:"%ad" -1`</code>
+<code class="nb">puts</code> <code class="n">data</code><code class="o">.</code><code class="n">gsub</code><code class="p">(</code><code class="s1">'$Date$'</code><code class="p">,</code> <code class="s1">'$Date: '</code> <code class="o">+</code> <code class="n">last_date</code><code class="o">.</code><code class="n">to_s</code> <code class="o">+</code> <code class="s1">'$'</code><code class="p">)</code></pre>
+
+<p>All the script does is get the latest commit date from the <code>git log</code> command, stick that into any <code>$Date$</code> strings it sees in stdin, and print the results – it should be simple to do in whatever language you’re most comfortable in.
+You can name this file <code>expand_date</code> and put it in your path.
+Now, you need to set up a filter in Git (call it <code>dater</code>) and tell it to use your <code>expand_date</code> filter to smudge the files on checkout.
+You’ll use a Perl expression to clean that up on commit:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config filter.dater.smudge expand_date
+<code class="gp">$</code> git config filter.dater.clean <code class="s1">'perl -pe "s/\\\$Date[^\\\$]*\\\$/\\\$Date\\\$/"'</code></pre>
+
+<p>This Perl snippet strips out anything it sees in a <code>$Date$</code> string, to get back to where you started.
+Now that your filter is ready, you can test it by setting up a file with your <code>$Date$</code> keyword and then setting up a Git attribute for that file that engages the new filter:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">echo</code> <code class="s1">'# $Date$'</code> &gt; date_test.txt
+<code class="gp">$</code> <code class="nb">echo</code> <code class="s1">'date*.txt filter=dater'</code> &gt;&gt; .gitattributes</pre>
+
+<p>If you commit those changes and check out the file again, you see the keyword properly substituted:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git add date_test.txt .gitattributes
+<code class="gp">$</code> git commit -m <code class="s2">"Testing date expansion in Git"</code>
+<code class="gp">$</code> rm date_test.txt
+<code class="gp">$</code> git checkout date_test.txt
+<code class="gp">$</code> cat date_test.txt
+<code class="gp">#</code> <code class="nv">$Date</code>: Tue Apr <code class="m">21</code> 07:26:52 <code class="m">2009</code> -0700<code class="err">$</code></pre>
+
+<p>You can see how powerful this technique can be for customized applications.
+You have to be careful, though, because the <code>.gitattributes</code> file is committed and passed around with the project, but the driver (in this case, <code>dater</code>) isn’t, so it won’t work everywhere.
+When you design these filters, they should be able to fail gracefully and have the project still work properly.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Exporting Your Repository" id="idp25336016">
+<h2>Exporting Your Repository</h2>
+
+<p><a data-type="indexterm" data-primary="archiving" id="idp25752032"/>
+Git attribute data also allows you to do some interesting things when exporting an archive of your project.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="export-ignore" id="idp25886240">
+<h3><code>export-ignore</code></h3>
+
+<p>You can tell Git not to export certain files or directories when generating an archive.
+If there is a subdirectory or file that you don’t want to include in your archive file but that you do want checked into your project, you can determine those files via the <code>export-ignore</code> attribute.</p>
+
+<p>For example, say you have some test files in a <code>test/</code> subdirectory, and it doesn’t make sense to include them in the tarball export of your project.
+You can add the following line to your Git attributes file:</p>
+
+<pre data-type="programlisting">test/ export-ignore</pre>
+
+<p>Now, when you run git archive to create a tarball of your project, that directory won’t be included in the archive.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="export-subst" id="idp26014560">
+<h3><code>export-subst</code></h3>
+
+<p>When exporting files for deployment you can apply <code>git log</code>’s formatting and keyword-expansion processing to selected portions of files marked with the
+<code>export-subst</code> attribute.</p>
+
+<p>For instance, if you want to include a file named <code>LAST_COMMIT</code> in your project, and have metadata about the last commit automatically injected into it when <code>git archive</code> runs, you can for example set up the file like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">echo</code> <code class="s1">'Last commit date: $Format:%cd by %aN$'</code> &gt; LAST_COMMIT
+<code class="gp">$</code> <code class="nb">echo</code> <code class="s2">"LAST_COMMIT export-subst"</code> &gt;&gt; .gitattributes
+<code class="gp">$</code> git add LAST_COMMIT .gitattributes
+<code class="gp">$</code> git commit -am <code class="s1">'adding LAST_COMMIT file for archives'</code></pre>
+
+<p>When you run <code>git archive</code>, the contents of the archived file will look like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git archive HEAD <code class="p">|</code> tar xCf ../deployment-testing -
+<code class="gp">$</code> cat ../deployment-testing/LAST_COMMIT
+<code class="go">Last commit date: Tue Apr 21 08:38:48 2009 -0700 by Scott Chacon</code></pre>
+
+<p>The substitutions can include for example the commit message and any git notes, and git log can do simple word wrapping:</p>
+
+<pre data-type="programlisting" class="console">$ echo '$Format:Last commit: %h by %aN at %cd%n%+w(76,6,9)%B$' &gt; LAST_COMMIT
+$ git commit -am 'export-subst uses git log's custom formatter
+
+git archive uses git log's `pretty=format:` processor
+directly, and strips the surrounding `$Format:` and `$`
+markup from the output.
+'
+$ git archive @ | tar xfO - LAST_COMMIT
+Last commit: 312ccc8 by Jim Hill at Fri May 8 09:14:04 2015 -0700
+       export-subst uses git log's custom formatter
+
+         git archive uses git log's `pretty=format:` processor directly, and
+         strips the surrounding `$Format:` and `$` markup from the output.</pre>
+
+<p>The resulting archive is suitable for deployment work, but like any exported archive it isn’t suitable for further development work.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Merge Strategies" id="idp26035632">
+<h2>Merge Strategies</h2>
+
+<p><a data-type="indexterm" data-primary="merging" data-secondary="strategies" id="idp26037008"/>
+You can also use Git attributes to tell Git to use different merge strategies for specific files in your project.
+One very useful option is to tell Git to not try to merge specific files when they have conflicts, but rather to use your side of the merge over someone else’s.</p>
+
+<p>This is helpful if a branch in your project has diverged or is specialized, but you want to be able to merge changes back in from it, and you want to ignore certain files.
+Say you have a database settings file called <code>database.xml</code> that is different in two branches, and you want to merge in your other branch without messing up the database file.
+You can set up an attribute like this:</p>
+
+<pre data-type="programlisting">database.xml merge=ours</pre>
+
+<p>And then define a dummy <code>ours</code> merge strategy with:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global merge.ours.driver <code class="nb">true</code></pre>
+
+<p>If you merge in the other branch, instead of having merge conflicts with the <code>database.xml</code> file, you see something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git merge topic
+<code class="go">Auto-merging database.xml</code>
+<code class="go">Merge made by recursive.</code></pre>
+
+<p>In this case, <code>database.xml</code> stays at whatever version you originally had.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git Hooks" id="_git_hooks">
+<h1>Git Hooks</h1>
+
+<p><a data-type="indexterm" data-primary="hooks" id="idp26152048"/>
+Like many other Version Control Systems, Git has a way to fire off custom scripts when certain important actions occur.
+There are two groups of these hooks: client-side and server-side.
+Client-side hooks are triggered by operations such as committing and merging, while server-side hooks run on network operations such as receiving pushed commits.
+You can use these hooks for all sorts of reasons.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Installing a Hook" id="idp26153424">
+<h2>Installing a Hook</h2>
+
+<p>The hooks are all stored in the <code>hooks</code> subdirectory of the Git directory.
+In most projects, that’s <code>.git/hooks</code>.
+When you initialize a new repository with <code>git init</code>, Git populates the hooks directory with a bunch of example scripts, many of which are useful by themselves; but they also document the input values of each script.
+All the examples are written as shell scripts, with some Perl thrown in, but any properly named executable scripts will work fine – you can write them in Ruby or Python or what have you.
+If you want to use the bundled hook scripts, you’ll have to rename them; their file names all end with <code>.sample</code>.</p>
+
+<p>To enable a hook script, put a file in the <code>hooks</code> subdirectory of your Git directory that is named appropriately and is executable.
+From that point forward, it should be called.
+We’ll cover most of the major hook filenames here.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Client-Side Hooks" id="idp26082544">
+<h2>Client-Side Hooks</h2>
+
+<p>There are a lot of client-side hooks.
+This section splits them into committing-workflow hooks, e-mail-workflow scripts, and everything else.</p>
+<div data-type="note">
+<p>It’s important to note that client-side hooks are <strong>not</strong> copied when you clone a repository.
+If your intent with these scripts is to enforce a policy, you’ll probably want to do that on the server side; see the example in <a data-type="xref" href="#_an_example_git_enforced_policy">“An Example Git-Enforced Policy”</a>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Committing-Workflow Hooks" id="idp26061456">
+<h3>Committing-Workflow Hooks</h3>
+
+<p>The first four hooks have to do with the committing process.</p>
+
+<p>The <code>pre-commit</code> hook is run first, before you even type in a commit message.
+It’s used to inspect the snapshot that’s about to be committed, to see if you’ve forgotten something, to make sure tests run, or to examine whatever you need to inspect in the code.
+Exiting non-zero from this hook aborts the commit, although you can bypass it with <code>git commit --no-verify</code>.
+You can do things like check for code style (run <code>lint</code> or something equivalent), check for trailing whitespace (the default hook does exactly this), or check for appropriate documentation on new methods.</p>
+
+<p>The <code>prepare-commit-msg</code> hook is run before the commit message editor is fired up but after the default message is created.
+It lets you edit the default message before the commit author sees it.
+This hook takes a few parameters: the path to the file that holds the commit message so far, the type of commit, and the commit SHA-1 if this is an amended commit.
+This hook generally isn’t useful for normal commits; rather, it’s good for commits where the default message is auto-generated, such as templated commit messages, merge commits, squashed commits, and amended commits.
+You may use it in conjunction with a commit template to programmatically insert information.</p>
+
+<p>The <code>commit-msg</code> hook takes one parameter, which again is the path to a temporary file that contains the commit message written by the developer.
+If this script exits non-zero, Git aborts the commit process, so you can use it to validate your project state or commit message before allowing a commit to go through.
+In the last section of this chapter, We’ll demonstrate using this hook to check that your commit message is conformant to a required pattern.</p>
+
+<p>After the entire commit process is completed, the <code>post-commit</code> hook runs.
+It doesn’t take any parameters, but you can easily get the last commit by running <code>git log -1 HEAD</code>.
+Generally, this script is used for notification or something similar.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="E-mail Workflow Hooks" id="_email_hooks">
+<h3>E-mail Workflow Hooks</h3>
+
+<p>You can set up three client-side hooks for an e-mail-based workflow.
+They’re all invoked by the <code>git am</code> command, so if you aren’t using that command in your workflow, you can safely skip to the next section.
+If you’re taking patches over e-mail prepared by <code>git format-patch</code>, then some of these may be helpful to you.</p>
+
+<p>The first hook that is run is <code>applypatch-msg</code>.
+It takes a single argument: the name of the temporary file that contains the proposed commit message.
+Git aborts the patch if this script exits non-zero.
+You can use this to make sure a commit message is properly formatted, or to normalize the message by having the script edit it in place.</p>
+
+<p>The next hook to run when applying patches via <code>git am</code> is <code>pre-applypatch</code>.
+Somewhat confusingly, it is run <em>after</em> the patch is applied but before a commit is made, so you can use it to inspect the snapshot before making the commit.
+You can run tests or otherwise inspect the working tree with this script.
+If something is missing or the tests don’t pass, exiting non-zero aborts the <code>git am</code> script without committing the patch.</p>
+
+<p>The last hook to run during a <code>git am</code> operation is <code>post-applypatch</code>, which runs after the commit is made.
+You can use it to notify a group or the author of the patch you pulled in that you’ve done so.
+You can’t stop the patching process with this script.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Other Client Hooks" id="_other_client_hooks">
+<h3>Other Client Hooks</h3>
+
+<p>The <code>pre-rebase</code> hook runs before you rebase anything and can halt the process by exiting non-zero.
+You can use this hook to disallow rebasing any commits that have already been pushed.
+The example <code>pre-rebase</code> hook that Git installs does this, although it makes some assumptions that may not match with your workflow.</p>
+
+<p>The <code>post-rewrite</code> hook is run by commands that replace commits, such as <code>git commit --amend</code> and <code>git rebase</code> (though not by <code>git filter-branch</code>).
+Its single argument is which command triggered the rewrite, and it receives a list of rewrites on <code>stdin</code>.
+This hook has many of the same uses as the <code>post-checkout</code> and <code>post-merge</code> hooks.</p>
+
+<p>After you run a successful <code>git checkout</code>, the <code>post-checkout</code> hook runs; you can use it to set up your working directory properly for your project environment.
+This may mean moving in large binary files that you don’t want source controlled, auto-generating documentation, or something along those lines.</p>
+
+<p>The <code>post-merge</code> hook runs after a successful <code>merge</code> command.
+You can use it to restore data in the working tree that Git can’t track, such as permissions data.
+This hook can likewise validate the presence of files external to Git control that you may want copied in when the working tree changes.</p>
+
+<p>The <code>pre-push</code> hook runs during <code>git push</code>, after the remote refs have been updated but before any objects have been transferred.
+It receives the name and location of the remote as parameters, and a list of to-be-updated refs through <code>stdin</code>.
+You can use it to validate a set of ref updates before a push occurs (a non-zero exit code will abort the push).</p>
+
+<p>Git occasionally does garbage collection as part of its normal operation, by invoking <code>git gc --auto</code>.
+The <code>pre-auto-gc</code> hook is invoked just before the garbage collection takes place, and can be used to notify you that this is happening, or to abort the collection if now isn’t a good time.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Server-Side Hooks" id="idp25952400">
+<h2>Server-Side Hooks</h2>
+
+<p>In addition to the client-side hooks, you can use a couple of important server-side hooks as a system administrator to enforce nearly any kind of policy for your project.
+These scripts run before and after pushes to the server.
+The pre hooks can exit non-zero at any time to reject the push as well as print an error message back to the client; you can set up a push policy that’s as complex as you wish.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="pre-receive" id="idp25954512">
+<h3><code>pre-receive</code></h3>
+
+<p>The first script to run when handling a push from a client is <code>pre-receive</code>.
+It takes a list of references that are being pushed from stdin; if it exits non-zero, none of them are accepted.
+You can use this hook to do things like make sure none of the updated references are non-fast-forwards, or to do access control for all the refs and files they’re modifying with the push.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="update" id="idp25956960">
+<h3><code>update</code></h3>
+
+<p>The <code>update</code> script is very similar to the <code>pre-receive</code> script, except that it’s run once for each branch the pusher is trying to update.
+If the pusher is trying to push to multiple branches, <code>pre-receive</code> runs only once, whereas update runs once per branch they’re pushing to.
+Instead of reading from stdin, this script takes three arguments: the name of the reference (branch), the SHA-1 that reference pointed to before the push, and the SHA-1 the user is trying to push.
+If the update script exits non-zero, only that reference is rejected; other references can still be updated.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="post-receive" id="idp25960512">
+<h3><code>post-receive</code></h3>
+
+<p>The <code>post-receive</code> hook runs after the entire process is completed and can be used to update other services or notify users.
+It takes the same stdin data as the <code>pre-receive</code> hook.
+Examples include e-mailing a list, notifying a continuous integration server, or updating a ticket-tracking system – you can even parse the commit messages to see if any tickets need to be opened, modified, or closed.
+This script can’t stop the push process, but the client doesn’t disconnect until it has completed, so be careful if you try to do anything that may take a long time.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="An Example Git-Enforced Policy" id="_an_example_git_enforced_policy">
+<h1>An Example Git-Enforced Policy</h1>
+
+<p><a data-type="indexterm" data-primary="policy example" id="idp25965152"/>
+In this section, you’ll use what you’ve learned to establish a Git workflow that checks for a custom commit message format, and allows only certain users to modify certain subdirectories in a project.
+You’ll build client scripts that help the developer know if their push will be rejected and server scripts that actually enforce the policies.</p>
+
+<p>The scripts we’ll show are written in Ruby; partly because of our intellectual inertia, but also because Ruby is easy to read, even if you can’t necessarily write it.
+However, any language will work – all the sample hook scripts distributed with Git are in either Perl or Bash, so you can also see plenty of examples of hooks in those languages by looking at the samples.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Server-Side Hook" id="idp26103808">
+<h2>Server-Side Hook</h2>
+
+<p>All the server-side work will go into the <code>update</code> file in your <code>hooks</code> directory.
+The <code>update</code> hook runs once per branch being pushed and takes three arguments:</p>
+
+<ul>
+<li>
+<p>The name of the reference being pushed to</p>
+</li>
+<li>
+<p>The old revision where that branch was</p>
+</li>
+<li>
+<p>The new revision being pushed</p>
+</li>
+</ul>
+
+<p>You also have access to the user doing the pushing if the push is being run over SSH.
+If you’ve allowed everyone to connect with a single user (like “git”) via public-key authentication, you may have to give that user a shell wrapper that determines which user is connecting based on the public key, and set an environment variable accordingly.
+Here we’ll assume the connecting user is in the <code>$USER</code> environment variable, so your update script begins by gathering all the information you need:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="c1">#!/usr/bin/env ruby</code>
+
+<code class="vg">$refname</code> <code class="o">=</code> <code class="no">ARGV</code><code class="o">[</code><code class="mi">0</code><code class="o">]</code>
+<code class="vg">$oldrev</code>  <code class="o">=</code> <code class="no">ARGV</code><code class="o">[</code><code class="mi">1</code><code class="o">]</code>
+<code class="vg">$newrev</code>  <code class="o">=</code> <code class="no">ARGV</code><code class="o">[</code><code class="mi">2</code><code class="o">]</code>
+<code class="vg">$user</code>    <code class="o">=</code> <code class="no">ENV</code><code class="o">[</code><code class="s1">'USER'</code><code class="o">]</code>
+
+<code class="nb">puts</code> <code class="s2">"Enforcing Policies..."</code>
+<code class="nb">puts</code> <code class="s2">"(</code><code class="si">#{</code><code class="vg">$refname</code><code class="si">}</code><code class="s2">) (</code><code class="si">#{</code><code class="vg">$oldrev</code><code class="o">[</code><code class="mi">0</code><code class="p">,</code><code class="mi">6</code><code class="o">]</code><code class="si">}</code><code class="s2">) (</code><code class="si">#{</code><code class="vg">$newrev</code><code class="o">[</code><code class="mi">0</code><code class="p">,</code><code class="mi">6</code><code class="o">]</code><code class="si">}</code><code class="s2">)"</code></pre>
+
+<p>Yes, those are global variables.
+Don’t judge – it’s easier to demonstrate this way.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Enforcing a Specific Commit-Message Format" id="_enforcing_commit_message_format">
+<h3>Enforcing a Specific Commit-Message Format</h3>
+
+<p>Your first challenge is to enforce that each commit message adheres to a particular format.
+Just to have a target, assume that each message has to include a string that looks like “ref: 1234” because you want each commit to link to a work item in your ticketing system.
+You must look at each commit being pushed up, see if that string is in the commit message, and, if the string is absent from any of the commits, exit non-zero so the push is rejected.</p>
+
+<p>You can get a list of the SHA-1 values of all the commits that are being pushed by taking the <code>$newrev</code> and <code>$oldrev</code> values and passing them to a Git plumbing command called <code>git rev-list</code>.
+This is basically the <code>git log</code> command, but by default it prints out only the SHA-1 values and no other information.
+So, to get a list of all the commit SHA-1s introduced between one commit SHA-1 and another, you can run something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git rev-list 538c33..d14fc7
+<code class="go">d14fc7c847ab946ec39590d87783c69b031bdfb7</code>
+<code class="go">9f585da4401b0a3999e84113824d15245c13f0be</code>
+<code class="go">234071a1be950e2a8d078e6141f5cd20c1e61ad3</code>
+<code class="go">dfa04c9ef3d5197182f13fb5b9b1fb7717d2222a</code>
+<code class="go">17716ec0f1ff5c77eff40b7fe912f9f6cfd0e475</code></pre>
+
+<p>You can take that output, loop through each of those commit SHA-1s, grab the message for it, and test that message against a regular expression that looks for a pattern.</p>
+
+<p>You have to figure out how to get the commit message from each of these commits to test.
+To get the raw commit data, you can use another plumbing command called <code>git cat-file</code>.
+We’ll go over all these plumbing commands in detail in <a data-type="xref" href="ch10.html#_git_internals">Chapter 10</a>; but for now, here’s what that command gives you:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git cat-file commit ca82a6
+<code class="go">tree cfda3bf379e4f8dba8717dee55aab78aef7f4daf</code>
+<code class="go">parent 085bb3bcb608e1e8451d4b2432f8ecbe6306e7e7</code>
+<code class="go">author Scott Chacon &lt;schacon@gmail.com&gt; 1205815931 -0700</code>
+<code class="go">committer Scott Chacon &lt;schacon@gmail.com&gt; 1240030591 -0700</code>
+
+<code class="go">changed the version number</code></pre>
+
+<p>A simple way to get the commit message from a commit when you have the SHA-1 value is to go to the first blank line and take everything after that.
+You can do so with the <code>sed</code> command on Unix systems:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git cat-file commit ca82a6 <code class="p">|</code> sed <code class="s1">'1,/^$/d'</code>
+<code class="go">changed the version number</code></pre>
+
+<p>You can use that incantation to grab the commit message from each commit that is trying to be pushed and exit if you see anything that doesn’t match.
+To exit the script and reject the push, exit non-zero.
+The whole method looks like this:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="vg">$regex</code> <code class="o">=</code> <code class="sr">/\[ref: (\d+)\]/</code>
+
+<code class="c1"># enforced custom commit message format</code>
+<code class="k">def</code> <code class="nf">check_message_format</code>
+  <code class="n">missed_revs</code> <code class="o">=</code> <code class="sb">`git rev-list </code><code class="si">#{</code><code class="vg">$oldrev</code><code class="si">}</code><code class="sb">..</code><code class="si">#{</code><code class="vg">$newrev</code><code class="si">}</code><code class="sb">`</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s2">"</code><code class="se">\n</code><code class="s2">"</code><code class="p">)</code>
+  <code class="n">missed_revs</code><code class="o">.</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">rev</code><code class="o">|</code>
+    <code class="n">message</code> <code class="o">=</code> <code class="sb">`git cat-file commit </code><code class="si">#{</code><code class="n">rev</code><code class="si">}</code><code class="sb"> | sed '1,/^$/d'`</code>
+    <code class="k">if</code> <code class="o">!</code><code class="vg">$regex</code><code class="o">.</code><code class="n">match</code><code class="p">(</code><code class="n">message</code><code class="p">)</code>
+      <code class="nb">puts</code> <code class="s2">"[POLICY] Your message is not formatted correctly"</code>
+      <code class="nb">exit</code> <code class="mi">1</code>
+    <code class="k">end</code>
+  <code class="k">end</code>
+<code class="k">end</code>
+<code class="n">check_message_format</code></pre>
+
+<p>Putting that in your <code>update</code> script will reject updates that contain commits that have messages that don’t adhere to your rule.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Enforcing a User-Based ACL System" id="idp26111392">
+<h3>Enforcing a User-Based ACL System</h3>
+
+<p>Suppose you want to add a mechanism that uses an access control list (ACL) that specifies which users are allowed to push changes to which parts of your projects.
+Some people have full access, and others can only push changes to certain subdirectories or specific files.
+To enforce this, you’ll write those rules to a file named <code>acl</code> that lives in your bare Git repository on the server.
+You’ll have the <code>update</code> hook look at those rules, see what files are being introduced for all the commits being pushed, and determine whether the user doing the push has access to update all those files.</p>
+
+<p>The first thing you’ll do is write your ACL.
+Here you’ll use a format very much like the CVS ACL mechanism: it uses a series of lines, where the first field is <code>avail</code> or <code>unavail</code>, the next field is a comma-delimited list of the users to which the rule applies, and the last field is the path to which the rule applies (blank meaning open access).
+All of these fields are delimited by a pipe (<code>|</code>) character.</p>
+
+<p>In this case, you have a couple of administrators, some documentation writers with access to the <code>doc</code> directory, and one developer who only has access to the <code>lib</code> and <code>tests</code> directories, and your ACL file looks like this:</p>
+
+<pre data-type="programlisting">avail|nickh,pjhyett,defunkt,tpw
+avail|usinclair,cdickens,ebronte|doc
+avail|schacon|lib
+avail|schacon|tests</pre>
+
+<p>You begin by reading this data into a structure that you can use.
+In this case, to keep the example simple, you’ll only enforce the <code>avail</code> directives.
+Here is a method that gives you an associative array where the key is the user name and the value is an array of paths to which the user has write access:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="k">def</code> <code class="nf">get_acl_access_data</code><code class="p">(</code><code class="n">acl_file</code><code class="p">)</code>
+  <code class="c1"># read in ACL data</code>
+  <code class="n">acl_file</code> <code class="o">=</code> <code class="no">File</code><code class="o">.</code><code class="n">read</code><code class="p">(</code><code class="n">acl_file</code><code class="p">)</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s2">"</code><code class="se">\n</code><code class="s2">"</code><code class="p">)</code><code class="o">.</code><code class="n">reject</code> <code class="p">{</code> <code class="o">|</code><code class="n">line</code><code class="o">|</code> <code class="n">line</code> <code class="o">==</code> <code class="s1">''</code> <code class="p">}</code>
+  <code class="n">access</code> <code class="o">=</code> <code class="p">{}</code>
+  <code class="n">acl_file</code><code class="o">.</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">line</code><code class="o">|</code>
+    <code class="n">avail</code><code class="p">,</code> <code class="n">users</code><code class="p">,</code> <code class="n">path</code> <code class="o">=</code> <code class="n">line</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s1">'|'</code><code class="p">)</code>
+    <code class="k">next</code> <code class="k">unless</code> <code class="n">avail</code> <code class="o">==</code> <code class="s1">'avail'</code>
+    <code class="n">users</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s1">','</code><code class="p">)</code><code class="o">.</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">user</code><code class="o">|</code>
+      <code class="n">access</code><code class="o">[</code><code class="n">user</code><code class="o">]</code> <code class="o">||=</code> <code class="o">[]</code>
+      <code class="n">access</code><code class="o">[</code><code class="n">user</code><code class="o">]</code> <code class="o">&lt;&lt;</code> <code class="n">path</code>
+    <code class="k">end</code>
+  <code class="k">end</code>
+  <code class="n">access</code>
+<code class="k">end</code></pre>
+
+<p>On the ACL file you looked at earlier, this <code>get_acl_access_data</code> method returns a data structure that looks like this:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="p">{</code><code class="s2">"defunkt"</code><code class="o">=&gt;[</code><code class="kp">nil</code><code class="o">]</code><code class="p">,</code>
+ <code class="s2">"tpw"</code><code class="o">=&gt;[</code><code class="kp">nil</code><code class="o">]</code><code class="p">,</code>
+ <code class="s2">"nickh"</code><code class="o">=&gt;[</code><code class="kp">nil</code><code class="o">]</code><code class="p">,</code>
+ <code class="s2">"pjhyett"</code><code class="o">=&gt;[</code><code class="kp">nil</code><code class="o">]</code><code class="p">,</code>
+ <code class="s2">"schacon"</code><code class="o">=&gt;[</code><code class="s2">"lib"</code><code class="p">,</code> <code class="s2">"tests"</code><code class="o">]</code><code class="p">,</code>
+ <code class="s2">"cdickens"</code><code class="o">=&gt;[</code><code class="s2">"doc"</code><code class="o">]</code><code class="p">,</code>
+ <code class="s2">"usinclair"</code><code class="o">=&gt;[</code><code class="s2">"doc"</code><code class="o">]</code><code class="p">,</code>
+ <code class="s2">"ebronte"</code><code class="o">=&gt;[</code><code class="s2">"doc"</code><code class="o">]</code><code class="p">}</code></pre>
+
+<p>Now that you have the permissions sorted out, you need to determine what paths the commits being pushed have modified, so you can make sure the user who’s pushing has access to all of them.</p>
+
+<p>You can pretty easily see what files have been modified in a single commit with the <code>--name-only</code> option to the <code>git log</code> command (mentioned briefly in Chapter 2):</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log -1 --name-only --pretty<code class="o">=</code>format:<code class="s1">''</code> 9f585d
+
+<code class="go">README</code>
+<code class="go">lib/test.rb</code></pre>
+
+<p>If you use the ACL structure returned from the <code>get_acl_access_data</code> method and check it against the listed files in each of the commits, you can determine whether the user has access to push all of their commits:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="c1"># only allows certain users to modify certain subdirectories in a project</code>
+<code class="k">def</code> <code class="nf">check_directory_perms</code>
+  <code class="n">access</code> <code class="o">=</code> <code class="n">get_acl_access_data</code><code class="p">(</code><code class="s1">'acl'</code><code class="p">)</code>
+
+  <code class="c1"># see if anyone is trying to push something they can't</code>
+  <code class="n">new_commits</code> <code class="o">=</code> <code class="sb">`git rev-list </code><code class="si">#{</code><code class="vg">$oldrev</code><code class="si">}</code><code class="sb">..</code><code class="si">#{</code><code class="vg">$newrev</code><code class="si">}</code><code class="sb">`</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s2">"</code><code class="se">\n</code><code class="s2">"</code><code class="p">)</code>
+  <code class="n">new_commits</code><code class="o">.</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">rev</code><code class="o">|</code>
+    <code class="n">files_modified</code> <code class="o">=</code> <code class="sb">`git log -1 --name-only --pretty=format:'' </code><code class="si">#{</code><code class="n">rev</code><code class="si">}</code><code class="sb">`</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s2">"</code><code class="se">\n</code><code class="s2">"</code><code class="p">)</code>
+    <code class="n">files_modified</code><code class="o">.</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">path</code><code class="o">|</code>
+      <code class="k">next</code> <code class="k">if</code> <code class="n">path</code><code class="o">.</code><code class="n">size</code> <code class="o">==</code> <code class="mi">0</code>
+      <code class="n">has_file_access</code> <code class="o">=</code> <code class="kp">false</code>
+      <code class="n">access</code><code class="o">[</code><code class="vg">$user</code><code class="o">].</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">access_path</code><code class="o">|</code>
+        <code class="k">if</code> <code class="o">!</code><code class="n">access_path</code>  <code class="c1"># user has access to everything</code>
+           <code class="o">||</code> <code class="p">(</code><code class="n">path</code><code class="o">.</code><code class="n">start_with?</code> <code class="n">access_path</code><code class="p">)</code> <code class="c1"># access to this path</code>
+          <code class="n">has_file_access</code> <code class="o">=</code> <code class="kp">true</code>
+        <code class="k">end</code>
+      <code class="k">end</code>
+      <code class="k">if</code> <code class="o">!</code><code class="n">has_file_access</code>
+        <code class="nb">puts</code> <code class="s2">"[POLICY] You do not have access to push to </code><code class="si">#{</code><code class="n">path</code><code class="si">}</code><code class="s2">"</code>
+        <code class="nb">exit</code> <code class="mi">1</code>
+      <code class="k">end</code>
+    <code class="k">end</code>
+  <code class="k">end</code>
+<code class="k">end</code>
+
+<code class="n">check_directory_perms</code></pre>
+
+<p>You get a list of new commits being pushed to your server with <code>git rev-list</code>.
+Then, for each of those commits, you find which files are modified and make sure the user who’s pushing has access to all the paths being modified.</p>
+
+<p>Now your users can’t push any commits with badly formed messages or with modified files outside of their designated paths.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Testing It Out" id="idp26290816">
+<h3>Testing It Out</h3>
+
+<p>If you run <code>chmod u+x .git/hooks/update</code>, which is the file into which you should have put all this code, and then try to push a commit with a non-compliant message, you get something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git push -f origin master
+<code class="go">Counting objects: 5, done.</code>
+<code class="go">Compressing objects: 100% (3/3), done.</code>
+<code class="go">Writing objects: 100% (3/3), 323 bytes, done.</code>
+<code class="go">Total 3 (delta 1), reused 0 (delta 0)</code>
+<code class="go">Unpacking objects: 100% (3/3), done.</code>
+<code class="go">Enforcing Policies...</code>
+<code class="go">(refs/heads/master) (8338c5) (c5b616)</code>
+<code class="go">[POLICY] Your message is not formatted correctly</code>
+<code class="go">error: hooks/update exited with error code 1</code>
+<code class="go">error: hook declined to update refs/heads/master</code>
+<code class="go">To git@gitserver:project.git</code>
+<code class="go"> ! [remote rejected] master -&gt; master (hook declined)</code>
+<code class="go">error: failed to push some refs to 'git@gitserver:project.git'</code></pre>
+
+<p>There are a couple of interesting things here.
+First, you see this where the hook starts running.</p>
+
+<pre data-type="programlisting">Enforcing Policies...
+(refs/heads/master) (fb8c72) (c56860)</pre>
+
+<p>Remember that you printed that out at the very beginning of your update script.
+Anything your script echoes to <code>stdout</code> will be transferred to the client.</p>
+
+<p>The next thing you’ll notice is the error message.</p>
+
+<pre data-type="programlisting">[POLICY] Your message is not formatted correctly
+error: hooks/update exited with error code 1
+error: hook declined to update refs/heads/master</pre>
+
+<p>The first line was printed out by you, the other two were Git telling you that the update script exited non-zero and that is what is declining your push.
+Lastly, you have this:</p>
+
+<pre data-type="programlisting">To git@gitserver:project.git
+ ! [remote rejected] master -&gt; master (hook declined)
+error: failed to push some refs to 'git@gitserver:project.git'</pre>
+
+<p>You’ll see a remote rejected message for each reference that your hook declined, and it tells you that it was declined specifically because of a hook failure.</p>
+
+<p>Furthermore, if someone tries to edit a file they don’t have access to and push a commit containing it, they will see something similar.
+For instance, if a documentation author tries to push a commit modifying something in the <code>lib</code> directory, they see</p>
+
+<pre data-type="programlisting">[POLICY] You do not have access to push to lib/test.rb</pre>
+
+<p>From now on, as long as that <code>update</code> script is there and executable, your repository will never have a commit message without your pattern in it, and your users will be sandboxed.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Client-Side Hooks" id="idp26765344">
+<h2>Client-Side Hooks</h2>
+
+<p>The downside to this approach is the whining that will inevitably result when your users’ commit pushes are rejected.
+Having their carefully crafted work rejected at the last minute can be extremely frustrating and confusing; and furthermore, they will have to edit their history to correct it, which isn’t always for the faint of heart.</p>
+
+<p>The answer to this dilemma is to provide some client-side hooks that users can run to notify them when they’re doing something that the server is likely to reject.
+That way, they can correct any problems before committing and before those issues become more difficult to fix.
+Because hooks aren’t transferred with a clone of a project, you must distribute these scripts some other way and then have your users copy them to their <code>.git/hooks</code> directory and make them executable.
+You can distribute these hooks within the project or in a separate project, but Git won’t set them up automatically.</p>
+
+<p>To begin, you should check your commit message just before each commit is recorded, so you know the server won’t reject your changes due to badly formatted commit messages.
+To do this, you can add the <code>commit-msg</code> hook.
+If you have it read the message from the file passed as the first argument and compare that to the pattern, you can force Git to abort the commit if there is no match:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="c1">#!/usr/bin/env ruby</code>
+<code class="n">message_file</code> <code class="o">=</code> <code class="no">ARGV</code><code class="o">[</code><code class="mi">0</code><code class="o">]</code>
+<code class="n">message</code> <code class="o">=</code> <code class="no">File</code><code class="o">.</code><code class="n">read</code><code class="p">(</code><code class="n">message_file</code><code class="p">)</code>
+
+<code class="vg">$regex</code> <code class="o">=</code> <code class="sr">/\[ref: (\d+)\]/</code>
+
+<code class="k">if</code> <code class="o">!</code><code class="vg">$regex</code><code class="o">.</code><code class="n">match</code><code class="p">(</code><code class="n">message</code><code class="p">)</code>
+  <code class="nb">puts</code> <code class="s2">"[POLICY] Your message is not formatted correctly"</code>
+  <code class="nb">exit</code> <code class="mi">1</code>
+<code class="k">end</code></pre>
+
+<p>If that script is in place (in <code>.git/hooks/commit-msg</code>) and executable, and you commit with a message that isn’t properly formatted, you see this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git commit -am <code class="s1">'test'</code>
+<code class="go">[POLICY] Your message is not formatted correctly</code></pre>
+
+<p>No commit was completed in that instance.
+However, if your message contains the proper pattern, Git allows you to commit:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git commit -am <code class="s1">'test [ref: 132]'</code>
+<code class="go">[master e05c914] test [ref: 132]</code>
+<code class="go"> 1 file changed, 1 insertions(+), 0 deletions(-)</code></pre>
+
+<p>Next, you want to make sure you aren’t modifying files that are outside your ACL scope.
+If your project’s <code>.git</code> directory contains a copy of the ACL file you used previously, then the following <code>pre-commit</code> script will enforce those constraints for you:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="c1">#!/usr/bin/env ruby</code>
+
+<code class="vg">$user</code>    <code class="o">=</code> <code class="no">ENV</code><code class="o">[</code><code class="s1">'USER'</code><code class="o">]</code>
+
+<code class="c1"># [ insert acl_access_data method from above ]</code>
+
+<code class="c1"># only allows certain users to modify certain subdirectories in a project</code>
+<code class="k">def</code> <code class="nf">check_directory_perms</code>
+  <code class="n">access</code> <code class="o">=</code> <code class="n">get_acl_access_data</code><code class="p">(</code><code class="s1">'.git/acl'</code><code class="p">)</code>
+
+  <code class="n">files_modified</code> <code class="o">=</code> <code class="sb">`git diff-index --cached --name-only HEAD`</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s2">"</code><code class="se">\n</code><code class="s2">"</code><code class="p">)</code>
+  <code class="n">files_modified</code><code class="o">.</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">path</code><code class="o">|</code>
+    <code class="k">next</code> <code class="k">if</code> <code class="n">path</code><code class="o">.</code><code class="n">size</code> <code class="o">==</code> <code class="mi">0</code>
+    <code class="n">has_file_access</code> <code class="o">=</code> <code class="kp">false</code>
+    <code class="n">access</code><code class="o">[</code><code class="vg">$user</code><code class="o">].</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">access_path</code><code class="o">|</code>
+    <code class="k">if</code> <code class="o">!</code><code class="n">access_path</code> <code class="o">||</code> <code class="p">(</code><code class="n">path</code><code class="o">.</code><code class="n">index</code><code class="p">(</code><code class="n">access_path</code><code class="p">)</code> <code class="o">==</code> <code class="mi">0</code><code class="p">)</code>
+      <code class="n">has_file_access</code> <code class="o">=</code> <code class="kp">true</code>
+    <code class="k">end</code>
+    <code class="k">if</code> <code class="o">!</code><code class="n">has_file_access</code>
+      <code class="nb">puts</code> <code class="s2">"[POLICY] You do not have access to push to </code><code class="si">#{</code><code class="n">path</code><code class="si">}</code><code class="s2">"</code>
+      <code class="nb">exit</code> <code class="mi">1</code>
+    <code class="k">end</code>
+  <code class="k">end</code>
+<code class="k">end</code>
+
+<code class="n">check_directory_perms</code></pre>
+
+<p>This is roughly the same script as the server-side part, but with two important differences.
+First, the ACL file is in a different place, because this script runs from your working directory, not from your <code>.git</code> directory.
+You have to change the path to the ACL file from this</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="n">access</code> <code class="o">=</code> <code class="n">get_acl_access_data</code><code class="p">(</code><code class="s1">'acl'</code><code class="p">)</code></pre>
+
+<p>to this:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="n">access</code> <code class="o">=</code> <code class="n">get_acl_access_data</code><code class="p">(</code><code class="s1">'.git/acl'</code><code class="p">)</code></pre>
+
+<p>The other important difference is the way you get a listing of the files that have been changed.
+Because the server-side method looks at the log of commits, and, at this point, the commit hasn’t been recorded yet, you must get your file listing from the staging area instead.
+Instead of</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="n">files_modified</code> <code class="o">=</code> <code class="sb">`git log -1 --name-only --pretty=format:'' </code><code class="si">#{</code><code class="n">ref</code><code class="si">}</code><code class="sb">`</code></pre>
+
+<p>you have to use</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="n">files_modified</code> <code class="o">=</code> <code class="sb">`git diff-index --cached --name-only HEAD`</code></pre>
+
+<p>But those are the only two differences – otherwise, the script works the same way.
+One caveat is that it expects you to be running locally as the same user you push as to the remote machine.
+If that is different, you must set the <code>$user</code> variable manually.</p>
+
+<p>One other thing we can do here is make sure the user doesn’t push non-fast-forwarded references.
+To get a reference that isn’t a fast-forward, you either have to rebase past a commit you’ve already pushed up or try pushing a different local branch up to the same remote branch.</p>
+
+<p>Presumably, the server is already configured with <code>receive.denyDeletes</code> and <code>receive.denyNonFastForwards</code> to enforce this policy, so the only accidental thing you can try to catch is rebasing commits that have already been pushed.</p>
+
+<p>Here is an example pre-rebase script that checks for that.
+It gets a list of all the commits you’re about to rewrite and checks whether they exist in any of your remote references.
+If it sees one that is reachable from one of your remote references, it aborts the rebase.</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="c1">#!/usr/bin/env ruby</code>
+
+<code class="n">base_branch</code> <code class="o">=</code> <code class="no">ARGV</code><code class="o">[</code><code class="mi">0</code><code class="o">]</code>
+<code class="k">if</code> <code class="no">ARGV</code><code class="o">[</code><code class="mi">1</code><code class="o">]</code>
+  <code class="n">topic_branch</code> <code class="o">=</code> <code class="no">ARGV</code><code class="o">[</code><code class="mi">1</code><code class="o">]</code>
+<code class="k">else</code>
+  <code class="n">topic_branch</code> <code class="o">=</code> <code class="s2">"HEAD"</code>
+<code class="k">end</code>
+
+<code class="n">target_shas</code> <code class="o">=</code> <code class="sb">`git rev-list </code><code class="si">#{</code><code class="n">base_branch</code><code class="si">}</code><code class="sb">..</code><code class="si">#{</code><code class="n">topic_branch</code><code class="si">}</code><code class="sb">`</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s2">"</code><code class="se">\n</code><code class="s2">"</code><code class="p">)</code>
+<code class="n">remote_refs</code> <code class="o">=</code> <code class="sb">`git branch -r`</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s2">"</code><code class="se">\n</code><code class="s2">"</code><code class="p">)</code><code class="o">.</code><code class="n">map</code> <code class="p">{</code> <code class="o">|</code><code class="n">r</code><code class="o">|</code> <code class="n">r</code><code class="o">.</code><code class="n">strip</code> <code class="p">}</code>
+
+<code class="n">target_shas</code><code class="o">.</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">sha</code><code class="o">|</code>
+  <code class="n">remote_refs</code><code class="o">.</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">remote_ref</code><code class="o">|</code>
+    <code class="n">shas_pushed</code> <code class="o">=</code> <code class="sb">`git rev-list ^</code><code class="si">#{</code><code class="n">sha</code><code class="si">}</code><code class="sb">^@ refs/remotes/</code><code class="si">#{</code><code class="n">remote_ref</code><code class="si">}</code><code class="sb">`</code>
+    <code class="k">if</code> <code class="n">shas_pushed</code><code class="o">.</code><code class="n">split</code><code class="p">(</code><code class="s2">"</code><code class="se">\n</code><code class="s2">"</code><code class="p">)</code><code class="o">.</code><code class="n">include?</code><code class="p">(</code><code class="n">sha</code><code class="p">)</code>
+      <code class="nb">puts</code> <code class="s2">"[POLICY] Commit </code><code class="si">#{</code><code class="n">sha</code><code class="si">}</code><code class="s2"> has already been pushed to </code><code class="si">#{</code><code class="n">remote_ref</code><code class="si">}</code><code class="s2">"</code>
+      <code class="nb">exit</code> <code class="mi">1</code>
+    <code class="k">end</code>
+  <code class="k">end</code>
+<code class="k">end</code></pre>
+
+<p>This script uses a syntax that wasn’t covered in the Revision Selection section of Chapter 6. You get a list of commits that have already been pushed up by running this:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="sb">`git rev-list ^</code><code class="si">#{</code><code class="n">sha</code><code class="si">}</code><code class="sb">^@ refs/remotes/</code><code class="si">#{</code><code class="n">remote_ref</code><code class="si">}</code><code class="sb">`</code></pre>
+
+<p>The <code>SHA^@</code> syntax resolves to all the parents of that commit.
+You’re looking for any commit that is reachable from the last commit on the remote and that isn’t reachable from any parent of any of the SHA-1s you’re trying to push up – meaning it’s a fast-forward.</p>
+
+<p>The main drawback to this approach is that it can be very slow and is often unnecessary – if you don’t try to force the push with <code>-f</code>, the server will warn you and not accept the push.
+However, it’s an interesting exercise and can in theory help you avoid a rebase that you might later have to go back and fix.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Summary" id="idp26908464">
+<h1>Summary</h1>
+
+<p>We’ve covered most of the major ways that you can customize your Git client and server to best fit your workflow and projects.
+You’ve learned about all sorts of configuration settings, file-based attributes, and event hooks, and you’ve built an example policy-enforcing server.
+You should now be able to make Git fit nearly any workflow you can dream up.</p>
+</section>
+
+
+
+
+
+
+
+</section>
+    <div class="navigation">
+      <ul>
+        <li><a href="ch09.html">Next</a></li>
+        <li><a href="ch07.html">Previous</a></li>
+      </ul>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1958 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Pro Git</title>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script>
+    <link rel="stylesheet" type="text/css" href="theme/html/html.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <body data-type="book">
+    <div class="navbar">
+      <h1>Pro Git</h1>
+      <p><a href="toc01.html">Table of Contents</a></p>
+    </div>
+    <section data-type="chapter" data-pdf-bookmark="Chapter 2. Git Basics" id="_git_basics_chapter">
+<h1>Git Basics</h1>
+
+
+<p>If you can read only one chapter to get going with Git, this is it.
+This chapter covers every basic command you need to do the vast majority of the things you’ll eventually spend your time doing with Git.
+By the end of the chapter, you should be able to configure and initialize a repository, begin and stop tracking files, and stage and commit changes.
+We’ll also show you how to set up Git to ignore certain files and file patterns, how to undo mistakes quickly and easily, how to browse the history of your project and view changes between commits, and how to push and pull from remote repositories.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Getting a Git Repository" id="_getting_a_repo">
+<h1>Getting a Git Repository</h1>
+
+<p>You can get a Git project using two main approaches.
+The first takes an existing project or directory and imports it into Git.
+The second clones an existing Git repository from another server.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Initializing a Repository in an Existing Directory" id="idp2091744">
+<h2>Initializing a Repository in an Existing Directory</h2>
+
+<p>If you’re starting to track an existing project in Git, you need to go to the project’s directory and type</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git init</pre>
+
+<p>This creates a new subdirectory named <code>.git</code> that contains all of your necessary repository files – a Git repository skeleton.
+At this point, nothing in your project is tracked yet.
+(See <a data-type="xref" href="ch10.html#_git_internals">Chapter 10</a> for more information about exactly what files are contained in the <code>.git</code> directory you just created.)<a data-type="indexterm" data-primary="git commands" data-secondary="init" id="idp2098000"/></p>
+
+<p>If you want to start version-controlling existing files (as opposed to an empty directory), you should probably begin tracking those files and do an initial commit.
+You can accomplish that with a few <code>git add</code> commands that specify the files you want to track, followed by a <code>git commit</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git add *.c
+<code class="gp">$</code> git add LICENSE
+<code class="gp">$</code> git commit -m <code class="s1">'initial project version'</code></pre>
+
+<p>We’ll go over what these commands do in just a minute.
+At this point, you have a Git repository with tracked files and an initial commit.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Cloning an Existing Repository" id="_git_cloning">
+<h2>Cloning an Existing Repository</h2>
+
+<p>If you want to get a copy of an existing Git repository – for example, a project you’d like to contribute to – the command you need is <code>git clone</code>.
+If you’re familiar with other VCS systems such as Subversion, you’ll notice that the command is “clone” and not “checkout”.
+This is an important distinction – instead of getting just a working copy, Git receives a full copy of nearly all data that the server has.
+Every version of every file for the history of the project is pulled down by default when you run <code>git clone</code>.
+In fact, if your server disk gets corrupted, you can often use nearly any of the clones on any client to set the server back to the state it was in when it was cloned (you may lose some server-side hooks and such, but all the versioned data would be there – see <a data-type="xref" href="ch04.html#_git_on_the_server">“Getting Git on a Server”</a> for more details).</p>
+
+<p>You clone a repository with <code>git clone [url]</code>.<a data-type="indexterm" data-primary="git commands" data-secondary="clone" id="idp2127040"/>
+For example, if you want to clone the Git linkable library called libgit2, you can do so like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone https://github.com/libgit2/libgit2</pre>
+
+<p>That creates a directory named “libgit2”, initializes a <code>.git</code> directory inside it, pulls down all the data for that repository, and checks out a working copy of the latest version.
+If you go into the new <code>libgit2</code> directory, you’ll see the project files in there, ready to be worked on or used.
+If you want to clone the repository into a directory named something other than “libgit2”, you can specify that as the next command-line option:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone https://github.com/libgit2/libgit2 mylibgit</pre>
+
+<p>That command does the same thing as the previous one, but the target directory is called <code>mylibgit</code>.</p>
+
+<p>Git has a number of different transfer protocols you can use.
+The previous example uses the <code>https://</code> protocol, but you may also see <code>git://</code> or <code>user@server:path/to/repo.git</code>, which uses the SSH transfer protocol.
+<a data-type="xref" href="ch04.html#_git_on_the_server">“Getting Git on a Server”</a> will introduce all of the available options the server can set up to access your Git repository and the pros and cons of each.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Recording Changes to the Repository" id="idp2013952">
+<h1>Recording Changes to the Repository</h1>
+
+<p>You have a bona fide Git repository and a checkout or working copy of the files for that project.
+You need to make some changes and commit snapshots of those changes into your repository each time the project reaches a state you want to record.</p>
+
+<p>Remember that each file in your working directory can be in one of two states: tracked or untracked.
+Tracked files are files that were in the last snapshot; they can be unmodified, modified, or staged.
+Untracked files are everything else – any files in your working directory that were not in your last snapshot and are not in your staging area.
+When you first clone a repository, all of your files will be tracked and unmodified because you just checked them out and haven’t edited anything.</p>
+
+<p>As you edit files, Git sees them as modified, because you’ve changed them since your last commit.
+You stage these modified files and then commit all your staged changes, and the cycle repeats.</p>
+
+<figure><div class="border-box"><img src="book/02-git-basics/images/lifecycle.png" alt="The lifecycle of the status of your files."/></div><figcaption>The lifecycle of the status of your files.</figcaption></figure>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Checking the Status of Your Files" id="_checking_status">
+<h2>Checking the Status of Your Files</h2>
+
+<p>The main tool you use to determine which files are in which state is the <code>git status</code> command.<a data-type="indexterm" data-primary="git commands" data-secondary="status" id="idp2007568"/>
+If you run this command directly after a clone, you should see something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">nothing to commit, working directory clean</code></pre>
+
+<p>This means you have a clean working directory – in other words, there are no tracked and modified files.
+Git also doesn’t see any untracked files, or they would be listed here.
+Finally, the command tells you which branch you’re on and informs you that it has not diverged from the same branch on the server.
+For now, that branch is always “master”, which is the default; you won’t worry about it here.
+<a data-type="xref" href="ch03.html#_git_branching">Chapter 3</a>  will go over branches and references in detail.</p>
+
+<p>Let’s say you add a new file to your project, a simple README file.
+If the file didn’t exist before, and you run <code>git status</code>, you see your untracked file like so:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">echo</code> <code class="s1">'My Project'</code> &gt; README
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Untracked files:</code>
+<code class="go">  (use "git add &lt;file&gt;..." to include in what will be committed)</code>
+
+<code class="go">    README</code>
+
+<code class="go">nothing added to commit but untracked files present (use "git add" to track)</code></pre>
+
+<p>You can see that your new README file is untracked, because it’s under the “Untracked files” heading in your status output.
+Untracked basically means that Git sees a file you didn’t have in the previous snapshot (commit); Git won’t start including it in your commit snapshots until you explicitly tell it to do so.
+It does this so you don’t accidentally begin including generated binary files or other files that you did not mean to include.
+You do want to start including README, so let’s start tracking the file.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Tracking New Files" id="_tracking_files">
+<h2>Tracking New Files</h2>
+
+<p>In order to begin tracking a new file, you use the command <code>git add</code>.<a data-type="indexterm" data-primary="git commands" data-secondary="add" id="idp2217456"/>
+To begin tracking the README file, you can run this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git add README</pre>
+
+<p>If you run your status command again, you can see that your README file is now tracked and staged to be committed:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    new file:   README</code></pre>
+
+<p>You can tell that it’s staged because it’s under the “Changes to be committed” heading.
+If you commit at this point, the version of the file at the time you ran <code>git add</code> is what will be in the historical snapshot.
+You may recall that when you ran <code>git init</code> earlier, you then ran <code>git add (files)</code> – that was to begin tracking files in your directory.<a data-type="indexterm" data-primary="git commands" data-secondary="init" id="idp2226960"/><a data-type="indexterm" data-primary="git commands" data-secondary="add" id="idp2227936"/>
+The <code>git add</code> command takes a path name for either a file or a directory; if it’s a directory, the command adds all the files in that directory recursively.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Staging Modified Files" id="idp2197184">
+<h2>Staging Modified Files</h2>
+
+<p>Let’s change a file that was already tracked.
+If you change a previously tracked file called “CONTRIBUTING.md” and then run your <code>git status</code> command again, you get something that looks like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    new file:   README</code>
+
+<code class="go">Changes not staged for commit:</code>
+<code class="go">  (use "git add &lt;file&gt;..." to update what will be committed)</code>
+<code class="go">  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)</code>
+
+<code class="go">    modified:   CONTRIBUTING.md</code></pre>
+
+<p>The “CONTRIBUTING.md” file appears under a section named “Changed but not staged for commit” – which means that a file that is tracked has been modified in the working directory but not yet staged.
+To stage it, you run the <code>git add</code> command. <code>git add</code> is a multipurpose command – you use it to begin tracking new files, to stage files, and to do other things like marking merge-conflicted files as resolved. It may be helpful to think of it more as “add this content to the next commit” rather than “add this file to the project”.<a data-type="indexterm" data-primary="git commands" data-secondary="add" id="idp2337888"/>
+Let’s run <code>git add</code> now to stage the “CONTRIBUTING.md” file, and then run <code>git status</code> again:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git add CONTRIBUTING.md
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    new file:   README</code>
+<code class="go">    modified:   CONTRIBUTING.md</code></pre>
+
+<p>Both files are staged and will go into your next commit.
+At this point, suppose you remember one little change that you want to make in <code>CONTRIBUTING.md</code> before you commit it.
+You open it again and make that change, and you’re ready to commit.
+However, let’s run <code>git status</code> one more time:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> vim CONTRIBUTING.md
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    new file:   README</code>
+<code class="go">    modified:   CONTRIBUTING.md</code>
+
+<code class="go">Changes not staged for commit:</code>
+<code class="go">  (use "git add &lt;file&gt;..." to update what will be committed)</code>
+<code class="go">  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)</code>
+
+<code class="go">    modified:   CONTRIBUTING.md</code></pre>
+
+<p>What the heck?
+Now <code>CONTRIBUTING.md</code> is listed as both staged <em>and</em> unstaged.
+How is that possible?
+It turns out that Git stages a file exactly as it is when you run the <code>git add</code> command.
+If you commit now, the version of <code>CONTRIBUTING.md</code> as it was when you last ran the <code>git add</code> command is how it will go into the commit, not the version of the file as it looks in your working directory when you run <code>git commit</code>.
+If you modify a file after you run <code>git add</code>, you have to run <code>git add</code> again to stage the latest version of the file:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git add CONTRIBUTING.md
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    new file:   README</code>
+<code class="go">    modified:   CONTRIBUTING.md</code></pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Short Status" id="idp2197520">
+<h2>Short Status</h2>
+
+<p>While the <code>git status</code> output is pretty comprehensive, it’s also quite wordy. Git also has a short status flag so you can see your changes in a more compact way. If you run <code>git status -s</code> or <code>git status --short</code> you get a far more simplified output from the command.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git status -s
+<code class="go"> M README</code>
+<code class="go">MM Rakefile</code>
+<code class="go">A  lib/git.rb</code>
+<code class="go">M  lib/simplegit.rb</code>
+<code class="go">?? LICENSE.txt</code></pre>
+
+<p>New files that aren’t tracked have a <code>??</code> next to them, new files that have been added to the staging area have an <code>A</code>, modified files have an <code>M</code> and so on. There are two columns to the output - the left hand column indicates that the file is staged and the right hand column indicates that it’s modified.  So for example in that output, the <code>README</code> file is modified in the working directory but not yet staged, while the <code>lib/simplegit.rb</code> file is modified and staged. The <code>Rakefile</code> was modified, staged and then modified again, so there are changes to it that are both staged and unstaged.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Ignoring Files" id="_ignoring">
+<h2>Ignoring Files</h2>
+
+<p>Often, you’ll have a class of files that you don’t want Git to automatically add or even show you as being untracked.
+These are generally automatically generated files such as log files or files produced by your build system.
+In such cases, you can create a file listing patterns to match them named <code>.gitignore</code>.<a data-type="indexterm" data-primary="ignoring files" id="idp2505840"/>
+Here is an example <code>.gitignore</code> file:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat .gitignore
+<code class="go">*.[oa]</code>
+<code class="go">*~</code></pre>
+
+<p>The first line tells Git to ignore any files ending in “.o” or “.a” – object and archive files that may be the product of building your code.
+The second line tells Git to ignore all files that end with a tilde (<code>~</code>), which is used by many text editors such as Emacs to mark temporary files.
+You may also include a log, tmp, or pid directory; automatically generated documentation; and so on.
+Setting up a <code>.gitignore</code> file before you get going is generally a good idea so you don’t accidentally commit files that you really don’t want in your Git repository.</p>
+
+<p>The rules for the patterns you can put in the <code>.gitignore</code> file are as follows:</p>
+
+<ul>
+<li>
+<p>Blank lines or lines starting with <code>#</code> are ignored.</p>
+</li>
+<li>
+<p>Standard glob patterns work.</p>
+</li>
+<li>
+<p>You can start patterns with a forward slash (<code>/</code>) to avoid recursivity.</p>
+</li>
+<li>
+<p>You can end patterns with a forward slash (<code>/</code>) to specify a directory.</p>
+</li>
+<li>
+<p>You can negate a pattern by starting it with an exclamation point (<code>!</code>).</p>
+</li>
+</ul>
+
+<p>Glob patterns are like simplified regular expressions that shells use.
+An asterisk (<code>*</code>) matches zero or more characters; <code>[abc]</code> matches any character inside the brackets (in this case a, b, or c); a question mark (<code>?</code>) matches a single character; and brackets enclosing characters separated by a hyphen(<code>[0-9]</code>) matches any character between them (in this case 0 through 9).
+You can also use two asterisks to match nested directories; <code>a/**/z</code> would match <code>a/z</code>, <code>a/b/z</code>, <code>a/b/c/z</code>, and so on.</p>
+
+<p>Here is another example .gitignore file:</p>
+
+<pre data-type="programlisting"># no .a files
+*.a
+
+# but do track lib.a, even though you're ignoring .a files above
+!lib.a
+
+# only ignore the TODO file in the current directory, not subdir/TODO
+/TODO
+
+# ignore all files in the build/ directory
+build/
+
+# ignore doc/notes.txt, but not doc/server/arch.txt
+doc/*.txt
+
+# ignore all .txt files in the doc/ directory
+doc/**/*.txt</pre>
+<div data-type="tip">
+<p>GitHub maintains a fairly comprehensive list of good <code>.gitignore</code> file examples for dozens of projects and languages at <a href="https://github.com/github/gitignore"><em class="hyperlink">https://github.com/github/gitignore</em></a> if you want a starting point for your project.</p>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Viewing Your Staged and Unstaged Changes" id="_git_diff_staged">
+<h2>Viewing Your Staged and Unstaged Changes</h2>
+
+<p>If the <code>git status</code> command is too vague for you – you want to know exactly what you changed, not just which files were changed – you can use the <code>git diff</code> command.<a data-type="indexterm" data-primary="git commands" data-secondary="diff" id="idp2401008"/>
+We’ll cover <code>git diff</code> in more detail later, but you’ll probably use it most often to answer these two questions: What have you changed but not yet staged?
+And what have you staged that you are about to commit?
+Although <code>git status</code> answers those questions very generally by listing the file names, <code>git diff</code> shows you the exact lines added and removed – the patch, as it were.</p>
+
+<p>Let’s say you edit and stage the <code>README</code> file again and then edit the <code>CONTRIBUTING.md</code> file without staging it.
+If you run your <code>git status</code> command, you once again see something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    new file:   README</code>
+
+<code class="go">Changes not staged for commit:</code>
+<code class="go">  (use "git add &lt;file&gt;..." to update what will be committed)</code>
+<code class="go">  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)</code>
+
+<code class="go">    modified:   CONTRIBUTING.md</code></pre>
+
+<p>To see what you’ve changed but not yet staged, type <code>git diff</code> with no other arguments:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git diff
+<code class="go">diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md</code>
+<code class="go">index 8ebb991..643e24f 100644</code>
+<code class="go">--- a/CONTRIBUTING.md</code>
+<code class="go">+++ b/CONTRIBUTING.md</code>
+<code class="go">@@ -65,7 +65,8 @@ branch directly, things can get messy.</code>
+<code class="go"> Please include a nice description of your changes when you submit your PR;</code>
+<code class="go"> if we have to read the whole diff to figure out why you're contributing</code>
+<code class="go"> in the first place, you're less likely to get feedback and have your change</code>
+<code class="go">-merged in.</code>
+<code class="go">+merged in. Also, split your changes into comprehensive chunks if you patch is</code>
+<code class="go">+longer than a dozen lines.</code>
+
+<code class="go"> If you are starting to work on a particular area, feel free to submit a PR</code>
+<code class="go"> that highlights your work in progress (and note in the PR title that it's</code></pre>
+
+<p>That command compares what is in your working directory with what is in your staging area.
+The result tells you the changes you’ve made that you haven’t yet staged.</p>
+
+<p>If you want to see what you’ve staged that will go into your next commit, you can use <code>git diff --staged</code>.
+This command compares your staged changes to your last commit:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git diff --staged
+<code class="go">diff --git a/README b/README</code>
+<code class="go">new file mode 100644</code>
+<code class="go">index 0000000..03902a1</code>
+<code class="go">--- /dev/null</code>
+<code class="go">+++ b/README</code>
+<code class="go">@@ -0,0 +1 @@</code>
+<code class="go">+My Project</code></pre>
+
+<p>It’s important to note that <code>git diff</code> by itself doesn’t show all changes made since your last commit – only changes that are still unstaged.
+This can be confusing, because if you’ve staged all of your changes, <code>git diff</code> will give you no output.</p>
+
+<p>For another example, if you stage the <code>CONTRIBUTING.md</code> file and then edit it, you can use <code>git diff</code> to see the changes in the file that are staged and the changes that are unstaged. If our environment looks like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git add CONTRIBUTING.md
+<code class="gp">$</code> <code class="nb">echo</code> <code class="s1">'test line'</code> &gt;&gt; CONTRIBUTING.md
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    modified:   CONTRIBUTING.md</code>
+
+<code class="go">Changes not staged for commit:</code>
+<code class="go">  (use "git add &lt;file&gt;..." to update what will be committed)</code>
+<code class="go">  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)</code>
+
+<code class="go">    modified:   CONTRIBUTING.md</code></pre>
+
+<p>Now you can use <code>git diff</code> to see what is still unstaged</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git diff
+<code class="go">diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md</code>
+<code class="go">index 643e24f..87f08c8 100644</code>
+<code class="go">--- a/CONTRIBUTING.md</code>
+<code class="go">+++ b/CONTRIBUTING.md</code>
+<code class="go">@@ -119,3 +119,4 @@ at the</code>
+<code class="go"> ## Starter Projects</code>
+
+<code class="go"> See our [projects list](https://github.com/libgit2/libgit2/blob/development/PROJECTS.md).</code>
+<code class="go">+# test line</code></pre>
+
+<p>and <code>git diff --cached</code> to see what you’ve staged so far (--staged and --cached are synonyms):</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git diff --cached
+<code class="go">diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md</code>
+<code class="go">index 8ebb991..643e24f 100644</code>
+<code class="go">--- a/CONTRIBUTING.md</code>
+<code class="go">+++ b/CONTRIBUTING.md</code>
+<code class="go">@@ -65,7 +65,8 @@ branch directly, things can get messy.</code>
+<code class="go"> Please include a nice description of your changes when you submit your PR;</code>
+<code class="go"> if we have to read the whole diff to figure out why you're contributing</code>
+<code class="go"> in the first place, you're less likely to get feedback and have your change</code>
+<code class="go">-merged in.</code>
+<code class="go">+merged in. Also, split your changes into comprehensive chunks if you patch is</code>
+<code class="go">+longer than a dozen lines.</code>
+
+<code class="go"> If you are starting to work on a particular area, feel free to submit a PR</code>
+<code class="go"> that highlights your work in progress (and note in the PR title that it's</code></pre>
+<div data-type="note"><h1>Git Diff in an External Tool</h1>
+<p>We will continue to use the <code>git diff</code> command in various ways throughout the rest of the book. There is another way to look at these diffs if you prefer a graphical or external diff viewing program instead. If you run <code>git difftool</code> instead of <code>git diff</code>, you can view any of these diffs in software like Araxis, emerge, vimdiff and more. Run <code>git difftool --tool-help</code> to see what is available on your system.</p>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Committing Your Changes" id="_committing_changes">
+<h2>Committing Your Changes</h2>
+
+<p>Now that your staging area is set up the way you want it, you can commit your changes.
+Remember that anything that is still unstaged – any files you have created or modified that you haven’t run <code>git add</code> on since you edited them – won’t go into this commit.
+They will stay as modified files on your disk.
+In this case, let’s say that the last time you ran <code>git status</code>, you saw that everything was staged, so you’re ready to commit your changes.<a data-type="indexterm" data-primary="git commands" data-secondary="status" id="idp2738656"/>
+The simplest way to commit is to type <code>git commit</code>:<a data-type="indexterm" data-primary="git commands" data-secondary="commit" id="idp2740192"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git commit</pre>
+
+<p>Doing so launches your editor of choice.
+(This is set by your shell’s <code>$EDITOR</code> environment variable – usually vim or emacs, although you can configure it with whatever you want using the <code>git config --global core.editor</code> command as you saw in <a data-type="xref" href="ch01.html#_getting_started">Chapter 1</a>).<a data-type="indexterm" data-primary="editor" data-secondary="changing default" id="idp2747840"/><a data-type="indexterm" data-primary="git commands" data-secondary="config" id="idp2749808"/></p>
+
+<p>The editor displays the following text (this example is a Vim screen):</p>
+
+<pre data-type="programlisting"># Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#	new file:   README
+#	modified:   CONTRIBUTING.md
+#
+~
+~
+~
+".git/COMMIT_EDITMSG" 9L, 283C</pre>
+
+<p>You can see that the default commit message contains the latest output of the <code>git status</code> command commented out and one empty line on top.
+You can remove these comments and type your commit message, or you can leave them there to help you remember what you’re committing.
+(For an even more explicit reminder of what you’ve modified, you can pass the <code>-v</code> option to <code>git commit</code>.
+Doing so also puts the diff of your change in the editor so you can see exactly what changes you’re committing.)
+When you exit the editor, Git creates your commit with that commit message (with the comments and diff stripped out).</p>
+
+<p>Alternatively, you can type your commit message inline with the <code>commit</code> command by specifying it after a -m flag, like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git commit -m <code class="s2">"Story 182: Fix benchmarks for speed"</code>
+<code class="go">[master 463dc4f] Story 182: Fix benchmarks for speed</code>
+<code class="go"> 2 files changed, 2 insertions(+)</code>
+<code class="go"> create mode 100644 README</code></pre>
+
+<p>Now you’ve created your first commit!
+You can see that the commit has given you some output about itself: which branch you committed to (<code>master</code>), what SHA-1 checksum the commit has (<code>463dc4f</code>), how many files were changed, and statistics about lines added and removed in the commit.</p>
+
+<p>Remember that the commit records the snapshot you set up in your staging area.
+Anything you didn’t stage is still sitting there modified; you can do another commit to add it to your history.
+Every time you perform a commit, you’re recording a snapshot of your project that you can revert to or compare to later.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Skipping the Staging Area" id="idp2736064">
+<h2>Skipping the Staging Area</h2>
+
+<p><a data-type="indexterm" data-primary="staging area" data-secondary="skipping" id="idp2756976"/>
+Although it can be amazingly useful for crafting commits exactly how you want them, the staging area is sometimes a bit more complex than you need in your workflow.
+If you want to skip the staging area, Git provides a simple shortcut.
+Adding the <code>-a</code> option to the <code>git commit</code> command makes Git automatically stage every file that is already tracked before doing the commit, letting you skip the <code>git add</code> part:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes not staged for commit:</code>
+<code class="go">  (use "git add &lt;file&gt;..." to update what will be committed)</code>
+<code class="go">  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)</code>
+
+<code class="go">    modified:   CONTRIBUTING.md</code>
+
+<code class="go">no changes added to commit (use "git add" and/or "git commit -a")</code>
+<code class="gp">$</code> git commit -a -m <code class="s1">'added new benchmarks'</code>
+<code class="go">[master 83e38c7] added new benchmarks</code>
+<code class="go"> 1 file changed, 5 insertions(+), 0 deletions(-)</code></pre>
+
+<p>Notice how you don’t have to run <code>git add</code> on the “CONTRIBUTING.md” file in this case before you commit.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Removing Files" id="_removing_files">
+<h2>Removing Files</h2>
+
+<p><a data-type="indexterm" data-primary="files" data-secondary="removing" id="idp2898560"/>
+To remove a file from Git, you have to remove it from your tracked files (more accurately, remove it from your staging area) and then commit.
+The <code>git rm</code> command does that, and also removes the file from your working directory so you don’t see it as an untracked file the next time around.</p>
+
+<p>If you simply remove the file from your working directory, it shows up under the “Changed but not updated” (that is, <em>unstaged</em>) area of your <code>git status</code> output:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> rm PROJECTS.md
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Your branch is up-to-date with 'origin/master'.</code>
+<code class="go">Changes not staged for commit:</code>
+<code class="go">  (use "git add/rm &lt;file&gt;..." to update what will be committed)</code>
+<code class="go">  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)</code>
+
+<code class="go">        deleted:    PROJECTS.md</code>
+
+<code class="go">no changes added to commit (use "git add" and/or "git commit -a")</code></pre>
+
+<p>Then, if you run <code>git rm</code>, it stages the file’s removal:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git rm PROJECTS.md
+<code class="go">rm 'PROJECTS.md'</code>
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    deleted:    PROJECTS.md</code></pre>
+
+<p>The next time you commit, the file will be gone and no longer tracked.
+If you modified the file and added it to the index already, you must force the removal with the <code>-f</code> option.
+This is a safety feature to prevent accidental removal of data that hasn’t yet been recorded in a snapshot and that can’t be recovered from Git.</p>
+
+<p>Another useful thing you may want to do is to keep the file in your working tree but remove it from your staging area.
+In other words, you may want to keep the file on your hard drive but not have Git track it anymore.
+This is particularly useful if you forgot to add something to your <code>.gitignore</code> file and accidentally staged it, like a large log file or a bunch of <code>.a</code> compiled files.
+To do this, use the <code>--cached</code> option:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git rm --cached README</pre>
+
+<p>You can pass files, directories, and file-glob patterns to the <code>git rm</code> command.
+That means you can do things such as</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git rm log/<code class="se">\*</code>.log</pre>
+
+<p>Note the backslash (<code>\</code>) in front of the <code>*</code>.
+This is necessary because Git does its own filename expansion in addition to your shell’s filename expansion.
+This command removes all files that have the <code>.log</code> extension in the <code>log/</code> directory.
+Or, you can do something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git rm <code class="se">\*</code>~</pre>
+
+<p>This command removes all files that end with <code>~</code>.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Moving Files" id="_git_mv">
+<h2>Moving Files</h2>
+
+<p><a data-type="indexterm" data-primary="files" data-secondary="moving" id="idp2830960"/>
+Unlike many other VCS systems, Git doesn’t explicitly track file movement.
+If you rename a file in Git, no metadata is stored in Git that tells it you renamed the file.
+However, Git is pretty smart about figuring that out after the fact – we’ll deal with detecting file movement a bit later.</p>
+
+<p>Thus it’s a bit confusing that Git has a <code>mv</code> command.
+If you want to rename a file in Git, you can run something like</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git mv file_from file_to</pre>
+
+<p>and it works fine.
+In fact, if you run something like this and look at the status, you’ll see that Git considers it a renamed file:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git mv README.md README
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    renamed:    README.md -&gt; README</code></pre>
+
+<p>However, this is equivalent to running something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> mv README.md README
+<code class="gp">$</code> git rm README.md
+<code class="gp">$</code> git add README</pre>
+
+<p>Git figures out that it’s a rename implicitly, so it doesn’t matter if you rename a file that way or with the <code>mv</code> command.
+The only real difference is that <code>mv</code> is one command instead of three – it’s a convenience function.
+More important, you can use any tool you like to rename a file, and address the add/rm later, before you commit.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Viewing the Commit History" id="_viewing_history">
+<h1>Viewing the Commit History</h1>
+
+<p>After you have created several commits, or if you have cloned a repository with an existing commit history, you’ll probably want to look back to see what has happened.
+The most basic and powerful tool to do this is the <code>git log</code> command.</p>
+
+<p>These examples use a very simple project called “simplegit”.
+To get the project, run</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">git clone https://github.com/schacon/simplegit-progit</code></pre>
+
+<p>When you run <code>git log</code> in this project, you should get output that looks something like this:<a data-type="indexterm" data-primary="git commands" data-secondary="log" id="idp2806976"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log
+<code class="go">commit ca82a6dff817ec66f44342007202690a93763949</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Mon Mar 17 21:52:11 2008 -0700</code>
+
+<code class="go">    changed the version number</code>
+
+<code class="go">commit 085bb3bcb608e1e8451d4b2432f8ecbe6306e7e7</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Sat Mar 15 16:40:33 2008 -0700</code>
+
+<code class="go">    removed unnecessary test</code>
+
+<code class="go">commit a11bef06a3f659402fe7563abf99ad00de2209e6</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Sat Mar 15 10:31:28 2008 -0700</code>
+
+<code class="go">    first commit</code></pre>
+
+<p>By default, with no arguments, <code>git log</code> lists the commits made in that repository in reverse chronological order – that is, the most recent commits show up first.
+As you can see, this command lists each commit with its SHA-1 checksum, the author’s name and e-mail, the date written, and the commit message.</p>
+
+<p>A huge number and variety of options to the <code>git log</code> command are available to show you exactly what you’re looking for.
+Here, we’ll show you some of the most popular.</p>
+
+<p>One of the more helpful options is <code>-p</code>, which shows the difference introduced in each commit.
+You can also use <code>-2</code>, which limits the output to only the last two entries:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log -p -2
+<code class="go">commit ca82a6dff817ec66f44342007202690a93763949</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Mon Mar 17 21:52:11 2008 -0700</code>
+
+<code class="go">    changed the version number</code>
+
+<code class="go">diff --git a/Rakefile b/Rakefile</code>
+<code class="go">index a874b73..8f94139 100644</code>
+<code class="go">--- a/Rakefile</code>
+<code class="go">+++ b/Rakefile</code>
+<code class="go">@@ -5,7 +5,7 @@ require 'rake/gempackagetask'</code>
+<code class="go"> spec = Gem::Specification.new do |s|</code>
+<code class="go">     s.platform  =   Gem::Platform::RUBY</code>
+<code class="go">     s.name      =   "simplegit"</code>
+<code class="go">-    s.version   =   "0.1.0"</code>
+<code class="go">+    s.version   =   "0.1.1"</code>
+<code class="go">     s.author    =   "Scott Chacon"</code>
+<code class="go">     s.email     =   "schacon@gee-mail.com"</code>
+<code class="go">     s.summary   =   "A simple gem for using Git in Ruby code."</code>
+
+<code class="go">commit 085bb3bcb608e1e8451d4b2432f8ecbe6306e7e7</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Sat Mar 15 16:40:33 2008 -0700</code>
+
+<code class="go">    removed unnecessary test</code>
+
+<code class="go">diff --git a/lib/simplegit.rb b/lib/simplegit.rb</code>
+<code class="go">index a0a60ae..47c6340 100644</code>
+<code class="go">--- a/lib/simplegit.rb</code>
+<code class="go">+++ b/lib/simplegit.rb</code>
+<code class="go">@@ -18,8 +18,3 @@ class SimpleGit</code>
+<code class="go">     end</code>
+
+<code class="go"> end</code>
+<code class="go">-</code>
+<code class="go">-if $0 == __FILE__</code>
+<code class="go">-  git = SimpleGit.new</code>
+<code class="go">-  puts git.show</code>
+<code class="go">-end</code>
+<code class="go">\ No newline at end of file</code></pre>
+
+<p>This option displays the same information but with a diff directly following each entry.
+This is very helpful for code review or to quickly browse what happened during a series of commits that a collaborator has added.
+You can also use a series of summarizing options with <code>git log</code>.
+For example, if you want to see some abbreviated stats for each commit, you can use the <code>--stat</code> option:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log --stat
+<code class="go">commit ca82a6dff817ec66f44342007202690a93763949</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Mon Mar 17 21:52:11 2008 -0700</code>
+
+<code class="go">    changed the version number</code>
+
+<code class="go"> Rakefile | 2 +-</code>
+<code class="go"> 1 file changed, 1 insertion(+), 1 deletion(-)</code>
+
+<code class="go">commit 085bb3bcb608e1e8451d4b2432f8ecbe6306e7e7</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Sat Mar 15 16:40:33 2008 -0700</code>
+
+<code class="go">    removed unnecessary test</code>
+
+<code class="go"> lib/simplegit.rb | 5 -----</code>
+<code class="go"> 1 file changed, 5 deletions(-)</code>
+
+<code class="go">commit a11bef06a3f659402fe7563abf99ad00de2209e6</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Sat Mar 15 10:31:28 2008 -0700</code>
+
+<code class="go">    first commit</code>
+
+<code class="go"> README           |  6 ++++++</code>
+<code class="go"> Rakefile         | 23 +++++++++++++++++++++++</code>
+<code class="go"> lib/simplegit.rb | 25 +++++++++++++++++++++++++</code>
+<code class="go"> 3 files changed, 54 insertions(+)</code></pre>
+
+<p>As you can see, the <code>--stat</code> option prints below each commit entry a list of modified files, how many files were changed, and how many lines in those files were added and removed.
+It also puts a summary of the information at the end.</p>
+
+<p>Another really useful option is <code>--pretty</code>.
+This option changes the log output to formats other than the default.
+A few prebuilt options are available for you to use.
+The <code>oneline</code> option prints each commit on a single line, which is useful if you’re looking at a lot of commits.
+In addition, the <code>short</code>, <code>full</code>, and <code>fuller</code> options show the output in roughly the same format but with less or more information, respectively:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log --pretty<code class="o">=</code>oneline
+<code class="go">ca82a6dff817ec66f44342007202690a93763949 changed the version number</code>
+<code class="go">085bb3bcb608e1e8451d4b2432f8ecbe6306e7e7 removed unnecessary test</code>
+<code class="go">a11bef06a3f659402fe7563abf99ad00de2209e6 first commit</code></pre>
+
+<p>The most interesting option is <code>format</code>, which allows you to specify your own log output format.
+This is especially useful when you’re generating output for machine parsing – because you specify the format explicitly, you know it won’t change with updates to Git:<a data-type="indexterm" data-primary="log formatting" id="idp3375488"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log --pretty<code class="o">=</code>format:<code class="s2">"%h - %an, %ar : %s"</code>
+<code class="go">ca82a6d - Scott Chacon, 6 years ago : changed the version number</code>
+<code class="go">085bb3b - Scott Chacon, 6 years ago : removed unnecessary test</code>
+<code class="go">a11bef0 - Scott Chacon, 6 years ago : first commit</code></pre>
+
+<p><a data-type="xref" href="#pretty_format">Table 2-1</a> lists some of the more useful options that format takes.</p>
+<table id="pretty_format">
+<caption>Useful options for <code>git log --pretty=format</code></caption>
+<thead>
+<tr>
+<th width="20%">Option</th>
+<th>Description of Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code>%H</code></p></td>
+<td><p>Commit hash</p></td>
+</tr>
+<tr>
+<td><p><code>%h</code></p></td>
+<td><p>Abbreviated commit hash</p></td>
+</tr>
+<tr>
+<td><p><code>%T</code></p></td>
+<td><p>Tree hash</p></td>
+</tr>
+<tr>
+<td><p><code>%t</code></p></td>
+<td><p>Abbreviated tree hash</p></td>
+</tr>
+<tr>
+<td><p><code>%P</code></p></td>
+<td><p>Parent hashes</p></td>
+</tr>
+<tr>
+<td><p><code>%p</code></p></td>
+<td><p>Abbreviated parent hashes</p></td>
+</tr>
+<tr>
+<td><p><code>%an</code></p></td>
+<td><p>Author name</p></td>
+</tr>
+<tr>
+<td><p><code>%ae</code></p></td>
+<td><p>Author e-mail</p></td>
+</tr>
+<tr>
+<td><p><code>%ad</code></p></td>
+<td><p>Author date (format respects the --date=option)</p></td>
+</tr>
+<tr>
+<td><p><code>%ar</code></p></td>
+<td><p>Author date, relative</p></td>
+</tr>
+<tr>
+<td><p><code>%cn</code></p></td>
+<td><p>Committer name</p></td>
+</tr>
+<tr>
+<td><p><code>%ce</code></p></td>
+<td><p>Committer email</p></td>
+</tr>
+<tr>
+<td><p><code>%cd</code></p></td>
+<td><p>Committer date</p></td>
+</tr>
+<tr>
+<td><p><code>%cr</code></p></td>
+<td><p>Committer date, relative</p></td>
+</tr>
+<tr>
+<td><p><code>%s</code></p></td>
+<td><p>Subject</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>You may be wondering what the difference is between <em>author</em> and <em>committer</em>.
+The author is the person who originally wrote the work, whereas the committer is the person who last applied the work.
+So, if you send in a patch to a project and one of the core members applies the patch, both of you get credit – you as the author, and the core member as the committer.
+We’ll cover this distinction a bit more in <a data-type="xref" href="ch05.html#_distributed_git">Chapter 5</a>.</p>
+
+<p>The oneline and format options are particularly useful with another <code>log</code> option called <code>--graph</code>.
+This option adds a nice little ASCII graph showing your branch and merge history:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log --pretty<code class="o">=</code>format:<code class="s2">"%h %s"</code> --graph
+<code class="go">* 2d3acf9 ignore errors from SIGCHLD on trap</code>
+<code class="go">*  5e3ee11 Merge branch 'master' of git://github.com/dustin/grit</code>
+<code class="go">|\</code>
+<code class="go">| * 420eac9 Added a method for getting the current branch.</code>
+<code class="go">* | 30e367c timeout code and tests</code>
+<code class="go">* | 5a09431 add timeout protection to grit</code>
+<code class="go">* | e1193f8 support for heads with slashes in them</code>
+<code class="go">|/</code>
+<code class="go">* d6016bc require time for xmlschema</code>
+<code class="go">*  11d191e Merge branch 'defunkt' into local</code></pre>
+
+<p>This type of output will become more interesting as we go through branching and merging in the next chapter.</p>
+
+<p>Those are only some simple output-formatting options to <code>git log</code> – there are many more.
+<a data-type="xref" href="#log_options">Table 2-2</a> lists the options we’ve covered so far, as well as some other common formatting options that may be useful, along with how they change the output of the log command.</p>
+<table id="log_options">
+<caption>Common options to <code>git log</code></caption>
+<thead>
+<tr>
+<th width="20%">Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code>-p</code></p></td>
+<td><p>Show the patch introduced with each commit.</p></td>
+</tr>
+<tr>
+<td><p><code>--stat</code></p></td>
+<td><p>Show statistics for files modified in each commit.</p></td>
+</tr>
+<tr>
+<td><p><code>--shortstat</code></p></td>
+<td><p>Display only the changed/insertions/deletions line from the --stat command.</p></td>
+</tr>
+<tr>
+<td><p><code>--name-only</code></p></td>
+<td><p>Show the list of files modified after the commit information.</p></td>
+</tr>
+<tr>
+<td><p><code>--name-status</code></p></td>
+<td><p>Show the list of files affected with added/modified/deleted information as well.</p></td>
+</tr>
+<tr>
+<td><p><code>--abbrev-commit</code></p></td>
+<td><p>Show only the first few characters of the SHA-1 checksum instead of all 40.</p></td>
+</tr>
+<tr>
+<td><p><code>--relative-date</code></p></td>
+<td><p>Display the date in a relative format (for example, “2 weeks ago”) instead of using the full date format.</p></td>
+</tr>
+<tr>
+<td><p><code>--graph</code></p></td>
+<td><p>Display an ASCII graph of the branch and merge history beside the log output.</p></td>
+</tr>
+<tr>
+<td><p><code>--pretty</code></p></td>
+<td><p>Show commits in an alternate format. Options include oneline, short, full, fuller, and format (where you specify your own format).</p></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Limiting Log Output" id="idp3343168">
+<h2>Limiting Log Output</h2>
+
+<p>In addition to output-formatting options, <code>git log</code> takes a number of useful limiting options – that is, options that let you show only a subset of commits.
+You’ve seen one such option already – the <code>-2</code> option, which show only the last two commits.
+In fact, you can do <code>-&lt;n&gt;</code>, where <code>n</code> is any integer to show the last <code>n</code> commits.
+In reality, you’re unlikely to use that often, because Git by default pipes all output through a pager so you see only one page of log output at a time.</p>
+
+<p>However, the time-limiting options such as <code>--since</code> and <code>--until</code> are very useful.
+For example, this command gets the list of commits made in the last two weeks:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log --since<code class="o">=</code>2.weeks</pre>
+
+<p>This command works with lots of formats – you can specify a specific date like <code>"2008-01-15"</code>, or a relative date such as <code>"2 years 1 day 3 minutes ago"</code>.</p>
+
+<p>You can also filter the list to commits that match some search criteria.
+The <code>--author</code> option allows you to filter on a specific author, and the <code>--grep</code> option lets you search for keywords in the commit messages.
+(Note that if you want to specify both author and grep options, you have to add <code>--all-match</code> or the command will match commits with either.)</p>
+
+<p>Another really helpful filter is the <code>-S</code> option which takes a string and only shows the commits that introduced a change to the code that added or removed that string.  For instance, if you wanted to find the last commit that added or removed a reference to a specific function, you could call:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log -Sfunction_name</pre>
+
+<p>The last really useful option to pass to <code>git log</code> as a filter is a path.
+If you specify a directory or file name, you can limit the log output to commits that introduced a change to those files.
+This is always the last option and is generally preceded by double dashes (<code>--</code>) to separate the paths from the options.</p>
+
+<p>In <a data-type="xref" href="#limit_options">Table 2-3</a> we’ll list these and a few other common options for your reference.</p>
+<table id="limit_options">
+<caption>Options to limit the output of <code>git log</code></caption>
+<thead>
+<tr>
+<th width="33%">Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code>-(n)</code></p></td>
+<td><p>Show only the last n commits</p></td>
+</tr>
+<tr>
+<td><p><code>--since</code>, <code>--after</code></p></td>
+<td><p>Limit the commits to those made after the specified date.</p></td>
+</tr>
+<tr>
+<td><p><code>--until</code>, <code>--before</code></p></td>
+<td><p>Limit the commits to those made before the specified date.</p></td>
+</tr>
+<tr>
+<td><p><code>--author</code></p></td>
+<td><p>Only show commits in which the author entry matches the specified string.</p></td>
+</tr>
+<tr>
+<td><p><code>--committer</code></p></td>
+<td><p>Only show commits in which the committer entry matches the specified string.</p></td>
+</tr>
+<tr>
+<td><p><code>--grep</code></p></td>
+<td><p>Only show commits with a commit message containing the string</p></td>
+</tr>
+<tr>
+<td><p><code>-S</code></p></td>
+<td><p>Only show commits adding or removing code matching the string</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>For example, if you want to see which commits modifying test files in the Git source code history were committed by Junio Hamano and were not merges in the month of October 2008, you can run something like this:<a data-type="indexterm" data-primary="log filtering" id="idp3541280"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log --pretty<code class="o">=</code><code class="s2">"%h - %s"</code> --author<code class="o">=</code>gitster --since<code class="o">=</code><code class="s2">"2008-10-01"</code> <code class="se">\</code>
+<code class="go">   --before="2008-11-01" --no-merges -- t/</code>
+<code class="go">5610e3b - Fix testcase failure when extended attributes are in use</code>
+<code class="go">acd3b9e - Enhance hold_lock_file_for_{update,append}() API</code>
+<code class="go">f563754 - demonstrate breakage of detached checkout with symbolic link HEAD</code>
+<code class="go">d1a43f2 - reset --hard/read-tree --reset -u: remove unmerged new paths</code>
+<code class="go">51a94af - Fix "checkout --track -b newbranch" on detached HEAD</code>
+<code class="go">b0ad11e - pull: allow "git pull origin $something:$current_branch" into an unborn branch</code></pre>
+
+<p>Of the nearly 40,000 commits in the Git source code history, this command shows the 6 that match those criteria.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Undoing Things" id="_undoing">
+<h1>Undoing Things</h1>
+
+<p>At any stage, you may want to undo something.
+Here, we’ll review a few basic tools for undoing changes that you’ve made.
+Be careful, because you can’t always undo some of these undos.
+This is one of the few areas in Git where you may lose some work if you do it wrong.</p>
+
+<p>One of the common undos takes place when you commit too early and possibly forget to add some files, or you mess up your commit message.
+If you want to try that commit again, you can run commit with the <code>--amend</code> option:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git commit --amend</pre>
+
+<p>This command takes your staging area and uses it for the commit.
+If you’ve made no changes since your last commit (for instance, you run this command immediately after your previous commit), then your snapshot will look exactly the same, and all you’ll change is your commit message.</p>
+
+<p>The same commit-message editor fires up, but it already contains the message of your previous commit.
+You can edit the message the same as always, but it overwrites your previous commit.</p>
+
+<p>As an example, if you commit and then realize you forgot to stage the changes in a file you wanted to add to this commit, you can do something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git commit -m <code class="s1">'initial commit'</code>
+<code class="gp">$</code> git add forgotten_file
+<code class="gp">$</code> git commit --amend</pre>
+
+<p>You end up with a single commit – the second commit replaces the results of the first.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Unstaging a Staged File" id="_unstaging">
+<h2>Unstaging a Staged File</h2>
+
+<p>The next two sections demonstrate how to wrangle your staging area and working directory changes.
+The nice part is that the command you use to determine the state of those two areas also reminds you how to undo changes to them.
+For example, let’s say you’ve changed two files and want to commit them as two separate changes, but you accidentally type <code>git add *</code> and stage them both.
+How can you unstage one of the two?
+The <code>git status</code> command reminds you:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git add .
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    renamed:    README.md -&gt; README</code>
+<code class="go">    modified:   CONTRIBUTING.md</code></pre>
+
+<p>Right below the “Changes to be committed” text, it says use <code>git reset HEAD &lt;file&gt;...</code> to unstage.
+So, let’s use that advice to unstage the <code>CONTRIBUTING.md</code> file:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git reset HEAD CONTRIBUTING.md
+<code class="go">Unstaged changes after reset:</code>
+<code class="go">M	CONTRIBUTING.md</code>
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    renamed:    README.md -&gt; README</code>
+
+<code class="go">Changes not staged for commit:</code>
+<code class="go">  (use "git add &lt;file&gt;..." to update what will be committed)</code>
+<code class="go">  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)</code>
+
+<code class="go">    modified:   CONTRIBUTING.md</code></pre>
+
+<p>The command is a bit strange, but it works.
+The <code>CONTRIBUTING.md</code> file is modified but once again unstaged.</p>
+<div data-type="note">
+<p>While <code>git reset</code> <em>can</em> be a dangerous command if you call it with <code>--hard</code>, in this instance the file in your working directory is not touched. Calling <code>git reset</code> without an option is not dangerous - it only touches your staging area.</p>
+</div>
+
+<p>For now this magic invocation is all you need to know about the <code>git reset</code> command. We’ll go into much more detail about what <code>reset</code> does and how to master it to do really interesting things in <a data-type="xref" href="ch07.html#_git_reset">“Reset Demystified”</a>.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Unmodifying a Modified File" id="idp3688832">
+<h2>Unmodifying a Modified File</h2>
+
+<p>What if you realize that you don’t want to keep your changes to the <code>CONTRIBUTING.md</code> file?
+How can you easily unmodify it – revert it back to what it looked like when you last committed (or initially cloned, or however you got it into your working directory)?
+Luckily, <code>git status</code> tells you how to do that, too.
+In the last example output, the unstaged area looks like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">Changes not staged for commit:</code>
+<code class="go">  (use "git add &lt;file&gt;..." to update what will be committed)</code>
+<code class="go">  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)</code>
+
+<code class="go">    modified:   CONTRIBUTING.md</code></pre>
+
+<p>It tells you pretty explicitly how to discard the changes you’ve made.
+Let’s do what it says:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout -- CONTRIBUTING.md
+<code class="gp">$</code> git status
+<code class="go">On branch master</code>
+<code class="go">Changes to be committed:</code>
+<code class="go">  (use "git reset HEAD &lt;file&gt;..." to unstage)</code>
+
+<code class="go">    renamed:    README.md -&gt; README</code></pre>
+
+<p>You can see that the changes have been reverted.</p>
+<div data-type="important">
+<p>It’s important to understand that <code>git checkout -- [file]</code> is a dangerous command. Any changes you made to that file are gone – you just copied another file over it.
+Don’t ever use this command unless you absolutely know that you don’t want the file.</p>
+</div>
+
+<p>If you would like to keep the changes you’ve made to that file but still need to get it out of the way for now, we’ll go over stashing and branching in <a data-type="xref" href="ch03.html#_git_branching">Chapter 3</a>; these are generally better ways to go.</p>
+
+<p>Remember, anything that is <em>committed</em> in Git can almost always be recovered.
+Even commits that were on branches that were deleted or commits that were overwritten with an <code>--amend</code> commit can be recovered (see <a data-type="xref" href="ch10.html#_data_recovery">“Data Recovery”</a> for data recovery).
+However, anything you lose that was never committed is likely never to be seen again.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Working with Remotes" id="_remote_repos">
+<h1>Working with Remotes</h1>
+
+<p>To be able to collaborate on any Git project, you need to know how to manage your remote repositories.
+Remote repositories are versions of your project that are hosted on the Internet or network somewhere.
+You can have several of them, each of which generally is either read-only or read/write for you.
+Collaborating with others involves managing these remote repositories and pushing and pulling data to and from them when you need to share work.
+Managing remote repositories includes knowing how to add remote repositories, remove remotes that are no longer valid, manage various remote branches and define them as being tracked or not, and more.
+In this section, we’ll cover some of these remote-management skills.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Showing Your Remotes" id="idp3704768">
+<h2>Showing Your Remotes</h2>
+
+<p>To see which remote servers you have configured, you can run the <code>git remote</code> command.<a data-type="indexterm" data-primary="git commands" data-secondary="remote" id="idp3728288"/>
+It lists the shortnames of each remote handle you’ve specified.
+If you’ve cloned your repository, you should at least see origin – that is the default name Git gives to the server you cloned from:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone https://github.com/schacon/ticgit
+<code class="go">Cloning into 'ticgit'...</code>
+<code class="go">remote: Reusing existing pack: 1857, done.</code>
+<code class="go">remote: Total 1857 (delta 0), reused 0 (delta 0)</code>
+<code class="go">Receiving objects: 100% (1857/1857), 374.35 KiB | 268.00 KiB/s, done.</code>
+<code class="go">Resolving deltas: 100% (772/772), done.</code>
+<code class="go">Checking connectivity... done.</code>
+<code class="gp">$</code> <code class="nb">cd </code>ticgit
+<code class="gp">$</code> git remote
+<code class="go">origin</code></pre>
+
+<p>You can also specify <code>-v</code>, which shows you the URLs that Git has stored for the shortname to be used when reading and writing to that remote:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote -v
+<code class="go">origin	https://github.com/schacon/ticgit (fetch)</code>
+<code class="go">origin	https://github.com/schacon/ticgit (push)</code></pre>
+
+<p>If you have more than one remote, the command lists them all.
+For example, a repository with multiple remotes for working with several collaborators might look something like this.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">cd </code>grit
+<code class="gp">$</code> git remote -v
+<code class="go">bakkdoor  https://github.com/bakkdoor/grit (fetch)</code>
+<code class="go">bakkdoor  https://github.com/bakkdoor/grit (push)</code>
+<code class="go">cho45     https://github.com/cho45/grit (fetch)</code>
+<code class="go">cho45     https://github.com/cho45/grit (push)</code>
+<code class="go">defunkt   https://github.com/defunkt/grit (fetch)</code>
+<code class="go">defunkt   https://github.com/defunkt/grit (push)</code>
+<code class="go">koke      git://github.com/koke/grit.git (fetch)</code>
+<code class="go">koke      git://github.com/koke/grit.git (push)</code>
+<code class="go">origin    git@github.com:mojombo/grit.git (fetch)</code>
+<code class="go">origin    git@github.com:mojombo/grit.git (push)</code></pre>
+
+<p>This means we can pull contributions from any of these users pretty easily. We may additionally have permission to push to one or more of these, though we can’t tell that here.</p>
+
+<p>Notice that these remotes use a variety of protocols; we’ll cover more about this in <a data-type="xref" href="ch04.html#_git_on_the_server">“Getting Git on a Server”</a>.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Adding Remote Repositories" id="idp3575392">
+<h2>Adding Remote Repositories</h2>
+
+<p>We’ve mentioned and given some demonstrations of adding remote repositories in previous sections, but here is how to do it explicitly.<a data-type="indexterm" data-primary="git commands" data-secondary="remote" id="idp3577088"/>
+To add a new remote Git repository as a shortname you can reference easily, run <code>git remote add [shortname] [url]</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote
+<code class="go">origin</code>
+<code class="gp">$</code> git remote add pb https://github.com/paulboone/ticgit
+<code class="gp">$</code> git remote -v
+<code class="go">origin	https://github.com/schacon/ticgit (fetch)</code>
+<code class="go">origin	https://github.com/schacon/ticgit (push)</code>
+<code class="go">pb	https://github.com/paulboone/ticgit (fetch)</code>
+<code class="go">pb	https://github.com/paulboone/ticgit (push)</code></pre>
+
+<p>Now you can use the string <code>pb</code> on the command line in lieu of the whole URL.
+For example, if you want to fetch all the information that Paul has but that you don’t yet have in your repository, you can run <code>git fetch pb</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git fetch pb
+<code class="go">remote: Counting objects: 43, done.</code>
+<code class="go">remote: Compressing objects: 100% (36/36), done.</code>
+<code class="go">remote: Total 43 (delta 10), reused 31 (delta 5)</code>
+<code class="go">Unpacking objects: 100% (43/43), done.</code>
+<code class="go">From https://github.com/paulboone/ticgit</code>
+<code class="go"> * [new branch]      master     -&gt; pb/master</code>
+<code class="go"> * [new branch]      ticgit     -&gt; pb/ticgit</code></pre>
+
+<p>Paul’s master branch is now accessible locally as <code>pb/master</code> – you can merge it into one of your branches, or you can check out a local branch at that point if you want to inspect it.
+(We’ll go over what branches are and how to use them in much more detail in <a data-type="xref" href="ch03.html#_git_branching">Chapter 3</a>.)</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Fetching and Pulling from Your Remotes" id="_fetching_and_pulling">
+<h2>Fetching and Pulling from Your Remotes</h2>
+
+<p>As you just saw, to get data from your remote projects, you can run:<a data-type="indexterm" data-primary="git commands" data-secondary="fetch" id="idp3779200"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git fetch <code class="o">[</code>remote-name<code class="o">]</code></pre>
+
+<p>The command goes out to that remote project and pulls down all the data from that remote project that you don’t have yet.
+After you do this, you should have references to all the branches from that remote, which you can merge in or inspect at any time.</p>
+
+<p>If you clone a repository, the command automatically adds that remote repository under the name “origin”.
+So, <code>git fetch origin</code> fetches any new work that has been pushed to that server since you cloned (or last fetched from) it.
+It’s important to note that the <code>git fetch</code> command pulls the data to your local repository – it doesn’t automatically merge it with any of your work or modify what you’re currently working on.
+You have to merge it manually into your work when you’re ready.</p>
+
+<p>If you have a branch set up to track a remote branch (see the next section and <a data-type="xref" href="ch03.html#_git_branching">Chapter 3</a> for more information), you can use the <code>git pull</code> command to automatically fetch and then merge a remote branch into your current branch.<a data-type="indexterm" data-primary="git commands" data-secondary="pull" id="idp3842112"/>
+This may be an easier or more comfortable workflow for you; and by default, the <code>git clone</code> command automatically sets up your local master branch to track the remote master branch (or whatever the default branch is called) on the server you cloned from.
+Running <code>git pull</code> generally fetches data from the server you originally cloned from and automatically tries to merge it into the code you’re currently working on.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Pushing to Your Remotes" id="_pushing_remotes">
+<h2>Pushing to Your Remotes</h2>
+
+<p>When you have your project at a point that you want to share, you have to push it upstream.
+The command for this is simple: <code>git push [remote-name] [branch-name]</code>.<a data-type="indexterm" data-primary="git commands" data-secondary="push" id="idp3913328"/>
+If you want to push your master branch to your <code>origin</code> server (again, cloning generally sets up both of those names for you automatically), then you can run this to push any commits you’ve done back up to the server:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git push origin master</pre>
+
+<p>This command works only if you cloned from a server to which you have write access and if nobody has pushed in the meantime.
+If you and someone else clone at the same time and they push upstream and then you push upstream, your push will rightly be rejected.
+You’ll have to pull down their work first and incorporate it into yours before you’ll be allowed to push.
+See <a data-type="xref" href="ch03.html#_git_branching">Chapter 3</a> for more detailed information on how to push to remote servers.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Inspecting a Remote" id="_inspecting_remote">
+<h2>Inspecting a Remote</h2>
+
+<p>If you want to see more information about a particular remote, you can use the <code>git remote show [remote-name]</code> command.<a data-type="indexterm" data-primary="git commands" data-secondary="remote" id="idp3998720"/>
+If you run this command with a particular shortname, such as <code>origin</code>, you get something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote show origin
+<code class="go">* remote origin</code>
+<code class="go">  Fetch URL: https://github.com/schacon/ticgit</code>
+<code class="go">  Push  URL: https://github.com/schacon/ticgit</code>
+<code class="go">  HEAD branch: master</code>
+<code class="go">  Remote branches:</code>
+<code class="go">    master                               tracked</code>
+<code class="go">    dev-branch                           tracked</code>
+<code class="go">  Local branch configured for 'git pull':</code>
+<code class="go">    master merges with remote master</code>
+<code class="go">  Local ref configured for 'git push':</code>
+<code class="go">    master pushes to master (up to date)</code></pre>
+
+<p>It lists the URL for the remote repository as well as the tracking branch information.
+The command helpfully tells you that if you’re on the master branch and you run <code>git pull</code>, it will automatically merge in the master branch on the remote after it fetches all the remote references.
+It also lists all the remote references it has pulled down.</p>
+
+<p>That is a simple example you’re likely to encounter.
+When you’re using Git more heavily, however, you may see much more information from <code>git remote show</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote show origin
+<code class="go">* remote origin</code>
+<code class="go">  URL: https://github.com/my-org/complex-project</code>
+<code class="go">  Fetch URL: https://github.com/my-org/complex-project</code>
+<code class="go">  Push  URL: https://github.com/my-org/complex-project</code>
+<code class="go">  HEAD branch: master</code>
+<code class="go">  Remote branches:</code>
+<code class="go">    master                           tracked</code>
+<code class="go">    dev-branch                       tracked</code>
+<code class="go">    markdown-strip                   tracked</code>
+<code class="go">    issue-43                         new (next fetch will store in remotes/origin)</code>
+<code class="go">    issue-45                         new (next fetch will store in remotes/origin)</code>
+<code class="go">    refs/remotes/origin/issue-11     stale (use 'git remote prune' to remove)</code>
+<code class="go">  Local branches configured for 'git pull':</code>
+<code class="go">    dev-branch merges with remote dev-branch</code>
+<code class="go">    master     merges with remote master</code>
+<code class="go">  Local refs configured for 'git push':</code>
+<code class="go">    dev-branch                     pushes to dev-branch                     (up to date)</code>
+<code class="go">    markdown-strip                 pushes to markdown-strip                 (up to date)</code>
+<code class="go">    master                         pushes to master                         (up to date)</code></pre>
+
+<p>This command shows which branch is automatically pushed to when you run <code>git push</code> while on certain branches.
+It also shows you which remote branches on the server you don’t yet have, which remote branches you have that have been removed from the server, and multiple branches that are automatically merged when you run <code>git pull</code>.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Removing and Renaming Remotes" id="idp4080544">
+<h2>Removing and Renaming Remotes</h2>
+
+<p>If you want to rename a reference you can run <code>git remote rename</code> to change a remote’s shortname.<a data-type="indexterm" data-primary="git commands" data-secondary="remote" id="idp4024448"/>
+For instance, if you want to rename <code>pb</code> to <code>paul</code>, you can do so with <code>git remote rename</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote rename pb paul
+<code class="gp">$</code> git remote
+<code class="go">origin</code>
+<code class="go">paul</code></pre>
+
+<p>It’s worth mentioning that this changes your remote branch names, too.
+What used to be referenced at <code>pb/master</code> is now at <code>paul/master</code>.</p>
+
+<p>If you want to remove a remote for some reason – you’ve moved the server or are no longer using a particular mirror, or perhaps a contributor isn’t contributing anymore – you can use <code>git remote rm</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote rm paul
+<code class="gp">$</code> git remote
+<code class="go">origin</code></pre>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Tagging" id="_git_tagging">
+<h1>Tagging</h1>
+
+<p><a data-type="indexterm" data-primary="tags" id="idp4038256"/>
+Like most VCSs, Git has the ability to tag specific points in history as being important.
+Typically people use this functionality to mark release points (v1.0, and so on).
+In this section, you’ll learn how to list the available tags, how to create new tags, and what the different types of tags are.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Listing Your Tags" id="idp4039424">
+<h2>Listing Your Tags</h2>
+
+<p>Listing the available tags in Git is straightforward.
+Just type <code>git tag</code>:<a data-type="indexterm" data-primary="git commands" data-secondary="tag" id="idp4041376"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git tag
+<code class="go">v0.1</code>
+<code class="go">v1.3</code></pre>
+
+<p>This command lists the tags in alphabetical order; the order in which they appear has no real importance.</p>
+
+<p>You can also search for tags with a particular pattern.
+The Git source repo, for instance, contains more than 500 tags.
+If you’re only interested in looking at the 1.8.5 series, you can run this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git tag -l <code class="s1">'v1.8.5*'</code>
+<code class="go">v1.8.5</code>
+<code class="go">v1.8.5-rc0</code>
+<code class="go">v1.8.5-rc1</code>
+<code class="go">v1.8.5-rc2</code>
+<code class="go">v1.8.5-rc3</code>
+<code class="go">v1.8.5.1</code>
+<code class="go">v1.8.5.2</code>
+<code class="go">v1.8.5.3</code>
+<code class="go">v1.8.5.4</code>
+<code class="go">v1.8.5.5</code></pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Creating Tags" id="idp4140880">
+<h2>Creating Tags</h2>
+
+<p>Git uses two main types of tags: lightweight and annotated.</p>
+
+<p>A lightweight tag is very much like a branch that doesn’t change – it’s just a pointer to a specific commit.</p>
+
+<p>Annotated tags, however, are stored as full objects in the Git database.
+They’re checksummed; contain the tagger name, e-mail, and date; have a tagging message; and can be signed and verified with GNU Privacy Guard (GPG).
+It’s generally recommended that you create annotated tags so you can have all this information; but if you want a temporary tag or for some reason don’t want to keep the other information, lightweight tags are available too.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Annotated Tags" id="_annotated_tags">
+<h2>Annotated Tags</h2>
+
+<p><a data-type="indexterm" data-primary="tags" data-secondary="annotated" id="idp4048816"/>
+Creating an annotated tag in Git is simple.
+The easiest way is to specify <code>-a</code> when you run the <code>tag</code> command:<a data-type="indexterm" data-primary="git commands" data-secondary="tag" id="idp4182208"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git tag -a v1.4 -m <code class="s1">'my version 1.4'</code>
+<code class="gp">$</code> git tag
+<code class="go">v0.1</code>
+<code class="go">v1.3</code>
+<code class="go">v1.4</code></pre>
+
+<p>The <code>-m</code> specifies a tagging message, which is stored with the tag.
+If you don’t specify a message for an annotated tag, Git launches your editor so you can type it in.</p>
+
+<p>You can see the tag data along with the commit that was tagged by using the <code>git show</code> command:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git show v1.4
+<code class="go">tag v1.4</code>
+<code class="go">Tagger: Ben Straub &lt;ben@straub.cc&gt;</code>
+<code class="go">Date:   Sat May 3 20:19:12 2014 -0700</code>
+
+<code class="go">my version 1.4</code>
+
+<code class="go">commit ca82a6dff817ec66f44342007202690a93763949</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Mon Mar 17 21:52:11 2008 -0700</code>
+
+<code class="go">    changed the version number</code></pre>
+
+<p>That shows the tagger information, the date the commit was tagged, and the annotation message before showing the commit information.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Lightweight Tags" id="idp4202080">
+<h2>Lightweight Tags</h2>
+
+<p><a data-type="indexterm" data-primary="tags" data-secondary="lightweight" id="idp4203392"/>
+Another way to tag commits is with a lightweight tag.
+This is basically the commit checksum stored in a file – no other information is kept.
+To create a lightweight tag, don’t supply the <code>-a</code>, <code>-s</code>, or <code>-m</code> option:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git tag v1.4-lw
+<code class="gp">$</code> git tag
+<code class="go">v0.1</code>
+<code class="go">v1.3</code>
+<code class="go">v1.4</code>
+<code class="go">v1.4-lw</code>
+<code class="go">v1.5</code></pre>
+
+<p>This time, if you run <code>git show</code> on the tag, you don’t see the extra tag information.<a data-type="indexterm" data-primary="git commands" data-secondary="show" id="idp4192464"/>
+The command just shows the commit:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git show v1.4-lw
+<code class="go">commit ca82a6dff817ec66f44342007202690a93763949</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Mon Mar 17 21:52:11 2008 -0700</code>
+
+<code class="go">    changed the version number</code></pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Tagging Later" id="idp4244144">
+<h2>Tagging Later</h2>
+
+<p>You can also tag commits after you’ve moved past them.
+Suppose your commit history looks like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log --pretty<code class="o">=</code>oneline
+<code class="go">15027957951b64cf874c3557a0f3547bd83b3ff6 Merge branch 'experiment'</code>
+<code class="go">a6b4c97498bd301d84096da251c98a07c7723e65 beginning write support</code>
+<code class="go">0d52aaab4479697da7686c15f77a3d64d9165190 one more thing</code>
+<code class="go">6d52a271eda8725415634dd79daabbc4d9b6008e Merge branch 'experiment'</code>
+<code class="go">0b7434d86859cc7b8c3d5e1dddfed66ff742fcbc added a commit function</code>
+<code class="go">4682c3261057305bdd616e23b64b0857d832627b added a todo file</code>
+<code class="go">166ae0c4d3f420721acbb115cc33848dfcc2121a started write support</code>
+<code class="go">9fceb02d0ae598e95dc970b74767f19372d61af8 updated rakefile</code>
+<code class="go">964f16d36dfccde844893cac5b347e7b3d44abbc commit the todo</code>
+<code class="go">8a5cbc430f1a9c3d00faaeffd07798508422908a updated readme</code></pre>
+
+<p>Now, suppose you forgot to tag the project at v1.2, which was at the “updated rakefile” commit.
+You can add it after the fact.
+To tag that commit, you specify the commit checksum (or part of it) at the end of the command:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git tag -a v1.2 9fceb02</pre>
+
+<p>You can see that you’ve tagged the commit:<a data-type="indexterm" data-primary="git commands" data-secondary="tag" id="idp4306208"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git tag
+<code class="go">v0.1</code>
+<code class="go">v1.2</code>
+<code class="go">v1.3</code>
+<code class="go">v1.4</code>
+<code class="go">v1.4-lw</code>
+<code class="go">v1.5</code>
+
+<code class="gp">$</code> git show v1.2
+<code class="go">tag v1.2</code>
+<code class="go">Tagger: Scott Chacon &lt;schacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Mon Feb 9 15:32:16 2009 -0800</code>
+
+<code class="go">version 1.2</code>
+<code class="go">commit 9fceb02d0ae598e95dc970b74767f19372d61af8</code>
+<code class="go">Author: Magnus Chacon &lt;mchacon@gee-mail.com&gt;</code>
+<code class="go">Date:   Sun Apr 27 20:43:35 2008 -0700</code>
+
+<code class="go">    updated rakefile</code>
+<code class="go">...</code></pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Sharing Tags" id="_sharing_tags">
+<h2>Sharing Tags</h2>
+
+<p>By default, the <code>git push</code> command doesn’t transfer tags to remote servers.<a data-type="indexterm" data-primary="git commands" data-secondary="push" id="idp4303424"/>
+You will have to explicitly push tags to a shared server after you have created them.
+This process is just like sharing remote branches – you can run <code>git push origin [tagname]</code>.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git push origin v1.5
+<code class="go">Counting objects: 14, done.</code>
+<code class="go">Delta compression using up to 8 threads.</code>
+<code class="go">Compressing objects: 100% (12/12), done.</code>
+<code class="go">Writing objects: 100% (14/14), 2.05 KiB | 0 bytes/s, done.</code>
+<code class="go">Total 14 (delta 3), reused 0 (delta 0)</code>
+<code class="go">To git@github.com:schacon/simplegit.git</code>
+<code class="go"> * [new tag]         v1.5 -&gt; v1.5</code></pre>
+
+<p>If you have a lot of tags that you want to push up at once, you can also use the <code>--tags</code> option to the <code>git push</code> command.
+This will transfer all of your tags to the remote server that are not already there.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git push origin --tags
+<code class="go">Counting objects: 1, done.</code>
+<code class="go">Writing objects: 100% (1/1), 160 bytes | 0 bytes/s, done.</code>
+<code class="go">Total 1 (delta 0), reused 0 (delta 0)</code>
+<code class="go">To git@github.com:schacon/simplegit.git</code>
+<code class="go"> * [new tag]         v1.4 -&gt; v1.4</code>
+<code class="go"> * [new tag]         v1.4-lw -&gt; v1.4-lw</code></pre>
+
+<p>Now, when someone else clones or pulls from your repository, they will get all your tags as well.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Checking out Tags" id="idp4419520">
+<h2>Checking out Tags</h2>
+
+<p>You can’t really check out a tag in Git, since they can’t be moved around.
+If you want to put a version of your repository in your working directory that looks like a specific tag, you can create a new branch at a specific tag with  <code>git checkout -b [branchname] [tagname]</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout -b version2 v2.0.0
+<code class="go">Switched to a new branch 'version2'</code></pre>
+
+<p>Of course if you do this and do a commit, your <code>version2</code> branch will be slightly different than your <code>v2.0.0</code> tag since it will move forward with your new changes, so do be careful.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git Aliases" id="_git_aliases">
+<h1>Git Aliases</h1>
+
+<p><a data-type="indexterm" data-primary="aliases" id="idp4520800"/>
+Before we finish this chapter on basic Git, there’s just one little tip that can make your Git experience simpler, easier, and more familiar: aliases.
+We won’t refer to them or assume you’ve used them later in the book, but you should probably know how to use them.</p>
+
+<p>Git doesn’t automatically infer your command if you type it in partially.
+If you don’t want to type the entire text of each of the Git commands, you can easily set up an alias for each command using <code>git config</code>.<a data-type="indexterm" data-primary="git commands" data-secondary="config" id="idp4522944"/>
+Here are a couple of examples you may want to set up:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global alias.co checkout
+<code class="gp">$</code> git config --global alias.br branch
+<code class="gp">$</code> git config --global alias.ci commit
+<code class="gp">$</code> git config --global alias.st status</pre>
+
+<p>This means that, for example, instead of typing <code>git commit</code>, you just need to type <code>git ci</code>.
+As you go on using Git, you’ll probably use other commands frequently as well; don’t hesitate to create new aliases.</p>
+
+<p>This technique can also be very useful in creating commands that you think should exist.
+For example, to correct the usability problem you encountered with unstaging a file, you can add your own unstage alias to Git:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global alias.unstage <code class="s1">'reset HEAD --'</code></pre>
+
+<p>This makes the following two commands equivalent:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git unstage fileA
+<code class="gp">$</code> git reset HEAD fileA</pre>
+
+<p>This seems a bit clearer.
+It’s also common to add a <code>last</code> command, like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global alias.last <code class="s1">'log -1 HEAD'</code></pre>
+
+<p>This way, you can see the last commit easily:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git last
+<code class="go">commit 66938dae3329c7aebe598c2246a8e6af90d04646</code>
+<code class="go">Author: Josh Goebel &lt;dreamer3@example.com&gt;</code>
+<code class="go">Date:   Tue Aug 26 19:48:51 2008 +0800</code>
+
+<code class="go">    test for current head</code>
+
+<code class="go">    Signed-off-by: Scott Chacon &lt;schacon@example.com&gt;</code></pre>
+
+<p>As you can tell, Git simply replaces the new command with whatever you alias it for.
+However, maybe you want to run an external command, rather than a Git subcommand.
+In that case, you start the command with a <code>!</code> character.
+This is useful if you write your own tools that work with a Git repository.
+We can demonstrate by aliasing <code>git visual</code> to run <code>gitk</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global alias.visual <code class="s1">'!gitk'</code></pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Summary" id="idp4459792">
+<h1>Summary</h1>
+
+<p>At this point, you can do all the basic local Git operations – creating or cloning a repository, making changes, staging and committing those changes, and viewing the history of all the changes the repository has been through.
+Next, we’ll cover Git’s killer feature: its branching model.</p>
+</section>
+
+
+
+
+
+
+
+</section>
+    <div class="navigation">
+      <ul>
+        <li><a href="ch03.html">Next</a></li>
+        <li><a href="ch01.html">Previous</a></li>
+      </ul>
+    </div>
+  </body>
+</html>

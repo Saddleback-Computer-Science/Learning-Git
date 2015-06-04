@@ -1,0 +1,1816 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Pro Git</title>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script>
+    <link rel="stylesheet" type="text/css" href="theme/html/html.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <body data-type="book">
+    <div class="navbar">
+      <h1>Pro Git</h1>
+      <p><a href="toc01.html">Table of Contents</a></p>
+    </div>
+    <section data-type="chapter" data-pdf-bookmark="Chapter 6. GitHub" id="_github">
+<h1>GitHub</h1>
+
+
+<p><a data-type="indexterm" data-primary="GitHub" id="idp15348672"/>
+GitHub is the single largest host for Git repositories, and is the central point of collaboration for millions of developers and projects.
+A large percentage of all Git repositories are hosted on GitHub, and many open-source projects use it for Git hosting, issue tracking, code review, and other things.
+So while it’s not a direct part of the Git open source project, there’s a good chance that you’ll want or need to interact with GitHub at some point while using Git professionally.</p>
+
+<p>This chapter is about using GitHub effectively.
+We’ll cover signing up for and managing an account, creating and using Git repositories, common workflows to contribute to projects and to accept contributions to yours, GitHub’s programmatic interface and lots of little tips to make your life easier in general.</p>
+
+<p>If you are not interested in using GitHub to host your own projects or to collaborate with other projects that are hosted on GitHub, you can safely skip to <a data-type="xref" href="ch07.html#_git_tools">Chapter 7</a>.</p>
+<div data-type="warning"><h1>Interfaces Change</h1>
+<p>It’s important to note that like many active websites, the UI elements in these screenshots are bound to change over time. Hopefully the general idea of what we’re trying to accomplish here will still be there, but if you want more up to date versions of these screens, the online versions of this book may have newer screenshots.</p>
+</div>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Account Setup and Configuration" id="idp15354064">
+<h1>Account Setup and Configuration</h1>
+
+<p><a data-type="indexterm" data-primary="GitHub" data-secondary="user accounts" id="idp15355632"/>
+The first thing you need to do is set up a free user account.
+Simply visit <a href="https://github.com"><em class="hyperlink">https://github.com</em></a>, choose a user name that isn’t already taken, provide an email address and a password, and click the big green “Sign up for GitHub” button.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/signup.png" alt="The GitHub sign-up form."/></div><figcaption>The GitHub sign-up form.</figcaption></figure>
+
+<p>The next thing you’ll see is the pricing page for upgraded plans, but it’s safe to ignore this for now.
+GitHub will send you an email to verify the address you provided.
+Go ahead and do this, it’s pretty important (as we’ll see later).</p>
+<div data-type="note">
+<p>GitHub provides all of its functionality with free accounts, with the limitation that all of your projects are fully public (everyone has read access).
+GitHub’s paid plans include a set number of private projects, but we won’t be covering those in this book.</p>
+</div>
+
+<p>Clicking the Octocat logo at the top-left of the screen will take you to your dashboard page.
+You’re now ready to use GitHub.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="SSH Access" id="idp15336288">
+<h2>SSH Access</h2>
+
+<p><a data-type="indexterm" data-primary="SSH keys" data-secondary="with GitHub" id="idp15337728"/>
+As of right now, you’re fully able to connect with Git repositories using the <code>https://</code> protocol, authenticating with the username and password you just set up.
+However, to simply clone public projects, you don’t even need to sign up - the account we just created comes into play when we fork projects and push to our forks a bit later.</p>
+
+<p>If you’d like to use SSH remotes, you’ll need to configure a public key.
+(If you don’t already have one, see <a data-type="xref" href="ch04.html#_generate_ssh_key">“Generating Your SSH Public Key”</a>.)
+Open up your account settings using the link at the top-right of the window:</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/account-settings.png" alt="The ``Account settings'' link."/></div><figcaption>The “Account settings” link.</figcaption></figure>
+
+<p>Then select the “SSH keys” section along the left-hand side.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/ssh-keys.png" alt="The ``SSH keys'' link."/></div><figcaption>The “SSH keys” link.</figcaption></figure>
+
+<p>From there, click the "<code>Add an SSH key</code>" button, give your key a name, paste the contents of your <code>~/.ssh/id_rsa.pub</code> (or whatever you named it) public-key file into the text area, and click “Add key”.</p>
+<div data-type="note">
+<p>Be sure to name your SSH key something you can remember. You can name each of your keys (e.g. “My Laptop” or “Work Account”) so that if you need to revoke a key later, you can easily tell which one you’re looking for.</p>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Your Avatar" id="_personal_avatar">
+<h2>Your Avatar</h2>
+
+<p>Next, if you wish, you can replace the avatar that is generated for you with an image of your choosing. First go to the “Profile” tab (above the SSH Keys tab) and click “Upload new picture”.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/your-profile.png" alt="The ``Profile'' link."/></div><figcaption>The “Profile” link.</figcaption></figure>
+
+<p>We’ll choose a copy of the Git logo that is on our hard drive and then we get a chance to crop it.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/avatar-crop.png" alt="Crop your uploaded avatar."/></div><figcaption>Crop your avatar</figcaption></figure>
+
+<p>Now anywhere you interact on the site, people will see your avatar next to your username.</p>
+
+<p>If you happen to have uploaded an avatar to the popular Gravatar service (often used for Wordpress accounts), that avatar will be used by default and you don’t need to do this step.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Your Email Addresses" id="idp15155360">
+<h2>Your Email Addresses</h2>
+
+<p>The way that GitHub maps your Git commits to your user is by email address. If you use multiple email addresses in your commits and you want GitHub to link them up properly, you need to add all the email addresses you have used to the Emails section of the admin section.</p>
+
+<figure id="_add_email_addresses"><div class="border-box"><img src="book/06-github/images/email-settings.png" alt="Add all your email addresses."/></div><figcaption>Add email addresses</figcaption></figure>
+
+<p>In <a data-type="xref" href="#_add_email_addresses">Figure 6-6</a> we can see some of the different states that are possible. The top address is verified and set as the primary address, meaning that is where you’ll get any notifications and receipts. The second address is verified and so can be set as the primary if you wish to switch them. The final address is unverified, meaning that you can’t make it your primary address. If GitHub sees any of these in commit messages in any repository on the site, it will be linked to your user now.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Two Factor Authentication" id="idp15161008">
+<h2>Two Factor Authentication</h2>
+
+<p>Finally, for extra security, you should definitely set up Two-factor Authentication or “2FA”. Two-factor Authentication is an authentication mechanism that is becoming more and more popular recently to mitigate the risk of your account being compromised if your password is stolen somehow. Turning it on will make GitHub ask you for two different methods of authentication, so that if one of them is compromised, an attacker will not be able to access your account.</p>
+
+<p>You can find the Two-factor Authentication setup under the Security tab of your Account settings.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/2fa-1.png" alt="2FA in the Security Tab"/></div><figcaption>2FA in the Security Tab</figcaption></figure>
+
+<p>If you click on the “Set up two-factor authentication” button, it will take you to a configuration page where you can choose to use a phone app to generate your secondary code (a “time based one-time password”), or you can have GitHub send you a code via SMS each time you need to log in.</p>
+
+<p>After you choose which method you prefer and follow the instructions for setting up 2FA, your account will then be a little more secure and you will have to provide a code in addition to your password whenever you log into GitHub.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Contributing to a Project" id="idp15354688">
+<h1>Contributing to a Project</h1>
+
+<p>Now that our account is set up, let’s walk through some details that could be useful in helping you contribute to an existing project.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Forking Projects" id="idp15168336">
+<h2>Forking Projects</h2>
+
+<p><a data-type="indexterm" data-primary="forking" id="idp15169776"/>
+If you want to contribute to an existing project to which you don’t have push access, you can “fork” the project.
+What this means is that GitHub will make a copy of the project that is entirely yours; it lives in your user’s namespace, and you can push to it.</p>
+<div data-type="note">
+<p>Historically, the term “fork” has been somewhat negative in context, meaning that someone took an open source project in a different direction, sometimes creating a competing project and splitting the contributors.
+In GitHub, a “fork” is simply the same project in your own namespace, allowing you to make changes to a project publicly as a way to contribute in a more open manner.</p>
+</div>
+
+<p>This way, projects don’t have to worry about adding users as collaborators to give them push access.
+People can fork a project, push to it, and contribute their changes back to the original repository by creating what’s called a Pull Request, which we’ll cover next.
+This opens up a discussion thread with code review, and the owner and the contributor can then communicate about the change until the owner is happy with it, at which point the owner can merge it in.</p>
+
+<p>To fork a project, visit the project page and click the “Fork” button at the top-right of the page.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/forkbutton.png" alt="The ``Fork'' button."/></div><figcaption>The “Fork” button.</figcaption></figure>
+
+<p>After a few seconds, you’ll be taken to your new project page, with your own writeable copy of the code.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The GitHub Flow" id="_github_flow">
+<h2>The GitHub Flow</h2>
+
+<p><a data-type="indexterm" data-primary="GitHub" data-secondary="Flow" id="idp15177808"/>
+GitHub is designed around a particular collaboration workflow, centered on Pull Requests.
+This flow works whether you’re collaborating with a tightly-knit team in a single shared repository, or a globally-distributed company or network of strangers contributing to a project through dozens of forks.
+It is centered on the <a data-type="xref" href="ch03.html#_topic_branch">“Topic Branches”</a> workflow covered  in <a data-type="xref" href="ch03.html#_git_branching">Chapter 3</a>.</p>
+
+<p>Here’s how it generally works:</p>
+<ol>
+<li>
+<p>Create a topic branch from <code>master</code>.</p>
+</li>
+<li>
+<p>Make some commits to improve the project.</p>
+</li>
+<li>
+<p>Push this branch to your GitHub project.</p>
+</li>
+<li>
+<p>Open a Pull Request on GitHub.</p>
+</li>
+<li>
+<p>Discuss, and optionally continue committing.</p>
+</li>
+<li>
+<p>The project owner merges or closes the Pull Request.</p>
+</li>
+
+</ol>
+
+<p>This is basically the Integration Manager workflow covered in <a data-type="xref" href="ch05.html#_integration_manager">“Integration-Manager Workflow”</a>, but instead of using email to communicate and review changes, teams use GitHub’s web based tools.</p>
+
+<p>Let’s walk through an example of proposing a change to an open source project hosted on GitHub using this flow.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Creating a Pull Request" id="idp15408624">
+<h3>Creating a Pull Request</h3>
+
+<p>Tony is looking for code to run on his Arduino programmable microcontroller and has found a great program file on GitHub at <a href="https://github.com/schacon/blink"><em class="hyperlink">https://github.com/schacon/blink</em></a>.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/blink-01-start.png" alt="The project we want to contribute to."/></div><figcaption>The project we want to contribute to.</figcaption></figure>
+
+<p>The only problem is that the blinking rate is too fast, we think it’s much nicer to wait 3 seconds instead of 1 in between each state change. So let’s improve the program and submit it back to the project as a proposed change.</p>
+
+<p>First, we click the <em>Fork</em> button as mentioned earlier to get our own copy of the project. Our user name here is “tonychacon” so our copy of this project is at <code>https://github.com/tonychacon/blink</code> and that’s where we can edit it. We will clone it locally, create a topic branch, make the code change and finally push that change back up to GitHub.</p>
+
+<pre data-type="programlisting" data-code-language="console">$ git clone https://github.com/tonychacon/blink <a class="co" id="co_github_CO1-1" href="#callout_github_CO1-1"><img src="book/06-github/../../callouts/1.png" alt="1"/></a>
+Cloning into 'blink'...
+
+$ cd blink
+$ git checkout -b slow-blink <a class="co" id="co_github_CO1-2" href="#callout_github_CO1-2"><img src="book/06-github/../../callouts/2.png" alt="2"/></a>
+Switched to a new branch 'slow-blink'
+
+$ sed -i '' 's/1000/3000/' blink.ino <a class="co" id="co_github_CO1-3" href="#callout_github_CO1-3"><img src="book/06-github/../../callouts/3.png" alt="3"/></a>
+
+$ git diff --word-diff <a class="co" id="co_github_CO1-4" href="#callout_github_CO1-4"><img src="book/06-github/../../callouts/4.png" alt="4"/></a>
+diff --git a/blink.ino b/blink.ino
+index 15b9911..a6cc5a5 100644
+--- a/blink.ino
++++ b/blink.ino
+@@ -18,7 +18,7 @@ void setup() {
+// the loop routine runs over and over again forever:
+void loop() {
+  digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
+  [-delay(1000);-]{+delay(3000);+}               // wait for a second
+  digitalWrite(led, LOW);    // turn the LED off by making the voltage LOW
+  [-delay(1000);-]{+delay(3000);+}               // wait for a second
+}
+
+$ git commit -a -m 'three seconds is better' <a class="co" id="co_github_CO1-5" href="#callout_github_CO1-5"><img src="book/06-github/../../callouts/5.png" alt="5"/></a>
+[slow-blink 5ca509d] three seconds is better
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+$ git push origin slow-blink <a class="co" id="co_github_CO1-6" href="#callout_github_CO1-6"><img src="book/06-github/../../callouts/6.png" alt="6"/></a>
+Username for 'https://github.com': tonychacon
+Password for 'https://tonychacon@github.com':
+Counting objects: 5, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 340 bytes | 0 bytes/s, done.
+Total 3 (delta 1), reused 0 (delta 0)
+To https://github.com/tonychacon/blink
+ * [new branch]      slow-blink -&gt; slow-blink</pre>
+<dl class="calloutlist">
+<dt><a class="co" id="callout_github_CO1-1" href="#co_github_CO1-1"><img src="book/06-github/../../callouts/1.png" alt="1"/></a></dt>
+<dd><p>Clone our fork of the project locally</p></dd>
+<dt><a class="co" id="callout_github_CO1-2" href="#co_github_CO1-2"><img src="book/06-github/../../callouts/2.png" alt="2"/></a></dt>
+<dd><p>Create a descriptive topic branch</p></dd>
+<dt><a class="co" id="callout_github_CO1-3" href="#co_github_CO1-3"><img src="book/06-github/../../callouts/3.png" alt="3"/></a></dt>
+<dd><p>Make our change to the code</p></dd>
+<dt><a class="co" id="callout_github_CO1-4" href="#co_github_CO1-4"><img src="book/06-github/../../callouts/4.png" alt="4"/></a></dt>
+<dd><p>Check that the change is good</p></dd>
+<dt><a class="co" id="callout_github_CO1-5" href="#co_github_CO1-5"><img src="book/06-github/../../callouts/5.png" alt="5"/></a></dt>
+<dd><p>Commit our change to the topic branch</p></dd>
+<dt><a class="co" id="callout_github_CO1-6" href="#co_github_CO1-6"><img src="book/06-github/../../callouts/6.png" alt="6"/></a></dt>
+<dd><p>Push our new topic branch back up to our GitHub fork</p></dd>
+</dl>
+
+<p>Now if we go back to our fork on GitHub, we can see that GitHub noticed that we pushed a new topic branch up and present us with a big green button to check out our changes and open a Pull Request to the original project.</p>
+
+<p>You can alternatively go to the “Branches” page at <code>https://github.com/&lt;user&gt;/&lt;project&gt;/branches</code> to locate your branch and open a new Pull Request from there.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/blink-02-pr.png" alt="Pull Request button"/></div><figcaption>Pull Request button</figcaption></figure>
+
+<p><a data-type="indexterm" data-primary="GitHub" data-secondary="pull requests" id="idp15459936"/>
+If we click that green button, we’ll see a screen that allows us to create a title and description for the change we would like to request so the project owner has a good reason to consider it. It is generally a good idea to spend some effort making this description as useful as possible so the author knows why this is being suggested and why it would be a valuable change for them to accept.</p>
+
+<p>We also see a list of the commits in our topic branch that are “ahead” of the <code>master</code> branch (in this case, just the one) and a unified diff of all the changes that will be made should this branch get merged by the project owner.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/blink-03-pull-request-open.png" alt="Pull Request creation"/></div><figcaption>Pull Request creation page</figcaption></figure>
+
+<p>When you hit the <em>Create pull request</em> button on this screen, the owner of the project you forked will get a notification that someone is suggesting a change and will link to a page that has all of this information on it.</p>
+<div data-type="note">
+<p>Though Pull Requests are used commonly for public projects like this when the contributor has a complete change ready to be made, it’s also often used in internal projects <em>at the beginning</em> of the development cycle.  Since you can keep pushing to the topic branch even <strong>after</strong> the Pull Request is opened, it’s often opened early and used as a way to iterate on work as a team within a context, rather than opened at the very end of the process.</p>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Iterating on a Pull Request" id="idp15409248">
+<h3>Iterating on a Pull Request</h3>
+
+<p>At this point, the project owner can look at the suggested change and merge it, reject it or comment on it. Let’s say that he likes the idea, but would prefer a slightly longer time for the light to be off than on.</p>
+
+<p>Where this conversation may take place over email in the workflows presented in <a data-type="xref" href="ch05.html#_distributed_git">Chapter 5</a>, on GitHub this happens online. The project owner can review the unified diff and leave a comment by clicking on any of the lines.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/blink-04-pr-comment.png" alt="PR line comment"/></div><figcaption>Comment on a specific line of code in a Pull Request</figcaption></figure>
+
+<p>Once the maintainer makes this comment, the person who opened the Pull Request (and indeed, anyone else watching the repository) will get a notification. We’ll go over customizing this later, but if he had email notifications turned on, Tony would get an email like this:</p>
+
+<figure id="_email_notification"><div class="border-box"><img src="book/06-github/images/blink-04-email.png" alt="Email notification"/></div><figcaption>Comments sent as email notifications</figcaption></figure>
+
+<p>Anyone can also leave general comments on the Pull Request. In <a data-type="xref" href="#_pr_discussion">Figure 6-14</a> we can see an example of the project owner both commenting on a line of code and then leaving a general comment in the discussion section. You can see that the code comments are brought into the conversation as well.</p>
+
+<figure id="_pr_discussion"><div class="border-box"><img src="book/06-github/images/blink-05-general-comment.png" alt="PR discussion page"/></div><figcaption>Pull Request discussion page</figcaption></figure>
+
+<p>Now the contributor can see what they need to do in order to get their change accepted. Luckily this is also a very simple thing to do. Where over email you may have to re-roll your series and resubmit it to the mailing list, with GitHub you simply commit to the topic branch again and push.</p>
+
+<p>If the contributor does that then the project owner will get notified again and when they visit the page they will see that it’s been addressed. In fact, since a line of code changed that had a comment on it, GitHub notices that and collapses the outdated diff.</p>
+
+<figure id="_pr_final"><div class="border-box"><img src="book/06-github/images/blink-06-final.png" alt="PR final"/></div><figcaption>Pull Request final</figcaption></figure>
+
+<p>An interesting thing to notice is that if you click on the “Files Changed” tab on this Pull Request, you’ll get the “unified” diff — that is, the total aggregate difference that would be introduced to your main branch if this topic branch was merged in. In <code>git diff</code> terms, it basically automatically shows you <code>git diff master...&lt;branch&gt;</code> for the branch this Pull Request is based on. See <a data-type="xref" href="ch05.html#_what_is_introduced">“Determining What Is Introduced”</a> for more about this type of diff.</p>
+
+<p>The other thing you’ll notice is that GitHub checks to see if the Pull Request merges cleanly and provides a button to do the merge for you on the server. This button only shows up if you have write access to the repository and a trivial merge is possible. If you click it GitHub will perform a “non-fast-forward” merge, meaning that even if the merge <strong>could</strong> be a fast-forward, it will still create a merge commit.</p>
+
+<p>If you would prefer, you can simply pull the branch down and merge it locally. If you merge this branch into the <code>master</code> branch and push it to GitHub, the Pull Request will automatically be closed.</p>
+
+<p>This is the basic workflow that most GitHub projects use. Topic branches are created, Pull Requests are opened on them, a discussion ensues, possibly more work is done on the branch and eventually the request is either closed or merged.</p>
+<div data-type="note"><h1>Not Only Forks</h1>
+<p>It’s important to note that you can also open a Pull Request between two branches in the same repository. If you’re working on a feature with someone and you both have write access to the project, you can push a topic branch to the repository and open a Pull Request on it to the <code>master</code> branch of that same project to initiate the code review and discussion process. No forking necessary.</p>
+</div>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Advanced Pull Requests" id="idp15468208">
+<h2>Advanced Pull Requests</h2>
+
+<p>Now that we’ve covered the basics of contributing to a project on GitHub, let’s cover a few interesting tips and tricks about Pull Requests so you can be more effective in using them.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Pull Requests as Patches" id="idp15491936">
+<h3>Pull Requests as Patches</h3>
+
+<p>It’s important to understand that many projects don’t really think of Pull Requests as queues of perfect patches that should apply cleanly in order, as most mailing list-based projects think of patch series contributions. Most GitHub projects think about Pull Request branches as iterative conversations around a proposed change, culminating in a unified diff that is applied by merging.</p>
+
+<p>This is an important distinction, because generally the change is suggested before the code is thought to be perfect, which is far more rare with mailing list based patch series contributions. This enables an earlier conversation with the maintainers so that arriving at the proper solution is more of a community effort. When code is proposed with a Pull Request and the maintainers or community suggest a change, the patch series is generally not re-rolled, but instead the difference is pushed as a new commit to the branch, moving the conversation forward with the context of the previous work intact.</p>
+
+<p>For instance, if you go back and look again at <a data-type="xref" href="#_pr_final">Figure 6-15</a>, you’ll notice that the contributor did not rebase his commit and send another Pull Request. Instead they added new commits and pushed them to the existing branch. This way if you go back and look at this Pull Request in the future, you can easily find all of the context of why decisions were made. Pushing the “Merge” button on the site purposefully creates a merge commit that references the Pull Request so that it’s easy to go back and research the original conversation if necessary.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Keeping up with Upstream" id="idp15496752">
+<h3>Keeping up with Upstream</h3>
+
+<p>If your Pull Request becomes out of date or otherwise doesn’t merge cleanly, you will want to fix it so the maintainer can easily merge it. GitHub will test this for you and let you know at the bottom of every Pull Request if the merge is trivial or not.</p>
+
+<figure id="_pr_fail"><div class="border-box"><img src="book/06-github/images/pr-01-fail.png" alt="PR merge failure"/></div><figcaption>Pull Request does not merge cleanly</figcaption></figure>
+
+<p>If you see something like <a data-type="xref" href="#_pr_fail">Figure 6-16</a>, you’ll want to fix your branch so that it turns green and the maintainer doesn’t have to do extra work.</p>
+
+<p>You have two main options in order to do this. You can either rebase your branch on top of whatever the target branch is (normally the <code>master</code> branch of the repository you forked), or you can merge the target branch into your branch.</p>
+
+<p>Most developers on GitHub will choose to do the latter, for the same reasons we just went over in the previous section. What matters is the history and the final merge, so rebasing isn’t getting you much other than a slightly cleaner history and in return is <strong>far</strong> more difficult and error prone.</p>
+
+<p>If you want to merge in the target branch to make your Pull Request mergeable, you would add the original repository as a new remote, fetch from it, merge the main branch of that repository into your topic branch, fix any issues and finally push it back up to the same branch you opened the Pull Request on.</p>
+
+<p>For example, let’s say that in the “tonychacon” example we were using before, the original author made a change that would create a conflict in the Pull Request. Let’s go through those steps.</p>
+
+<pre data-type="programlisting" data-code-language="console">$ git remote add upstream https://github.com/schacon/blink <a class="co" id="co_github_CO2-1" href="#callout_github_CO2-1"><img src="book/06-github/../../callouts/1.png" alt="1"/></a>
+
+$ git fetch upstream <a class="co" id="co_github_CO2-2" href="#callout_github_CO2-2"><img src="book/06-github/../../callouts/2.png" alt="2"/></a>
+remote: Counting objects: 3, done.
+remote: Compressing objects: 100% (3/3), done.
+Unpacking objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0)
+From https://github.com/schacon/blink
+ * [new branch]      master     -&gt; upstream/master
+
+$ git merge upstream/master <a class="co" id="co_github_CO2-3" href="#callout_github_CO2-3"><img src="book/06-github/../../callouts/3.png" alt="3"/></a>
+Auto-merging blink.ino
+CONFLICT (content): Merge conflict in blink.ino
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ vim blink.ino <a class="co" id="co_github_CO2-4" href="#callout_github_CO2-4"><img src="book/06-github/../../callouts/4.png" alt="4"/></a>
+$ git add blink.ino
+$ git commit
+[slow-blink 3c8d735] Merge remote-tracking branch 'upstream/master' \
+    into slower-blink
+
+$ git push origin slow-blink <a class="co" id="co_github_CO2-5" href="#callout_github_CO2-5"><img src="book/06-github/../../callouts/5.png" alt="5"/></a>
+Counting objects: 6, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (6/6), 682 bytes | 0 bytes/s, done.
+Total 6 (delta 2), reused 0 (delta 0)
+To https://github.com/tonychacon/blink
+   ef4725c..3c8d735  slower-blink -&gt; slow-blink</pre>
+<dl class="calloutlist">
+<dt><a class="co" id="callout_github_CO2-1" href="#co_github_CO2-1"><img src="book/06-github/../../callouts/1.png" alt="1"/></a></dt>
+<dd><p>Add the original repository as a remote named “upstream”</p></dd>
+<dt><a class="co" id="callout_github_CO2-2" href="#co_github_CO2-2"><img src="book/06-github/../../callouts/2.png" alt="2"/></a></dt>
+<dd><p>Fetch the newest work from that remote</p></dd>
+<dt><a class="co" id="callout_github_CO2-3" href="#co_github_CO2-3"><img src="book/06-github/../../callouts/3.png" alt="3"/></a></dt>
+<dd><p>Merge the main branch into your topic branch</p></dd>
+<dt><a class="co" id="callout_github_CO2-4" href="#co_github_CO2-4"><img src="book/06-github/../../callouts/4.png" alt="4"/></a></dt>
+<dd><p>Fix the conflict that occurred</p></dd>
+<dt><a class="co" id="callout_github_CO2-5" href="#co_github_CO2-5"><img src="book/06-github/../../callouts/5.png" alt="5"/></a></dt>
+<dd><p>Push back up to the same topic branch</p></dd>
+</dl>
+
+<p>Once you do that, the Pull Request will be automatically updated and re-checked to see if it merges cleanly.</p>
+
+<figure id="_pr_merge_fix"><div class="border-box"><img src="book/06-github/images/pr-02-merge-fix.png" alt="PR fixed"/></div><figcaption>Pull Request now merges cleanly</figcaption></figure>
+
+<p>One of the great things about Git is that you can do that continuously. If you have a very long-running project, you can easily merge from the target branch over and over again and only have to deal with conflicts that have arisen since the last time that you merged, making the process very manageable.</p>
+
+<p>If you absolutely wish to rebase the branch to clean it up, you can certainly do so, but it is highly encouraged to not force push over the branch that the Pull Request is already opened on. If other people have pulled it down and done more work on it, you run into all of the issues outlined in <a data-type="xref" href="ch03.html#_rebase_peril">“The Perils of Rebasing”</a>. Instead, push the rebased branch to a new branch on GitHub and open a brand new Pull Request referencing the old one, then close the original.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="References" id="idp15497344">
+<h3>References</h3>
+
+<p>Your next question may be “How do I reference the old Pull Request?”. It turns out there are many, many ways to reference other things almost anywhere you can write in GitHub.</p>
+
+<p>Let’s start with how to cross-reference another Pull Request or an Issue. All Pull Requests and Issues are assigned numbers and they are unique within the project. For example, you can’t have Pull Request #3 <em>and</em> Issue #3. If you want to reference any Pull Request or Issue from any other one, you can simply put <code>#&lt;num&gt;</code> in any comment or description. You can also be more specific if the Issue or Pull request lives somewhere else; write <code>username#&lt;num&gt;</code> if you’re referring to an Issue or Pull Request in a fork of the repository you’re in, or <code>username/repo#&lt;num&gt;</code> to reference something in another repository.</p>
+
+<p>Let’s look at an example. Say we rebased the branch in the previous example, created a new pull request for it, and now we want to reference the old pull request from the new one. We also want to reference an issue in the fork of the repository and an issue in a completely different project. We can fill out the description just like <a data-type="xref" href="#_pr_references">Figure 6-18</a>.</p>
+
+<figure id="_pr_references"><div class="border-box"><img src="book/06-github/images/mentions-01-syntax.png" alt="PR references"/></div><figcaption>Cross references in a Pull Request.</figcaption></figure>
+
+<p>When we submit this pull request, we’ll see all of that rendered like <a data-type="xref" href="#_pr_references_render">Figure 6-19</a>.</p>
+
+<figure id="_pr_references_render"><div class="border-box"><img src="book/06-github/images/mentions-02-render.png" alt="PR references rendered"/></div><figcaption>Cross references rendered in a Pull Request.</figcaption></figure>
+
+<p>Notice that the full GitHub URL we put in there was shortened to just the information needed.</p>
+
+<p>Now if Tony goes back and closes out the original Pull Request, we can see that by mentioning it in the new one, GitHub has automatically created a trackback event in the Pull Request timeline. This means that anyone who visits this Pull Request and sees that it is closed can easily link back to the one that superseded it. The link will look something like <a data-type="xref" href="#_pr_closed">Figure 6-20</a>.</p>
+
+<figure id="_pr_closed"><div class="border-box"><img src="book/06-github/images/mentions-03-closed.png" alt="PR closed"/></div><figcaption>Cross references rendered in a Pull Request.</figcaption></figure>
+
+<p>In addition to issue numbers, you can also reference a specific commit by SHA-1. You have to specify a full 40 character SHA-1, but if GitHub sees that in a comment, it will link directly to the commit. Again, you can reference commits in forks or other repositories in the same way you did with issues.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Markdown" id="idp15535584">
+<h2>Markdown</h2>
+
+<p>Linking to other Issues is just the beginning of interesting things you can do with almost any text box on GitHub. In  Issue and Pull Request descriptions, comments, code comments and more, you can use what is called “GitHub Flavored Markdown”. Markdown is like writing in plain text but which is rendered richly.</p>
+
+<p>See <a data-type="xref" href="#_example_markdown">Figure 6-21</a> for an example of how comments or text can be written and then rendered using Markdown.</p>
+
+<figure id="_example_markdown"><div class="border-box"><img src="book/06-github/images/markdown-01-example.png" alt="Example Markdown"/></div><figcaption>An example of Markdown as written and as rendered.</figcaption></figure>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="GitHub Flavored Markdown" id="idp15556624">
+<h3>GitHub Flavored Markdown</h3>
+
+<p>The GitHub flavor of Markdown adds more things you can do beyond the basic Markdown syntax. These can all be really useful when creating useful Pull Request or Issue comments or descriptions.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect4" data-pdf-bookmark="Task Lists" id="idp15558432">
+<h4>Task Lists</h4>
+
+<p>The first really useful GitHub specific Markdown feature, especially for use in Pull Requests, is the Task List. A task list is a list of checkboxes of things you want to get done. Putting them into an Issue or Pull Request normally indicates things that you want to get done before you consider the item complete.</p>
+
+<p>You can create a task list like this:</p>
+
+<pre data-type="programlisting">- [X] Write the code
+- [ ] Write all the tests
+- [ ] Document the code</pre>
+
+<p>If we include this in the description of our Pull Request or Issue, we’ll see it rendered like <a data-type="xref" href="#_task_lists">Figure 6-22</a></p>
+
+<figure id="_task_lists"><div class="border-box"><img src="book/06-github/images/markdown-02-tasks.png" alt="Example Task List"/></div><figcaption>Task lists rendered in a Markdown comment.</figcaption></figure>
+
+<p>This is often used in Pull Requests to indicate what all you would like to get done on the branch before the Pull Request will be ready to merge. The really cool part is that you can simply click the checkboxes to update the comment — you don’t have to edit the Markdown directly to check tasks off.</p>
+
+<p>What’s more, GitHub will look for task lists in your Issues and Pull Requests and show them as metadata on the pages that list them out. For example, if you have a Pull Request with tasks and you look at the overview page of all Pull Requests, you can see how far done it is. This helps people break down Pull Requests into subtasks and helps other people track the progress of the branch. You can see an example of this in <a data-type="xref" href="#_task_list_progress">Figure 6-23</a>.</p>
+
+<figure id="_task_list_progress"><div class="border-box"><img src="book/06-github/images/markdown-03-task-summary.png" alt="Example Task List"/></div><figcaption>Task list summary in the Pull Request list.</figcaption></figure>
+
+<p>These are incredibly useful when you open a Pull Request early and use it to track your progress through the implementation of the feature.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect4" data-pdf-bookmark="Code Snippets" id="idp15559056">
+<h4>Code Snippets</h4>
+
+<p>You can also add code snippets to comments. This is especially useful if you want to present something that you <em>could</em> try to do before actually implementing it as a commit on your branch. This is also often used to add example code of what is not working or what this Pull Request could implement.</p>
+
+<p>To add a snippet of code you have to “fence” it in backticks.</p>
+
+<pre data-type="programlisting">```java
+for(int i=0 ; i &lt; 5 ; i++)
+{
+   System.out.println("i is : " + i);
+}
+```</pre>
+
+<p>If you add a language name like we did there with <em>java</em>, GitHub will also try to syntax highlight the snippet. In the case of the above example, it would end up rendering like <a data-type="xref" href="#_md_code">Figure 6-24</a>.</p>
+
+<figure id="_md_code"><div class="border-box"><img src="book/06-github/images/markdown-04-fenced-code.png" alt="Rendered fenced code"/></div><figcaption>Rendered fenced code example.</figcaption></figure>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect4" data-pdf-bookmark="Quoting" id="idp15577488">
+<h4>Quoting</h4>
+
+<p>If you’re responding to a small part of a long comment, you can selectively quote out of the other comment by preceding the lines with the <code>&gt;</code> character. In fact, this is so common and so useful that there is a keyboard shortcut for it. If you highlight text in a comment that you want to directly reply to and hit the <code>r</code> key, it will quote that text in the comment box for you.</p>
+
+<p>The quotes look something like this:</p>
+
+<pre data-type="programlisting">&gt; Whether 'tis Nobler in the mind to suffer
+&gt; The Slings and Arrows of outrageous Fortune,
+
+How big are these slings and in particular, these arrows?</pre>
+
+<p>Once rendered, the comment will look like <a data-type="xref" href="#_md_quote">Figure 6-25</a>.</p>
+
+<figure id="_md_quote"><div class="border-box"><img src="book/06-github/images/markdown-05-quote.png" alt="Rendered quoting"/></div><figcaption>Rendered quoting example.</figcaption></figure>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect4" data-pdf-bookmark="Emoji" id="idp15585008">
+<h4>Emoji</h4>
+
+<p>Finally, you can also use emoji in your comments. This is actually used quite extensively in comments you see on many GitHub Issues and Pull Requests. There is even an emoji helper in GitHub. If you are typing a comment and you start with a <code>:</code> character, an autocompleter will help you find what you’re looking for.</p>
+
+<figure id="_md_emoji_auto"><div class="border-box"><img src="book/06-github/images/markdown-06-emoji-complete.png" alt="Emoji autocompleter"/></div><figcaption>Emoji autocompleter in action.</figcaption></figure>
+
+<p>Emojis take the form of <code>:&lt;name&gt;:</code> anywhere in the comment. For instance, you could write something like this:</p>
+
+<pre data-type="programlisting">I :eyes: that :bug: and I :cold_sweat:.
+
+:trophy: for :microscope: it.
+
+:+1: and :sparkles: on this :ship:, it's :fire::poop:!
+
+:clap::tada::panda_face:</pre>
+
+<p>When rendered, it would look something like <a data-type="xref" href="#_md_emoji">Figure 6-27</a>.</p>
+
+<figure id="_md_emoji"><div class="border-box"><img src="book/06-github/images/markdown-07-emoji.png" alt="Emoji"/></div><figcaption>Heavy emoji commenting.</figcaption></figure>
+
+<p>Not that this is incredibly useful, but it does add an element of fun and emotion to a medium that is otherwise hard to convey emotion in.</p>
+<div data-type="note">
+<p>There are actually quite a number of web services that make use of emoji characters these days. A great cheat sheet to reference to find emoji that expresses what you want to say can be found at:</p>
+
+<p><a href="http://www.emoji-cheat-sheet.com"><em class="hyperlink">http://www.emoji-cheat-sheet.com</em></a></p>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect4" data-pdf-bookmark="Images" id="idp15598048">
+<h4>Images</h4>
+
+<p>This isn’t technically GitHub Flavored Markdown, but it is incredibly useful. In addition to adding Markdown image links to comments, which can be difficult to find and embed URLs for, GitHub allows you to drag and drop images into text areas to embed them.</p>
+
+<figure id="_md_drag"><div class="border-box"><img src="book/06-github/images/markdown-08-drag-drop.png" alt="Drag and drop images"/></div><figcaption>Drag and drop images to upload them and auto-embed them.</figcaption></figure>
+
+<p>If you look back at <a data-type="xref" href="#_pr_references">Figure 6-18</a>, you can see a small “Parsed as Markdown” hint above the text area. Clicking on that will give you a full cheat sheet of everything you can do with Markdown on GitHub.</p>
+</section>
+
+</section>
+
+
+
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Maintaining a Project" id="_maintaining_gh_project">
+<h1>Maintaining a Project</h1>
+
+<p>Now that we’re comfortable contributing to a project, let’s look at the other side: creating, maintaining and administering your own project.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Creating a New Repository" id="idp15605552">
+<h2>Creating a New Repository</h2>
+
+<p>Let’s create a new repository to share our project code with.
+Start by clicking the “New repository” button on the right-hand side of the dashboard, or from the <code>+</code> button in the top toolbar next to your username as seen in <a data-type="xref" href="#_new_repo_dropdown">Figure 6-30</a>.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/newrepo.png" alt="The ``Your repositories'' area."/></div><figcaption>The “Your repositories” area.</figcaption></figure>
+
+<figure id="_new_repo_dropdown"><div class="border-box"><img src="book/06-github/images/new-repo.png" alt="The ``new repository'' dropdown."/></div><figcaption>The “New repository” dropdown.</figcaption></figure>
+
+<p>This takes you to the “new repository” form:</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/newrepoform.png" alt="The ``new repository'' form."/></div><figcaption>The “new repository” form.</figcaption></figure>
+
+<p>All you really have to do here is provide a project name; the rest of the fields are completely optional.
+For now, just click the “Create Repository” button, and boom – you have a new repository on GitHub, named <code>&lt;user&gt;/&lt;project_name&gt;</code>.</p>
+
+<p>Since you have no code there yet, GitHub will show you instructions for how create a brand-new Git repository, or connect an existing Git project.
+We won’t belabor this here; if you need a refresher, check out <a data-type="xref" href="ch02.html#_git_basics_chapter">Chapter 2</a>.</p>
+
+<p>Now that your project is hosted on GitHub, you can give the URL to anyone you want to share your project with.
+Every project on GitHub is accessible over HTTP as <code>https://github.com/&lt;user&gt;/&lt;project_name&gt;</code>, and over SSH as <code>git@github.com:&lt;user&gt;/&lt;project_name&gt;</code>.
+Git can fetch from and push to both of these URLs, but they are access-controlled based on the credentials of the user connecting to them.</p>
+<div data-type="note">
+<p>It is often preferable to share the HTTP based URL for a public project, since the user does not have to have a GitHub account to access it for cloning. Users will have to have an account and an uploaded SSH key to access your project if you give them the SSH URL. The HTTP one is also exactly the same URL they would paste into a browser to view the project there.</p>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Adding Collaborators" id="idp15606176">
+<h2>Adding Collaborators</h2>
+
+<p>If you’re working with other people who you want to give commit access to, you need to add them as “collaborators”.
+If Ben, Jeff, and Louise all sign up for accounts on GitHub, and you want to give them push access to your repository, you can add them to your project.
+Doing so will give them “push” access, which means they have both read and write access to the project and Git repository.</p>
+
+<p>Click the “Settings” link at the bottom of the right-hand sidebar.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/reposettingslink.png" alt="The repository settings link."/></div><figcaption>The repository settings link.</figcaption></figure>
+
+<p>Then select “Collaborators” from the menu on the left-hand side.
+Then, just type a username into the box, and click “Add collaborator.”
+You can repeat this as many times as you like to grant access to everyone you like.
+If you need to revoke access, just click the “X” on the right-hand side of their row.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/collaborators.png" alt="The repository collaborators box."/></div><figcaption>Repository collaborators.</figcaption></figure>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Managing Pull Requests" id="idp15627232">
+<h2>Managing Pull Requests</h2>
+
+<p>Now that you have a project with some code in it and maybe even a few collaborators who also have push access, let’s go over what to do when you get a Pull Request yourself.</p>
+
+<p>Pull Requests can either come from a branch in a fork of your repository or they can come from another branch in the same repository. The only difference is that the ones in a fork are often from people where you can’t push to their branch and they can’t push to yours, whereas with internal Pull Requests generally both parties can access the branch.</p>
+
+<p>For these examples, let’s assume you are “tonychacon” and you’ve created a new Arduino code project named “fade”.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Email Notifications" id="_email_notifications">
+<h3>Email Notifications</h3>
+
+<p>Someone comes along and makes a change to your code and sends you a Pull Request. You should get an email notifying you about the new Pull Request and it should look something like <a data-type="xref" href="#_email_pr">Figure 6-34</a>.</p>
+
+<figure id="_email_pr"><div class="border-box"><img src="book/06-github/images/maint-01-email.png" alt="Pull Request email notification"/></div><figcaption>Email notification of a new Pull Request.</figcaption></figure>
+
+<p>There are a few things to notice about this email. It will give you a small diffstat — a list of files that have changed in the Pull Request and by how much. It gives you a link to the Pull Request on GitHub. It also gives you a few URLs that you can use from the command line.</p>
+
+<p>If you notice the line that says <code>git pull &lt;url&gt; patch-1</code>, this is a simple way to merge in a remote branch without having to add a remote. We went over this quickly in <a data-type="xref" href="ch05.html#_checking_out_remotes">“Checking Out Remote Branches”</a>. If you wish, you can create and switch to a topic branch and then run this command to merge in the Pull Request changes.</p>
+
+<p>The other interesting URLs are the <code>.diff</code> and <code>.patch</code> URLs, which as you may guess, provide unified diff and patch versions of the Pull Request. You could technically merge in the Pull Request work with something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> curl http://github.com/tonychacon/fade/pull/1.patch <code class="p">|</code> git am</pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Collaborating on the Pull Request" id="idp15642000">
+<h3>Collaborating on the Pull Request</h3>
+
+<p>As we covered in <a data-type="xref" href="#_github_flow">“The GitHub Flow”</a>, you can now have a conversation with the person who opened the Pull Request. You can comment on specific lines of code, comment on whole commits or comment on the entire Pull Request itself, using GitHub Flavored Markdown everywhere.</p>
+
+<p>Every time someone else comments on the Pull Request you will continue to get email notifications so you know there is activity happening. They will each have a link to the Pull Request where the activity is happening and you can also directly respond to the email to comment on the Pull Request thread.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/maint-03-email-resp.png" alt="Email response"/></div><figcaption>Responses to emails are included in the thread.</figcaption></figure>
+
+<p>Once the code is in a place you like and want to merge it in, you can either pull the code down and merge it locally, either with the <code>git pull &lt;url&gt; &lt;branch&gt;</code> syntax we saw earlier, or by adding the fork as a remote and fetching and merging.</p>
+
+<p>If the merge is trivial, you can also just hit the “Merge” button on the GitHub site. This will do a “non-fast-forward” merge, creating a merge commit even if a fast-forward merge was possible. This means that no matter what, every time you hit the merge button, a merge commit is created. As you can see in <a data-type="xref" href="#_merge_button">Figure 6-36</a>, GitHub gives you all of this information if you click the hint link.</p>
+
+<figure id="_merge_button"><div class="border-box"><img src="book/06-github/images/maint-02-merge.png" alt="Merge button"/></div><figcaption>Merge button and instructions for merging a Pull Request manually.</figcaption></figure>
+
+<p>If you decide you don’t want to merge it, you can also just close the Pull Request and the person who opened it will be notified.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Pull Request Refs" id="_pr_refs">
+<h3>Pull Request Refs</h3>
+
+<p>If you’re dealing with a <strong>lot</strong> of Pull Requests and don’t want to add a bunch of remotes or do one time pulls every time, there is a neat trick that GitHub allows you to do. This is a bit of an advanced trick and we’ll go over the details of this a bit more in <a data-type="xref" href="ch10.html#_refspec">“The Refspec”</a>, but it can be pretty useful.</p>
+
+<p>GitHub actually advertises the Pull Request branches for a repository as sort of pseudo-branches on the server. By default you don’t get them when you clone, but they are there in an obscured way and you can access them pretty easily.</p>
+
+<p>To demonstrate this, we’re going to use a low-level command (often referred to as a “plumbing” command, which we’ll read about more in <a data-type="xref" href="ch10.html#_plumbing_porcelain">“Plumbing and Porcelain”</a>) called <code>ls-remote</code>. This command is generally not used in day-to-day Git operations but it’s useful to show us what references are present on the server.</p>
+
+<p>If we run this command against the “blink” repository we were using earlier, we will get a list of all the branches and tags and other references in the repository.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git ls-remote https://github.com/schacon/blink
+<code class="go">10d539600d86723087810ec636870a504f4fee4d	HEAD</code>
+<code class="go">10d539600d86723087810ec636870a504f4fee4d	refs/heads/master</code>
+<code class="go">6a83107c62950be9453aac297bb0193fd743cd6e	refs/pull/1/head</code>
+<code class="go">afe83c2d1a70674c9505cc1d8b7d380d5e076ed3	refs/pull/1/merge</code>
+<code class="go">3c8d735ee16296c242be7a9742ebfbc2665adec1	refs/pull/2/head</code>
+<code class="go">15c9f4f80973a2758462ab2066b6ad9fe8dcf03d	refs/pull/2/merge</code>
+<code class="go">a5a7751a33b7e86c5e9bb07b26001bb17d775d1a	refs/pull/4/head</code>
+<code class="go">31a45fc257e8433c8d8804e3e848cf61c9d3166c	refs/pull/4/merge</code></pre>
+
+<p>Of course, if you’re in your repository and you run <code>git ls-remote origin</code> or whatever remote you want to check, it will show you something similar to this.</p>
+
+<p>If the repository is on GitHub and you have any Pull Requests that have been opened, you’ll get these references that are prefixed with <code>refs/pull/</code>. These are basically branches, but since they’re not under <code>refs/heads/</code> you don’t get them normally when you clone or fetch from the server — the process of fetching ignores them normally.</p>
+
+<p>There are two references per Pull Request - the one that ends in <code>/head</code> points to exactly the same commit as the last commit in the Pull Request branch. So if someone opens a Pull Request in our repository and their branch is named <code>bug-fix</code> and it points to commit <code>a5a775</code>, then in <strong>our</strong> repository we will not have a <code>bug-fix</code> branch (since that’s in their fork), but we <em>will</em> have <code>pull/&lt;pr#&gt;/head</code> that points to <code>a5a775</code>. This means that we can pretty easily pull down every Pull Request branch in one go without having to add a bunch of remotes.</p>
+
+<p>Now, you could do something like fetching the reference directly.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git fetch origin refs/pull/958/head
+<code class="go">From https://github.com/libgit2/libgit2</code>
+<code class="go"> * branch            refs/pull/958/head -&gt; FETCH_HEAD</code></pre>
+
+<p>This tells Git, “Connect to the <code>origin</code> remote, and download the ref named <code>refs/pull/958/head</code>.”
+Git happily obeys, and downloads everything you need to construct that ref, and puts a pointer to the commit you want under <code>.git/FETCH_HEAD</code>.
+You can follow that up with <code>git merge FETCH_HEAD</code> into a branch you want to test it in, but that merge commit message looks a bit weird.
+Also, if you’re reviewing a <strong>lot</strong> of pull requests, this gets tedious.</p>
+
+<p>There’s also a way to fetch <em>all</em> of the pull requests, and keep them up to date whenever you connect to the remote.
+Open up <code>.git/config</code> in your favorite editor, and look for the <code>origin</code> remote.
+It should look a bit like this:</p>
+
+<pre data-type="programlisting">[remote "origin"]
+    url = https://github.com/libgit2/libgit2
+    fetch = +refs/heads/*:refs/remotes/origin/*</pre>
+
+<p>That line that begins with <code>fetch =</code> is a “refspec.”
+It’s a way of mapping names on the remote with names in your local <code>.git</code> directory.
+This particular one tells Git, “the things on the remote that are under <code>refs/heads</code> should go in my local repository under <code>refs/remotes/origin</code>.”
+You can modify this section to add another refspec:</p>
+
+<pre data-type="programlisting">[remote "origin"]
+    url = https://github.com/libgit2/libgit2.git
+    fetch = +refs/heads/*:refs/remotes/origin/*
+    fetch = +refs/pull/*/head:refs/remotes/origin/pr/*</pre>
+
+<p>That last line tells Git, “All the refs that look like <code>refs/pull/123/head</code> should be stored locally like <code>refs/remotes/origin/pr/123</code>.”
+Now, if you save that file, and do a <code>git fetch</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git fetch
+<code class="gp">#</code> …
+<code class="go"> * [new ref]         refs/pull/1/head -&gt; origin/pr/1</code>
+<code class="go"> * [new ref]         refs/pull/2/head -&gt; origin/pr/2</code>
+<code class="go"> * [new ref]         refs/pull/4/head -&gt; origin/pr/4</code>
+<code class="gp">#</code> …</pre>
+
+<p>Now all of the remote pull requests are represented locally with refs that act much like tracking branches; they’re read-only, and they update when you do a fetch.
+This makes it super easy to try the code from a pull request locally:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout pr/2
+<code class="go">Checking out files: 100% (3769/3769), done.</code>
+<code class="go">Branch pr/2 set up to track remote branch pr/2 from origin.</code>
+<code class="go">Switched to a new branch 'pr/2'</code></pre>
+
+<p>The eagle-eyed among you would note the <code>head</code> on the end of the remote portion of the refspec.
+There’s also a <code>refs/pull/#/merge</code> ref on the GitHub side, which represents the commit that would result if you push the “merge” button on the site. This can allow you to test the merge before even hitting the button.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Pull Requests on Pull Requests" id="idp15655984">
+<h3>Pull Requests on Pull Requests</h3>
+
+<p>Not only can you open Pull Requests that target the main or <code>master</code> branch, you can actually open a Pull Request targeting any branch in the network. In fact, you can even target another Pull Request.</p>
+
+<p>If you see a Pull Request that is moving in the right direction and you have an idea for a change that depends on it or you’re not sure is a good idea, or you just don’t have push access to the target branch, you can open a Pull Request directly to it.</p>
+
+<p>When you go to open a Pull Request, there is a box at the top of the page that specifies which branch you’re requesting to pull to and which you’re requesting to pull from. If you hit the “Edit” button at the right of that box you can change not only the branches but also which fork.</p>
+
+<figure id="_pr_targets"><div class="border-box"><img src="book/06-github/images/maint-04-target.png" alt="PR targets"/></div><figcaption>Manually change the Pull Request target fork and branch.</figcaption></figure>
+
+<p>Here you can fairly easily specify to merge your new branch into another Pull Request or another fork of the project.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Mentions and Notifications" id="idp15627536">
+<h2>Mentions and Notifications</h2>
+
+<p>GitHub also has a pretty nice notifications system built in that can come in handy when you have questions or need feedback from specific individuals or teams.</p>
+
+<p>In any comment you can start typing a <code>@</code> character and it will begin to autocomplete with the names and usernames of people who are collaborators or contributors in the project.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/maint-05-mentions.png" alt="Mentions"/></div><figcaption>Start typing @ to mention someone.</figcaption></figure>
+
+<p>You can also mention a user who is not in that dropdown, but often the autocompleter can make it faster.</p>
+
+<p>Once you post a comment with a user mention, that user will be notified. This means that this can be a really effective way of pulling people into conversations rather than making them poll. Very often in  Pull Requests on GitHub people will pull in other people on their teams or in their company to review an Issue or Pull Request.</p>
+
+<p>If someone gets mentioned on a Pull Request or Issue, they will be “subscribed” to it and will continue getting notifications any time some activity occurs on it. You will also be subscribed to something if you opened it, if you’re watching the repository or if you comment on something. If you no longer wish to receive notifications, there is an “Unsubscribe” button on the page you can click to stop receiving updates on it.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/maint-06-unsubscribe.png" alt="Unsubscribe"/></div><figcaption>Unsubscribe from an Issue or Pull Request.</figcaption></figure>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="The Notifications Page" id="idp15762464">
+<h3>The Notifications Page</h3>
+
+<p>When we mention “notifications” here with respect to GitHub, we mean a specific way that GitHub tries to get in touch with you when events happen and there are a few different ways you can configure them.
+If you go to the “Notification center” tab from the settings page, you can see some of the options you have.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/maint-07-notifications.png" alt="Notification center"/></div><figcaption>Notification center options.</figcaption></figure>
+
+<p>The two choices are to get notifications over “Email” and over “Web” and you can choose either, neither or both for when you actively participate in things and for activity on repositories you are watching.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect4" data-pdf-bookmark="Web Notifications" id="idp15766864">
+<h4>Web Notifications</h4>
+
+<p>Web notifications only exist on GitHub and you can only check them on GitHub. If you have this option selected in your preferences and a notification is triggered for you, you will see a small blue dot over your notifications icon at the top of your screen as seen in <a data-type="xref" href="#_not_center">Figure 6-41</a>.</p>
+
+<figure id="_not_center"><div class="border-box"><img src="book/06-github/images/maint-08-notifications-page.png" alt="Notification center"/></div><figcaption>Notification center.</figcaption></figure>
+
+<p>If you click on that, you will see a list of all the items you have been notified about, grouped by project. You can filter to the notifications of a specific project by clicking on its name in the left hand sidebar. You can also acknowledge the notification by clicking the checkmark icon next to any notification, or acknowledge <em>all</em> of the notifications in a project by clicking the checkmark at the top of the group. There is also a mute button next to each checkmark that you can click to not receive any further notifications on that item.</p>
+
+<p>All of these tools are very useful for handling large numbers of notifications. Many GitHub power users will simply turn off email notifications entirely and manage all of their notifications through this screen.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect4" data-pdf-bookmark="Email Notifications" id="idp15815072">
+<h4>Email Notifications</h4>
+
+<p>Email notifications are the other way you can handle notifications through GitHub. If you have this turned on you will get emails for each notification. We saw examples of this in <a data-type="xref" href="#_email_notification">Figure 6-13</a> and <a data-type="xref" href="#_email_pr">Figure 6-34</a>. The emails will also be threaded properly, which is nice if you’re using a threading email client.</p>
+
+<p>There is also a fair amount of metadata embedded in the headers of the emails that GitHub sends you, which can be really helpful for setting up custom filters and rules.</p>
+
+<p>For instance, if we look at the actual email headers sent to Tony in the email shown in <a data-type="xref" href="#_email_pr">Figure 6-34</a>, we will see the following among the information sent:</p>
+
+<pre data-type="programlisting" data-code-language="mbox">To: tonychacon/fade &lt;fade@noreply.github.com&gt;
+Message-ID: &lt;tonychacon/fade/pull/1@github.com&gt;
+Subject: [fade] Wait longer to see the dimming effect better (#1)
+X-GitHub-Recipient: tonychacon
+List-ID: tonychacon/fade &lt;fade.tonychacon.github.com&gt;
+List-Archive: https://github.com/tonychacon/fade
+List-Post: &lt;mailto:reply+i-4XXX@reply.github.com&gt;
+List-Unsubscribe: &lt;mailto:unsub+i-XXX@reply.github.com&gt;,...
+X-GitHub-Recipient-Address: tchacon@example.com</pre>
+
+<p>There are a couple of interesting things here. If you want to highlight or re-route emails to this particular project or even Pull Request, the information in <code>Message-ID</code> gives you all the data in <code>&lt;user&gt;/&lt;project&gt;/&lt;type&gt;/&lt;id&gt;</code> format. If this were an issue, for example, the <code>&lt;type&gt;</code> field would have been “issues” rather than “pull”.</p>
+
+<p>The <code>List-Post</code> and <code>List-Unsubscribe</code> fields mean that if you have a mail client that understands those, you can easily post to the list or “Unsubscribe” from the thread. That would be essentially the same as clicking the “mute” button on the web version of the notification or “Unsubscribe” on the Issue or Pull Request page itself.</p>
+
+<p>It’s also worth noting that if you have both email and web notifications enabled and you read the email version of the notification, the web version will be marked as read as well if you have images allowed in your mail client.</p>
+</section>
+
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Special Files" id="idp15827872">
+<h2>Special Files</h2>
+
+<p>There are a couple of special files that GitHub will notice if they are present in your repository.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="README" id="idp15829568">
+<h2>README</h2>
+
+<p>The first is the <code>README</code> file, which can be of nearly any format that GitHub recognizes as prose. For example, it could be <code>README</code>, <code>README.md</code>, <code>README.asciidoc</code>, etc. If GitHub sees a README file in your source, it will render it on the landing page of the project.</p>
+
+<p>Many teams use this file to hold all the relevant project information for someone who might be new to the repository or project. This generally includes things like:</p>
+
+<ul>
+<li>
+<p>What the project is for</p>
+</li>
+<li>
+<p>How to configure and install it</p>
+</li>
+<li>
+<p>An example of how to use it or get it running</p>
+</li>
+<li>
+<p>The license that the project is offered under</p>
+</li>
+<li>
+<p>How to contribute to it</p>
+</li>
+</ul>
+
+<p>Since GitHub will render this file, you can embed images or links in it for added ease of understanding.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="CONTRIBUTING" id="idp15846512">
+<h2>CONTRIBUTING</h2>
+
+<p>The other special file that GitHub recognizes is the <code>CONTRIBUTING</code> file. If you have a file named <code>CONTRIBUTING</code> with any file extension, GitHub will show <a data-type="xref" href="#_contrib_file">Figure 6-42</a> when anyone starts opening a Pull Request.</p>
+
+<figure id="_contrib_file"><div class="border-box"><img src="book/06-github/images/maint-09-contrib.png" alt="Contributing notice"/></div><figcaption>Opening a Pull Request when a CONTRIBUTING file exists.</figcaption></figure>
+
+<p>The idea here is that you can specify specific things you want or don’t want in a Pull Request sent to your project. This way people may actually read the guidelines before opening the Pull Request.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Project Administration" id="idp15852624">
+<h2>Project Administration</h2>
+
+<p>Generally there are not a lot of administrative things you can do with a single project, but there are a couple of items that might be of interest.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Changing the Default Branch" id="idp15854240">
+<h3>Changing the Default Branch</h3>
+
+<p>If you are using a branch other than “master” as your default branch that you want people to open Pull Requests on or see by default, you can change that in your repository’s settings page under the “Options” tab.</p>
+
+<figure id="_default_branch"><div class="border-box"><img src="book/06-github/images/maint-10-default-branch.png" alt="Default branch"/></div><figcaption>Change the default branch for a project.</figcaption></figure>
+
+<p>Simply change the default branch in the dropdown and that will be the default for all major operations from then on, including which branch is checked out by default when someone clones the repository.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Transferring a Project" id="idp15858736">
+<h3>Transferring a Project</h3>
+
+<p>If you would like to transfer a project to another user or an organization in GitHub, there is a “Transfer ownership” option at the bottom of the same “Options” tab of your repository settings page that allows you to do this.</p>
+
+<figure id="_transfer_project"><div class="border-box"><img src="book/06-github/images/maint-11-transfer.png" alt="Transfer"/></div><figcaption>Transfer a project to another GitHub user or Organization.</figcaption></figure>
+
+<p>This is helpful if you are abandoning a project and someone wants to take it over, or if your project is getting bigger and want to move it into an organization.</p>
+
+<p>Not only does this move the repository along with all its watchers and stars to another place, it also sets up a redirect from your URL to the new place. It will also redirect clones and fetches from Git, not just web requests.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Managing an organization" id="_github_orgs">
+<h1>Managing an organization</h1>
+
+<p><a data-type="indexterm" data-primary="GitHub" data-secondary="organizations" id="idp15865584"/>
+In addition to single-user accounts, GitHub has what are called Organizations.
+Like personal accounts, Organizational accounts have a namespace where all their projects exist, but many other things are different.
+These accounts represent a group of people with shared ownership of projects, and there are many tools to manage subgroups of those people.
+Normally these accounts are used for Open Source groups (such as “perl” or “rails”) or companies (such as “google” or “twitter”).</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Organization Basics" id="idp15867328">
+<h2>Organization Basics</h2>
+
+<p>An organization is pretty easy to create; just click on the “+” icon at the top-right of any GitHub page, and select “New organization” from the menu.</p>
+
+<figure><div class="border-box"><img src="book/06-github/images/neworg.png" alt="The ``New organization'' menu item."/></div><figcaption>The “New organization” menu item.</figcaption></figure>
+
+<p>First you’ll need to name your organization and provide an email address for a main point of contact for the group. Then you can invite other users to be co-owners of the account if you want to.</p>
+
+<p>Follow these steps and you’ll soon be the owner of a brand-new organization.
+Like personal accounts, organizations are free if everything you plan to store there will be open source.</p>
+
+<p>As an owner in an organization, when you fork a repository, you’ll have the choice of forking it to your organization’s namespace. When you create new repositories you can create them either under your personal account or under any of the organizations that you are an owner in. You also automatically “watch” any new repository created under these organizations.</p>
+
+<p>Just like in <a data-type="xref" href="#_personal_avatar">“Your Avatar”</a>, you can upload an avatar for your organization to personalize it a bit. Also just like personal accounts, you have a landing page for the organization that lists all of your repositories and can be viewed by other people.</p>
+
+<p>Now let’s cover some of the things that are a bit different with an organizational account.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Teams" id="idp15874864">
+<h2>Teams</h2>
+
+<p>Organizations are associated with individual people by way of teams, which are simply a grouping of individual user accounts and repositories within the organization and what kind of access those people have in those repositories.</p>
+
+<p>For example, say your company has three repositories: <code>frontend</code>, <code>backend</code>, and <code>deployscripts</code>.
+You’d want your HTML/CSS/Javascript developers to have access to <code>frontend</code> and maybe <code>backend</code>, and your Operations people to have access to <code>backend</code> and <code>deployscripts</code>.
+Teams make this easy, without having to manage the collaborators for every individual repository.</p>
+
+<p>The Organization page shows you a simple dashboard of all the repositories, users and teams that are under this organization.</p>
+
+<figure id="_org_page"><div class="border-box"><img src="book/06-github/images/orgs-01-page.png" alt="orgs 01 page"/></div><figcaption>The Organization page.</figcaption></figure>
+
+<p>To manage your Teams, you can click on the Teams sidebar on the right hand side of the page in <a data-type="xref" href="#_org_page">Figure 6-46</a>. This will bring you to a page you can use to add members to the team, add repositories to the team or manage the settings and access control levels for the team. Each team can have read only, read/write or administrative access to the repositories. You can change that level by clicking the “Settings” button in <a data-type="xref" href="#_team_page">Figure 6-47</a>.</p>
+
+<figure id="_team_page"><div class="border-box"><img src="book/06-github/images/orgs-02-teams.png" alt="orgs 02 teams"/></div><figcaption>The Team page.</figcaption></figure>
+
+<p>When you invite someone to a team, they will get an email letting them know they’ve been invited.</p>
+
+<p>Additionally, team <code>@mentions</code> (such as <code>@acmecorp/frontend</code>) work much the same as they do with individual users, except that <strong>all</strong> members of the team are then subscribed to the thread.
+This is useful if you want the attention from someone on a team, but you don’t know exactly who to ask.</p>
+
+<p>A user can belong to any number of teams, so don’t limit yourself to only access-control teams.
+Special-interest teams like <code>ux</code>, <code>css</code>, or <code>refactoring</code> are useful for certain kinds of questions, and others like <code>legal</code> and <code>colorblind</code> for an entirely different kind.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Audit Log" id="idp15875488">
+<h2>Audit Log</h2>
+
+<p>Organizations also give owners access to all the information about what went on under the organization. You can go to the <em>Audit Log</em> tab and see what events have happened at an organization level, who did them and where in the world they were done.</p>
+
+<figure id="_audit_log"><div class="border-box"><img src="book/06-github/images/orgs-03-audit.png" alt="orgs 03 audit"/></div><figcaption>The Audit log.</figcaption></figure>
+
+<p>You can also filter down to specific types of events, specific places or specific people.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Scripting GitHub" id="idp15913376">
+<h1>Scripting GitHub</h1>
+
+<p>So now we’ve covered all of the major features and workflows of GitHub, but any large group or project will have customizations they may want to make or external services they may want to integrate.</p>
+
+<p>Luckily for us, GitHub is really quite hackable in many ways. In this section we’ll cover how to use the GitHub hooks system and its API to make GitHub work how we want it to.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Hooks" id="idp15915680">
+<h2>Hooks</h2>
+
+<p>The Hooks and Services section of GitHub repository administration is the easiest way to have GitHub interact with external systems.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Services" id="idp15917184">
+<h3>Services</h3>
+
+<p>First we’ll take a look at Services. Both the Hooks and Services integrations can be found in the Settings section of your repository, where we previously looked at adding Collaborators and changing the default branch of your project. Under the “Webhooks and Services” tab you will see something like <a data-type="xref" href="#_services_hooks">Figure 6-49</a>.</p>
+
+<figure id="_services_hooks"><div class="border-box"><img src="book/06-github/images/scripting-01-services.png" alt="Services and hooks"/></div><figcaption>Services and Hooks configuration section.</figcaption></figure>
+
+<p>There are dozens of services you can choose from, most of them integrations into other commercial and open source systems. Most of them are for Continuous Integration services, bug and issue trackers, chat room systems and documentation systems. We’ll walk through setting up a very simple one, the Email hook. If you choose “email” from the “Add Service” dropdown, you’ll get a configuration screen like <a data-type="xref" href="#_service_config">Figure 6-50</a>.</p>
+
+<figure id="_service_config"><div class="border-box"><img src="book/06-github/images/scripting-02-email-service.png" alt="Email service"/></div><figcaption>Email service configuration.</figcaption></figure>
+
+<p>In this case, if we hit the “Add service” button, the email address we specified will get an email every time someone pushes to the repository. Services can listen for lots of different types of events, but most only listen for push events and then do something with that data.</p>
+
+<p>If there is a system you are using that you would like to integrate with GitHub, you should check here to see if there is an existing service integration available. For example, if you’re using Jenkins to run tests on your codebase, you can enable the Jenkins builtin service integration to kick off a test run every time someone pushes to your repository.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Hooks" id="idp15927376">
+<h3>Hooks</h3>
+
+<p>If you need something more specific or you want to integrate with a service or site that is not included in this list, you can instead use the more generic hooks system. GitHub repository hooks are pretty simple. You specify a URL and GitHub will post an HTTP payload to that URL on any event you want.</p>
+
+<p>Generally the way this works is you can setup a small web service to listen for a GitHub hook payload and then do something with the data when it is received.</p>
+
+<p>To enable a hook, you click the “Add webhook” button in <a data-type="xref" href="#_services_hooks">Figure 6-49</a>. This will bring you to a page that looks like <a data-type="xref" href="#_web_hook">Figure 6-51</a>.</p>
+
+<figure id="_web_hook"><div class="border-box"><img src="book/06-github/images/scripting-03-webhook.png" alt="Web hook"/></div><figcaption>Web hook configuration.</figcaption></figure>
+
+<p>The configuration for a web hook is pretty simple. In most cases you simply enter a URL and a secret key and hit “Add webhook”. There are a few options for which events you want GitHub to send you a payload for — the default is to only get a payload for the <code>push</code> event, when someone pushes new code to any branch of your repository.</p>
+
+<p>Let’s see a small example of a web service you may set up to handle a web hook. We’ll use the Ruby web framework Sinatra since it’s fairly concise and you should be able to easily see what we’re doing.</p>
+
+<p>Let’s say we want to get an email if a specific person pushes to a specific branch of our project modifying a specific file. We could fairly easily do that with code like this:</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="nb">require</code> <code class="s1">'sinatra'</code>
+<code class="nb">require</code> <code class="s1">'json'</code>
+<code class="nb">require</code> <code class="s1">'mail'</code>
+
+<code class="n">post</code> <code class="s1">'/payload'</code> <code class="k">do</code>
+  <code class="n">push</code> <code class="o">=</code> <code class="no">JSON</code><code class="o">.</code><code class="n">parse</code><code class="p">(</code><code class="n">request</code><code class="o">.</code><code class="n">body</code><code class="o">.</code><code class="n">read</code><code class="p">)</code> <code class="c1"># parse the JSON</code>
+
+  <code class="c1"># gather the data we're looking for</code>
+  <code class="n">pusher</code> <code class="o">=</code> <code class="n">push</code><code class="o">[</code><code class="s2">"pusher"</code><code class="o">][</code><code class="s2">"name"</code><code class="o">]</code>
+  <code class="n">branch</code> <code class="o">=</code> <code class="n">push</code><code class="o">[</code><code class="s2">"ref"</code><code class="o">]</code>
+
+  <code class="c1"># get a list of all the files touched</code>
+  <code class="n">files</code> <code class="o">=</code> <code class="n">push</code><code class="o">[</code><code class="s2">"commits"</code><code class="o">].</code><code class="n">map</code> <code class="k">do</code> <code class="o">|</code><code class="n">commit</code><code class="o">|</code>
+    <code class="n">commit</code><code class="o">[</code><code class="s1">'added'</code><code class="o">]</code> <code class="o">+</code> <code class="n">commit</code><code class="o">[</code><code class="s1">'modified'</code><code class="o">]</code> <code class="o">+</code> <code class="n">commit</code><code class="o">[</code><code class="s1">'removed'</code><code class="o">]</code>
+  <code class="k">end</code>
+  <code class="n">files</code> <code class="o">=</code> <code class="n">files</code><code class="o">.</code><code class="n">flatten</code><code class="o">.</code><code class="n">uniq</code>
+
+  <code class="c1"># check for our criteria</code>
+  <code class="k">if</code> <code class="n">pusher</code> <code class="o">==</code> <code class="s1">'schacon'</code> <code class="o">&amp;&amp;</code>
+     <code class="n">branch</code> <code class="o">==</code> <code class="s1">'ref/heads/special-branch'</code> <code class="o">&amp;&amp;</code>
+     <code class="n">files</code><code class="o">.</code><code class="n">include?</code><code class="p">(</code><code class="s1">'special-file.txt'</code><code class="p">)</code>
+
+    <code class="no">Mail</code><code class="o">.</code><code class="n">deliver</code> <code class="k">do</code>
+      <code class="n">from</code>     <code class="s1">'tchacon@example.com'</code>
+      <code class="n">to</code>       <code class="s1">'tchacon@example.com'</code>
+      <code class="n">subject</code>  <code class="s1">'Scott Changed the File'</code>
+      <code class="n">body</code>     <code class="s2">"ALARM"</code>
+    <code class="k">end</code>
+  <code class="k">end</code>
+<code class="k">end</code></pre>
+
+<p>Here we’re taking the JSON payload that GitHub delivers us and looking up who pushed it, what branch they pushed to and what files were touched in all the commits that were pushed. Then we check that against our criteria and send an email if it matches.</p>
+
+<p>In order to develop and test something like this, you have a nice developer console in the same screen where you set the hook up. You can see the last few deliveries that GitHub has tried to make for that webhook. For each hook you can dig down into when it was delivered, if it was successful and the body and headers for both the request and the response. This makes it incredibly easy to test and debug your hooks.</p>
+
+<figure id="_web_hook_debug"><div class="border-box"><img src="book/06-github/images/scripting-04-webhook-debug.png" alt="Webhook debug"/></div><figcaption>Web hook debugging information.</figcaption></figure>
+
+<p>The other great feature of this is that you can redeliver any of the payloads to test your service easily.</p>
+
+<p>For more information on how to write webhooks and all the different event types you can listen for, go to the GitHub Developer documentation at: <a href="https://developer.github.com/webhooks/"><em class="hyperlink">https://developer.github.com/webhooks/</em></a></p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The GitHub API" id="idp15940912">
+<h2>The GitHub API</h2>
+
+<p><a data-type="indexterm" data-primary="GitHub" data-secondary="API" id="idp16402192"/>
+Services and hooks give you a way to receive push notifications about events that happen on your repositories, but what if you need more information about these events? What if you need to automate something like adding collaborators or labeling issues?</p>
+
+<p>This is where the GitHub API comes in handy. GitHub has tons of API endpoints for doing nearly anything you can do on the website in an automated fashion. In this section we’ll learn how to authenticate and connect to the API, how to comment on an issue and how to change the status of a Pull Request through the API.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Basic Usage" id="idp16404544">
+<h2>Basic Usage</h2>
+
+<p>The most basic thing you can do is a simple GET request on an endpoint that doesn’t require authentication. This could be a user or read-only information on an open source project. For example, if we want to know more about a user named “schacon”, we can run something like this:</p>
+
+<pre data-type="programlisting" data-code-language="javascript"><code class="nx">$</code> <code class="nx">curl</code> <code class="nx">https</code><code class="o">:</code><code class="c1">//api.github.com/users/schacon</code>
+<code class="p">{</code>
+  <code class="s2">"login"</code><code class="o">:</code> <code class="s2">"schacon"</code><code class="p">,</code>
+  <code class="s2">"id"</code><code class="o">:</code> <code class="mi">70</code><code class="p">,</code>
+  <code class="s2">"avatar_url"</code><code class="o">:</code> <code class="s2">"https://avatars.githubusercontent.com/u/70"</code><code class="p">,</code>
+<code class="err">#</code> <code class="err">…</code>
+  <code class="s2">"name"</code><code class="o">:</code> <code class="s2">"Scott Chacon"</code><code class="p">,</code>
+  <code class="s2">"company"</code><code class="o">:</code> <code class="s2">"GitHub"</code><code class="p">,</code>
+  <code class="s2">"following"</code><code class="o">:</code> <code class="mi">19</code><code class="p">,</code>
+  <code class="s2">"created_at"</code><code class="o">:</code> <code class="s2">"2008-01-27T17:19:28Z"</code><code class="p">,</code>
+  <code class="s2">"updated_at"</code><code class="o">:</code> <code class="s2">"2014-06-10T02:37:23Z"</code>
+<code class="p">}</code></pre>
+
+<p>There are tons of endpoints like this to get information about organizations, projects, issues, commits — just about anything you can publicly see on GitHub. You can even use the API to render arbitrary Markdown or find a <code>.gitignore</code> template.</p>
+
+<pre data-type="programlisting" data-code-language="javascript"><code class="nx">$</code> <code class="nx">curl</code> <code class="nx">https</code><code class="o">:</code><code class="c1">//api.github.com/gitignore/templates/Java</code>
+<code class="p">{</code>
+  <code class="s2">"name"</code><code class="o">:</code> <code class="s2">"Java"</code><code class="p">,</code>
+  <code class="s2">"source"</code><code class="o">:</code> <code class="s2">"*.class</code>
+
+<code class="s2"># Mobile Tools for Java (J2ME)</code>
+<code class="s2">.mtj.tmp/</code>
+
+<code class="s2"># Package Files #</code>
+<code class="s2">*.jar</code>
+<code class="s2">*.war</code>
+<code class="s2">*.ear</code>
+
+<code class="s2"># virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml</code>
+<code class="s2">hs_err_pid*</code>
+<code class="s2">"</code>
+<code class="p">}</code></pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Commenting on an Issue" id="idp16922240">
+<h2>Commenting on an Issue</h2>
+
+<p>However, if you want to do an action on the website such as comment on an Issue or Pull Request or if you want to view or interact with private content, you’ll need to authenticate.</p>
+
+<p>There are several ways to authenticate. You can use basic authentication with just your username and password, but generally it’s a better idea to use a personal access token.
+You can generate this from the “Applications” tab of your settings page.</p>
+
+<figure id="_access_token"><div class="border-box"><img src="book/06-github/images/scripting-05-access-token.png" alt="Access Token"/></div><figcaption>Generate your access token from the “Applications” tab of your settings page.</figcaption></figure>
+
+<p>It will ask you which scopes you want for this token and a description. Make sure to use a good description so you feel comfortable removing the token when your script or application is no longer used.</p>
+
+<p>GitHub will only show you the token once, so be sure to copy it. You can now use this to authenticate in your script instead of using a username and password. This is nice because you can limit the scope of what you want to do and the token is revocable.</p>
+
+<p>This also has the added advantage of increasing your rate limit. Without authenticating, you will be limited to 60 requests per hour. If you authenticate you can make up to 5,000 requests per hour.</p>
+
+<p>So let’s use it to make a comment on one of our issues. Let’s say we want to leave a comment on a specific issue, Issue #6. To do so we have to do an HTTP POST request to <code>repos/&lt;user&gt;/&lt;repo&gt;/issues/&lt;num&gt;/comments</code> with the token we just generated as an Authorization header.</p>
+
+<pre data-type="programlisting" data-code-language="javascript"><code class="nx">$</code> <code class="nx">curl</code> <code class="o">-</code><code class="nx">H</code> <code class="s2">"Content-Type: application/json"</code> <code class="o">\</code>
+       <code class="o">-</code><code class="nx">H</code> <code class="s2">"Authorization: token TOKEN"</code> <code class="o">\</code>
+       <code class="o">--</code><code class="nx">data</code> <code class="s1">'{"body":"A new comment, :+1:"}'</code> <code class="o">\</code>
+       <code class="nx">https</code><code class="o">:</code><code class="c1">//api.github.com/repos/schacon/blink/issues/6/comments</code>
+<code class="p">{</code>
+  <code class="s2">"id"</code><code class="o">:</code> <code class="mi">58322100</code><code class="p">,</code>
+  <code class="s2">"html_url"</code><code class="o">:</code> <code class="s2">"https://github.com/schacon/blink/issues/6#issuecomment-58322100"</code><code class="p">,</code>
+  <code class="p">...</code>
+  <code class="s2">"user"</code><code class="o">:</code> <code class="p">{</code>
+    <code class="s2">"login"</code><code class="o">:</code> <code class="s2">"tonychacon"</code><code class="p">,</code>
+    <code class="s2">"id"</code><code class="o">:</code> <code class="mi">7874698</code><code class="p">,</code>
+    <code class="s2">"avatar_url"</code><code class="o">:</code> <code class="s2">"https://avatars.githubusercontent.com/u/7874698?v=2"</code><code class="p">,</code>
+    <code class="s2">"type"</code><code class="o">:</code> <code class="s2">"User"</code><code class="p">,</code>
+  <code class="p">},</code>
+  <code class="s2">"created_at"</code><code class="o">:</code> <code class="s2">"2014-10-08T07:48:19Z"</code><code class="p">,</code>
+  <code class="s2">"updated_at"</code><code class="o">:</code> <code class="s2">"2014-10-08T07:48:19Z"</code><code class="p">,</code>
+  <code class="s2">"body"</code><code class="o">:</code> <code class="s2">"A new comment, :+1:"</code>
+<code class="p">}</code></pre>
+
+<p>Now if you go to that issue, you can see the comment that we just successfully posted as in <a data-type="xref" href="#_api_comment">Figure 6-54</a>.</p>
+
+<figure id="_api_comment"><div class="border-box"><img src="book/06-github/images/scripting-06-comment.png" alt="API Comment"/></div><figcaption>A comment posted from the GitHub API.</figcaption></figure>
+
+<p>You can use the API to do just about anything you can do on the website — creating and setting milestones, assigning people to Issues and Pull Requests, creating and changing labels, accessing commit data, creating new commits and branches, opening, closing or merging Pull Requests, creating and editing teams, commenting on lines of code in a Pull Request, searching the site and on and on.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Changing the Status of a Pull Request" id="idp16920064">
+<h2>Changing the Status of a Pull Request</h2>
+
+<p>One final example we’ll look at since it’s really useful if you’re working with Pull Requests. Each commit can have one or more statuses associated with it and there is an API to add and query that status.</p>
+
+<p>Most of the Continuous Integration and testing services make use of this API to react to pushes by testing the code that was pushed, and then report back if that commit has passed all the tests. You could also use this to check if the commit message is properly formatted, if the submitter followed all your contribution guidelines, if the commit was validly signed — any number of things.</p>
+
+<p>Let’s say you set up a webhook on your repository that hits a small web service that checks for a <code>Signed-off-by</code> string in the commit message.</p>
+
+<pre data-type="programlisting" data-code-language="ruby"><code class="nb">require</code> <code class="s1">'httparty'</code>
+<code class="nb">require</code> <code class="s1">'sinatra'</code>
+<code class="nb">require</code> <code class="s1">'json'</code>
+
+<code class="n">post</code> <code class="s1">'/payload'</code> <code class="k">do</code>
+  <code class="n">push</code> <code class="o">=</code> <code class="no">JSON</code><code class="o">.</code><code class="n">parse</code><code class="p">(</code><code class="n">request</code><code class="o">.</code><code class="n">body</code><code class="o">.</code><code class="n">read</code><code class="p">)</code> <code class="c1"># parse the JSON</code>
+  <code class="n">repo_name</code> <code class="o">=</code> <code class="n">push</code><code class="o">[</code><code class="s1">'repository'</code><code class="o">][</code><code class="s1">'full_name'</code><code class="o">]</code>
+
+  <code class="c1"># look through each commit message</code>
+  <code class="n">push</code><code class="o">[</code><code class="s2">"commits"</code><code class="o">].</code><code class="n">each</code> <code class="k">do</code> <code class="o">|</code><code class="n">commit</code><code class="o">|</code>
+
+    <code class="c1"># look for a Signed-off-by string</code>
+    <code class="k">if</code> <code class="sr">/Signed-off-by/</code><code class="o">.</code><code class="n">match</code> <code class="n">commit</code><code class="o">[</code><code class="s1">'message'</code><code class="o">]</code>
+      <code class="n">state</code> <code class="o">=</code> <code class="s1">'success'</code>
+      <code class="n">description</code> <code class="o">=</code> <code class="s1">'Successfully signed off!'</code>
+    <code class="k">else</code>
+      <code class="n">state</code> <code class="o">=</code> <code class="s1">'failure'</code>
+      <code class="n">description</code> <code class="o">=</code> <code class="s1">'No signoff found.'</code>
+    <code class="k">end</code>
+
+    <code class="c1"># post status to GitHub</code>
+    <code class="n">sha</code> <code class="o">=</code> <code class="n">commit</code><code class="o">[</code><code class="s2">"id"</code><code class="o">]</code>
+    <code class="n">status_url</code> <code class="o">=</code> <code class="s2">"https://api.github.com/repos/</code><code class="si">#{</code><code class="n">repo_name</code><code class="si">}</code><code class="s2">/statuses/</code><code class="si">#{</code><code class="n">sha</code><code class="si">}</code><code class="s2">"</code>
+
+    <code class="n">status</code> <code class="o">=</code> <code class="p">{</code>
+      <code class="s2">"state"</code>       <code class="o">=&gt;</code> <code class="n">state</code><code class="p">,</code>
+      <code class="s2">"description"</code> <code class="o">=&gt;</code> <code class="n">description</code><code class="p">,</code>
+      <code class="s2">"target_url"</code>  <code class="o">=&gt;</code> <code class="s2">"http://example.com/how-to-signoff"</code><code class="p">,</code>
+      <code class="s2">"context"</code>     <code class="o">=&gt;</code> <code class="s2">"validate/signoff"</code>
+    <code class="p">}</code>
+    <code class="no">HTTParty</code><code class="o">.</code><code class="n">post</code><code class="p">(</code><code class="n">status_url</code><code class="p">,</code>
+      <code class="ss">:body</code> <code class="o">=&gt;</code> <code class="n">status</code><code class="o">.</code><code class="n">to_json</code><code class="p">,</code>
+      <code class="ss">:headers</code> <code class="o">=&gt;</code> <code class="p">{</code>
+        <code class="s1">'Content-Type'</code>  <code class="o">=&gt;</code> <code class="s1">'application/json'</code><code class="p">,</code>
+        <code class="s1">'User-Agent'</code>    <code class="o">=&gt;</code> <code class="s1">'tonychacon/signoff'</code><code class="p">,</code>
+        <code class="s1">'Authorization'</code> <code class="o">=&gt;</code> <code class="s2">"token </code><code class="si">#{</code><code class="no">ENV</code><code class="o">[</code><code class="s1">'TOKEN'</code><code class="o">]</code><code class="si">}</code><code class="s2">"</code> <code class="p">}</code>
+    <code class="p">)</code>
+  <code class="k">end</code>
+<code class="k">end</code></pre>
+
+<p>Hopefully this is fairly simple to follow. In this web hook handler we look through each commit that was just pushed, we look for the string <em>Signed-off-by</em> in the commit message and finally we POST via HTTP to the <code>/repos/&lt;user&gt;/&lt;repo&gt;/statuses/&lt;commit_sha&gt;</code> API endpoint with the status.</p>
+
+<p>In this case you can send a state (<em>success</em>, <em>failure</em>, <em>error</em>), a description of what happened, a target URL the user can go to for more information and a “context” in case there are multiple statuses for a single commit. For example, a testing service may provide a status and a validation service like this may also provide a status — the “context” field is how they’re differentiated.</p>
+
+<p>If someone opens a new Pull Request on GitHub and this hook is set up, you may see something like <a data-type="xref" href="#_commit_status">Figure 6-55</a>.</p>
+
+<figure id="_commit_status"><div class="border-box"><img src="book/06-github/images/scripting-07-status.png" alt="Commit status"/></div><figcaption>Commit status via the API.</figcaption></figure>
+
+<p>You can now see a little green check mark next to the commit that has a “Signed-off-by” string in the message and a red cross through the one where the author forgot to sign off. You can also see that the Pull Request takes the status of the last commit on the branch and warns you if it is a failure. This is really useful if you’re using this API for test results so you don’t accidentally merge something where the last commit is failing tests.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Octokit" id="idp17058432">
+<h2>Octokit</h2>
+
+<p>Though we’ve been doing nearly everything through <code>curl</code> and simple HTTP requests in these examples, several open-source libraries exist that make this API available in a more idiomatic way.
+At the time of this writing, the supported languages include Go, Objective-C, Ruby, and .NET.
+Check out <a href="http://github.com/octokit"><em class="hyperlink">http://github.com/octokit</em></a> for more information on these, as they handle much of the HTTP for you.</p>
+
+<p>Hopefully these tools can help you customize and modify GitHub to work better for your specific workflows.
+For complete documentation on the entire API as well as guides for common tasks, check out <a href="https://developer.github.com"><em class="hyperlink">https://developer.github.com</em></a>.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Summary" id="idp17218080">
+<h1>Summary</h1>
+
+<p>Now you’re a GitHub user.
+You know how to create an account, manage an organization, create and push to repositories, contribute to other people’s projects and accept contributions from others.
+In the next chapter, you’ll learn more powerful tools and tips for dealing with complex situations, which will truly make you a Git master.</p>
+</section>
+
+
+
+
+
+
+
+</section>
+    <div class="navigation">
+      <ul>
+        <li><a href="ch07.html">Next</a></li>
+        <li><a href="ch05.html">Previous</a></li>
+      </ul>
+    </div>
+  </body>
+</html>

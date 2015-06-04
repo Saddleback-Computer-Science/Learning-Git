@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Pro Git</title>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script>
+    <link rel="stylesheet" type="text/css" href="theme/html/html.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <body data-type="book">
+    <div class="navbar">
+      <h1>Pro Git</h1>
+      <p><a href="toc01.html">Table of Contents</a></p>
+    </div>
+    <section data-type="appendix" data-pdf-bookmark="Appendix A. Git in Other Environments" id="idp33108768">
+<h1>Git in Other Environments</h1>
+
+
+<p>If you read through the whole book, you’ve learned a lot about how to use Git at the command line.
+You can work with local files, connect your repository to others over a network, and work effectively with others.
+But the story doesn’t end there; Git is usually used as part of a larger ecosystem, and the terminal isn’t always the best way to work with it.
+Now we’ll take a look at some of the other kinds of environments where Git can be useful, and how other applications (including yours) work alongside Git.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Graphical Interfaces" id="idp36190288">
+<h1>Graphical Interfaces</h1>
+
+<p><a data-type="indexterm" data-primary="GUIs" id="idp36191440"/><a data-type="indexterm" data-primary="Graphical tools" id="idp36192144"/>
+Git’s native environment is in the terminal.
+New features show up there first, and only at the command line is the full power of Git completely at your disposal.
+But plain text isn’t the best choice for all tasks; sometimes a visual representation is what you need, and some users are much more comfortable with a point-and-click interface.</p>
+
+<p>It’s important to note that different interfaces are tailored for different workflows.
+Some clients expose only a carefully curated subset of Git functionality, in order to support a specific way of working that the author considers effective.
+When viewed in this light, none of these tools can be called “better” than any of the others, they’re simply more fit for their intended purpose.
+Also note that there’s nothing these graphical clients can do that the command-line client can’t; the command-line is still where you’ll have the most power and control when working with your repositories.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="gitk and git-gui" id="idp36194448">
+<h2><code>gitk</code> and <code>git-gui</code></h2>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="gitk" id="idp36406528"/><a data-type="indexterm" data-primary="git commands" data-secondary="gui" id="idp36407504"/><a data-type="indexterm" data-primary="gitk" id="idp36408448"/>
+When you install Git, you also get its visual tools, <code>gitk</code> and <code>git-gui</code>.</p>
+
+<p><code>gitk</code> is a graphical history viewer.
+Think of it like a powerful GUI shell over <code>git log</code> and <code>git grep</code>.
+This is the tool to use when you’re trying to find something that happened in the past, or visualize your project’s history.</p>
+
+<p>Gitk is easiest to invoke from the command-line.
+Just <code>cd</code> into a Git repository, and type:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> gitk <code class="o">[</code>git log options<code class="o">]</code></pre>
+
+<p>Gitk accepts many command-line options, most of which are passed through to the underlying <code>git log</code> action.
+Probably one of the most useful is the <code>--all</code> flag, which tells gitk to show commits reachable from <em>any</em> ref, not just HEAD.
+Gitk’s interface looks like this:</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/gitk.png" alt="The `gitk` history viewer."/></div><figcaption>The <code>gitk</code> history viewer.</figcaption></figure>
+
+<p>On the top is something that looks a bit like the output of <code>git log --graph</code>; each dot represents a commit, the lines represent parent relationships, and refs are shown as colored boxes.
+The yellow dot represents HEAD, and the red dot represents changes that are yet to become a commit.
+At the bottom is a view of the selected commit; the comments and patch on the left, and a summary view on the right.
+In between is a collection of controls used for searching history.</p>
+
+<p><code>git-gui</code>, on the other hand, is primarily a tool for crafting commits.
+It, too, is easiest to invoke from the command line:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git gui</pre>
+
+<p>And it looks something like this:</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/git-gui.png" alt="The `git-gui` commit tool."/></div><figcaption>The <code>git-gui</code> commit tool.</figcaption></figure>
+
+<p>On the left is the index; unstaged changes are on top, staged changes on the bottom.
+You can move entire files between the two states by clicking on their icons, or you can select a file for viewing by clicking on its name.</p>
+
+<p>At top right is the diff view, which shows the changes for the currently-selected file.
+You can stage individual hunks (or individual lines) by right-clicking in this area.</p>
+
+<p>At the bottom right is the message and action area. Type your message into the text box and click “Commit” to do something similar to <code>git commit</code>.
+You can also choose to amend the last commit by choosing the “Amend” radio button, which will update the “Staged Changes” area with the contents of the last commit.
+Then you can simply stage or unstage some changes, alter the commit message, and click “Commit” again to replace the old commit with a new one.</p>
+
+<p><code>gitk</code> and <code>git-gui</code> are examples of task-oriented tools.
+Each of them is tailored for a specific purpose (viewing history and creating commits, respectively), and omit the features not necessary for that task.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="GitHub for Mac and Windows" id="idp36195072">
+<h2>GitHub for Mac and Windows</h2>
+
+<p><a data-type="indexterm" data-primary="GitHub for Mac" id="idp36426384"/><a data-type="indexterm" data-primary="GitHub for Windows" id="idp36427088"/>
+GitHub has created two workflow-oriented Git clients: one for Windows, and one for Mac.
+These clients are a good example of workflow-oriented tools – rather than expose <em>all</em> of Git’s functionality, they instead focus on a curated set of commonly-used features that work well together.
+They look like this:</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/github_mac.png" alt="GitHub for Mac."/></div><figcaption>GitHub for Mac.</figcaption></figure>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/github_win.png" alt="GitHub for Windows."/></div><figcaption>GitHub for Windows.</figcaption></figure>
+
+<p>They are designed to look and work very much alike, so we’ll treat them like a single product in this chapter.
+We won’t be doing a detailed rundown of these tools (they have their own documentation), but a quick tour of the “changes” view (which is where you’ll spend most of your time) is in order.</p>
+
+<ul>
+<li>
+<p>On the left is the list of repositories the client is tracking; you can add a repository (either by cloning or attaching locally) by clicking the “+” icon at the top of this area.</p>
+</li>
+<li>
+<p>In the center is a commit-input area, which lets you input a commit message, and select which files should be included.
+(On Windows, the commit history is displayed directly below this; on Mac, it’s on a separate tab.)</p>
+</li>
+<li>
+<p>On the right is a diff view, which shows what’s changed in your working directory, or which changes were included in the selected commit.</p>
+</li>
+<li>
+<p>The last thing to notice is the “Sync” button at the top-right, which is the primary way you interact over the network.</p>
+</li>
+</ul>
+<div data-type="note">
+<p>You don’t need a GitHub account to use these tools.
+While they’re designed to highlight GitHub’s service and recommended workflow, they will happily work with any repository, and do network operations with any Git host.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Installation" id="idp36438976">
+<h3>Installation</h3>
+
+<p>GitHub for Windows can be downloaded from <a href="https://windows.github.com"><em class="hyperlink">https://windows.github.com</em></a>, and GitHub for Mac from <a href="https://mac.github.com"><em class="hyperlink">https://mac.github.com</em></a>.
+When the applications are first run, they walk you through all the first-time Git setup, such as configuring your name and email address, and both set up sane defaults for many common configuration options, such as credential caches and CRLF behavior.</p>
+
+<p>Both are “evergreen” – updates are downloaded and installed in the background while the applications are open.
+This helpfully includes a bundled version of Git, which means you probably won’t have to worry about manually updating it again.
+On Windows, the client includes a shortcut to launch Powershell with Posh-git, which we’ll talk more about later in this chapter.</p>
+
+<p>The next step is to give the tool some repositories to work with.
+The client shows you a list of the repositories you have access to on GitHub, and can clone them in one step.
+If you already have a local repository, just drag its directory from the Finder or Windows Explorer into the GitHub client window, and it will be included in the list of repositories on the left.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Recommended Workflow" id="idp36354896">
+<h3>Recommended Workflow</h3>
+
+<p>Once it’s installed and configured, you can use the GitHub client for many common Git tasks.
+The intended workflow for this tool is sometimes called the “GitHub Flow.”
+We cover this in more detail in <a data-type="xref" href="ch06.html#_github_flow">“The GitHub Flow”</a>, but the general gist is that (a) you’ll be committing to a branch, and (b) you’ll be syncing up with a remote repository fairly regularly.</p>
+
+<p>Branch management is one of the areas where the two tools diverge.
+On Mac, there’s a button at the top of the window for creating a new branch:</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/branch_widget_mac.png" alt="``Create Branch'' button on Mac."/></div><figcaption>“Create Branch” button on Mac.</figcaption></figure>
+
+<p>On Windows, this is done by typing the new branch’s name in the branch-switching widget:</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/branch_widget_win.png" alt="Creating a branch on Windows."/></div><figcaption>Creating a branch on Windows.</figcaption></figure>
+
+<p>Once your branch is created, making new commits is fairly straightforward.
+Make some changes in your working directory, and when you switch to the GitHub client window, it will show you which files changed.
+Enter a commit message, select the files you’d like to include, and click the “Commit” button (ctrl-enter or ⌘-enter).</p>
+
+<p>The main way you interact with other repositories over the network is through the “Sync” feature.
+Git internally has separate operations for pushing, fetching, merging, and rebasing, but the GitHub clients collapse all of these into one multi-step feature.
+Here’s what happens when you click the Sync button:</p>
+<ol>
+<li>
+<p><code>git pull --rebase</code>.
+If this fails because of a merge conflict, fall back to <code>git pull --no-rebase</code>.</p>
+</li>
+<li>
+<p><code>git push</code>.</p>
+</li>
+
+</ol>
+
+<p>This is the most common sequence of network commands when working in this style, so squashing them into one command saves a lot of time.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Summary" id="idp36355456">
+<h3>Summary</h3>
+
+<p>These tools are very well-suited for the workflow they’re designed for.
+Developers and non-developers alike can be collaborating on a project within minutes, and many of the best practices for this kind of workflow are baked into the tools.
+However, if your workflow is different, or you want more control over how and when network operations are done, we recommend you use another client or the command line.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Other GUIs" id="idp36425440">
+<h2>Other GUIs</h2>
+
+<p>There are a number of other graphical Git clients, and they run the gamut from specialized, single-purpose tools all the way to apps that try to expose everything Git can do.
+The official Git website has a curated list of the most popular clients at <a href="http://git-scm.com/downloads/guis"><em class="hyperlink">http://git-scm.com/downloads/guis</em></a>.
+A more comprehensive list is available on the Git wiki site, at <a href="https://git.wiki.kernel.org/index.php/Interfaces,_frontends,_and_tools#Graphical_Interfaces"><em class="hyperlink">https://git.wiki.kernel.org/index.php/Interfaces,_frontends,_and_tools#Graphical_Interfaces</em></a>.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git in Visual Studio" id="idp36373552">
+<h1>Git in Visual Studio</h1>
+
+<p><a data-type="indexterm" data-primary="Visual Studio" id="idp36374960"/>
+Starting with Visual Studio 2013 Update 1, Visual Studio users have a Git client built directly into their IDE.
+Visual Studio has had source-control integration features for quite some time, but they were oriented towards centralized, file-locking systems, and Git was not a good match for this workflow.
+Visual Studio 2013’s Git support has been separated from this older feature, and the result is a much better fit between Studio and Git.</p>
+
+<p>To locate the feature, open a project that’s controlled by Git (or just <code>git init</code> an existing project), and select View &gt; Team Explorer from the menu.
+You’ll see the “Connect” view, which looks a bit like this:</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/vs-1.png" alt="Connecting to a Git repository from Team Explorer."/></div><figcaption>Connecting to a Git repository from Team Explorer.</figcaption></figure>
+
+<p>Visual Studio remembers all of the projects you’ve opened that are Git-controlled, and they’re available in the list at the bottom.
+If you don’t see the one you want there, click the “Add” link and type in the path to the working directory.
+Double clicking on one of the local Git repositories leads you to the Home view, which looks like <a data-type="xref" href="#vs_home">Figure A-8</a>.
+This is a hub for performing Git actions; when you’re <em>writing</em> code, you’ll probably spend most of your time in the “Changes” view, but when it comes time to pull down changes made by your teammates, you’ll use the “Unsynced Commits” and “Branches” views.</p>
+
+<figure id="vs_home"><div class="border-box"><img src="book/A-git-in-other-environments/images/vs-2.png" alt="The Home view for a Git repository in Visual Studio."/></div><figcaption>The “Home” view for a Git repository in Visual Studio.</figcaption></figure>
+
+<p>Visual Studio now has a powerful task-focused UI for Git.
+It includes a linear history view, a diff viewer, remote commands, and many other capabilities.
+For complete documentation of this feature (which doesn’t fit here), go to <a href="http://msdn.microsoft.com/en-us/library/hh850437.aspx"><em class="hyperlink">http://msdn.microsoft.com/en-us/library/hh850437.aspx</em></a>.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git in Eclipse" id="idp36467072">
+<h1>Git in Eclipse</h1>
+
+<p><a data-type="indexterm" data-primary="Eclipse" id="idp36468240"/>
+Eclipse ships with a plugin called Egit, which provides a fairly-complete interface to Git operations.
+It’s accessed by switching to the Git Perspective (Window &gt; Open Perspective &gt; Other…, and select “Git”).</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/egit.png" alt="Eclipse's EGit environment."/></div><figcaption>Eclipse’s EGit environment.</figcaption></figure>
+
+<p>EGit comes with plenty of great documentation, which you can find by going to Help &gt; Help Contents, and choosing the “EGit Documentation” node from the contents listing.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git in Bash" id="idp36471904">
+<h1>Git in Bash</h1>
+
+<p><a data-type="indexterm" data-primary="bash" id="idp36473504"/><a data-type="indexterm" data-primary="tab completion" data-secondary="bash" id="idp36474208"/><a data-type="indexterm" data-primary="shell prompts" data-secondary="bash" id="idp36475152"/>
+If you’re a Bash user, you can tap into some of your shell’s features to make your experience with Git a lot friendlier.
+Git actually ships with plugins for several shells, but it’s not turned on by default.</p>
+
+<p>First, you need to get a copy of the <code>contrib/completion/git-completion.bash</code> file out of the Git source code.
+Copy it somewhere handy, like your home directory, and add this to your <code>.bashrc</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">. ~/git-completion.bash</code></pre>
+
+<p>Once that’s done, change your directory to a git repository, and type:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git chec&lt;tab&gt;</pre>
+
+<p>…and Bash will auto-complete to <code>git checkout</code>.
+This works with all of Git’s subcommands, command-line parameters, and remotes and ref names where appropriate.</p>
+
+<p>It’s also useful to customize your prompt to show information about the current directory’s Git repository.
+This can be as simple or complex as you want, but there are generally a few key pieces of information that most people want, like the current branch, and the status of the working directory.
+To add these to your prompt, just copy the <code>contrib/completion/git-prompt.sh</code> file from Git’s source repository to your home directory, add something like this to your <code>.bashrc</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">. ~/git-prompt.sh</code>
+<code class="go">export GIT_PS1_SHOWDIRTYSTATE=1</code>
+<code class="go">export PS1='\w$(__git_ps1 " (%s)")\$ '</code></pre>
+
+<p>The <code>\w</code> means print the current working directory, the <code>\$</code> prints the <code>$</code> part of the prompt, and <code>__git_ps1 " (%s)"</code> calls the function provided by <code>git-prompt.sh</code> with a formatting argument.
+Now your bash prompt will look like this when you’re anywhere inside a Git-controlled project:</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/git-bash.png" alt="Customized `bash` prompt."/></div><figcaption>Customized <code>bash</code> prompt.</figcaption></figure>
+
+<p>Both of these scripts come with helpful documentation; take a look at the contents of <code>git-completion.bash</code> and <code>git-prompt.sh</code> for more information.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git in Zsh" id="idp36472464">
+<h1>Git in Zsh</h1>
+
+<p><a data-type="indexterm" data-primary="zsh" id="idp36486048"/><a data-type="indexterm" data-primary="tab completion" data-secondary="zsh" id="idp36486752"/><a data-type="indexterm" data-primary="shell prompts" data-secondary="zsh" id="idp36487696"/>
+Git also ships with a tab-completion library for Zsh.
+Just copy <code>contrib/completion/git-completion.zsh</code> to your home directory and source it from your <code>.zshrc</code>.
+Zsh’s interface is a bit more powerful than Bash’s:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git che&lt;tab&gt;
+<code class="go">check-attr        -- display gitattributes information</code>
+<code class="go">check-ref-format  -- ensure that a reference name is well formed</code>
+<code class="go">checkout          -- checkout branch or paths to working tree</code>
+<code class="go">checkout-index    -- copy files from index to working directory</code>
+<code class="go">cherry            -- find commits not merged upstream</code>
+<code class="go">cherry-pick       -- apply changes introduced by some existing commits</code></pre>
+
+<p>Ambiguous tab-completions aren’t just listed; they have helpful descriptions, and you can graphically navigate the list by repeatedly hitting tab.
+This works with Git commands, their arguments, and names of things inside the repository (like refs and remotes), as well filenames and all the other things Zsh knows how to tab-complete.</p>
+
+<p>Zsh happens to be fairly compatible with Bash when it comes to prompt customization, but it allows you to have a right-side prompt as well.
+To include the branch name on the right side, add these lines to your <code>~/.zshrc</code> file:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">setopt prompt_subst</code>
+<code class="go">. ~/git-prompt.sh</code>
+<code class="go">export RPROMPT=$'$(__git_ps1 "%s")'</code></pre>
+
+<p>This results in a display of the current branch on the right-hand side of the terminal window, whenever your shell is inside a Git repository. It looks a bit like this:</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/zsh-prompt.png" alt="Customized `zsh` prompt."/></div><figcaption>Customized <code>zsh</code> prompt.</figcaption></figure>
+
+<p>Zsh is powerful enough that there are entire frameworks dedicated to making it better.
+One of them is called “oh-my-zsh”, and it can be found at <a href="https://github.com/robbyrussell/oh-my-zsh"><em class="hyperlink">https://github.com/robbyrussell/oh-my-zsh</em></a>.
+oh-my-zsh’s plugin system comes with powerful git tab-completion, and it has a variety of prompt “themes”, many of which display version-control data.
+<a data-type="xref" href="#oh_my_zsh_git">Figure A-12</a> is just one example of what can be done with this system.</p>
+
+<figure id="oh_my_zsh_git"><div class="border-box"><img src="book/A-git-in-other-environments/images/zsh-oh-my.png" alt="An example of an oh-my-zsh theme."/></div><figcaption>An example of an oh-my-zsh theme.</figcaption></figure>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git in Powershell" id="_git_powershell">
+<h1>Git in Powershell</h1>
+
+<p><a data-type="indexterm" data-primary="powershell" id="idp36526544"/><a data-type="indexterm" data-primary="tab completion" data-secondary="powershell" id="idp36527248"/><a data-type="indexterm" data-primary="shell prompts" data-secondary="powershell" id="idp36528192"/>
+<a data-type="indexterm" data-primary="posh-git" id="idp36529264"/>
+The standard command-line terminal on Windows (<code>cmd.exe</code>) isn’t really capable of a customized Git experience, but if you’re using Powershell, you’re in luck.
+A package called Posh-Git (<a href="https://github.com/dahlbyk/posh-git"><em class="hyperlink">https://github.com/dahlbyk/posh-git</em></a>) provides powerful tab-completion facilities, as well as an enhanced prompt to help you stay on top of your repository status. It looks like this:</p>
+
+<figure><div class="border-box"><img src="book/A-git-in-other-environments/images/posh-git.png" alt="Powershell with Posh-git."/></div><figcaption>Powershell with Posh-git.</figcaption></figure>
+
+<p>If you’ve installed GitHub for Windows, Posh-Git is included by default, and all you have to do is add these lines to your <code>profile.ps1</code> (which is usually located in <code>C:\Users\&lt;username&gt;\Documents\WindowsPowerShell</code>):</p>
+
+<pre data-type="programlisting" data-code-language="powershell"><code class="p">.</code> <code class="p">(</code><code class="nb">Resolve-Path</code> <code class="s2">"$env:LOCALAPPDATA\GitHub\shell.ps1"</code><code class="p">)</code>
+<code class="p">.</code> <code class="nv">$env:github_posh_git</code><code class="p">\</code><code class="n">profile</code><code class="p">.</code><code class="n">example</code><code class="p">.</code><code class="n">ps1</code></pre>
+
+<p>If you’re not a GitHub for Windows user, just download a Posh-Git release from (<a href="https://github.com/dahlbyk/posh-git"><em class="hyperlink">https://github.com/dahlbyk/posh-git</em></a>), and uncompress it to the <code>WindowsPowershell</code> directory.
+Then open a Powershell prompt as the administrator, and do this:</p>
+
+<pre data-type="programlisting" data-code-language="powershell"><code class="p">&gt;</code> <code class="nb">Set-ExecutionPolicy</code> <code class="n">RemoteSigned</code> <code class="n">-Scope</code> <code class="n">CurrentUser</code> <code class="n">-Confirm</code>
+<code class="p">&gt;</code> <code class="n">cd</code> <code class="p">~\</code><code class="n">Documents</code><code class="p">\</code><code class="n">WindowsPowerShell</code><code class="p">\</code><code class="n">posh-git</code>
+<code class="p">&gt;</code> <code class="p">.\</code><code class="n">install</code><code class="p">.</code><code class="n">ps1</code></pre>
+
+<p>This will add the proper line to your <code>profile.ps1</code> file, and posh-git will be active the next time you open your prompt.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Summary" id="idp36621536">
+<h1>Summary</h1>
+
+<p>You’ve learned how to harness Git’s power from inside the tools that you use during your everyday work, and also how to access Git repositories from your own programs.</p>
+</section>
+
+
+
+
+
+
+
+</section>
+    <div class="navigation">
+      <ul>
+        <li><a href="app02.html">Next</a></li>
+        <li><a href="ch10.html">Previous</a></li>
+      </ul>
+    </div>
+  </body>
+</html>

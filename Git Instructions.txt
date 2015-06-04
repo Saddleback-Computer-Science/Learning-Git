@@ -1,72 +1,72 @@
 />============================================================================>\
 |*******************************************************************************|
-|{#TITLEPG-[0001]}																|
+|{#TITLEPG-[0001]}                                                              |
 |*******************************************************************************|
 \>============================================================================>/
 
 
    ***************************************************************************
  //>=========================================================================>\\
-||							 Learning Git	  								   ||
-||							      by										   ||
-||							 Erik Karlsson									   ||
-||																			   ||
-||					Last Modified: 02/23/2015	 							   ||
-||																			   ||
-||	About:																	   ||
-||																			   ||
-||		This is reference manual, git tutorials, and git documentation made	   ||
-||	for beginners and soon enough advanced topics will be covered. My name	   ||
-||	Erik, I am a student who intends on majoring in both Computer Science and  ||
-||	Mathematics. The purpose for this text is to help students at my school	   ||
-||	but I am becoming a strong and stronger proponent of open source software  ||
-||	and wanting to share everything I learn for free.						   ||
-||																			   ||
-||		I will be trying to make tutorials (documentation and videos) as well, ||
-||	to be supplement for learning how to program. This will be an ongoing and  ||
-||	very slow process. Updates for the time being will be when I can find time ||
-||	and clearly explain what I want to add.									   ||
-||																			   ||
-||		CONSTRUCTIVE SUGGESTIONS APPRECIATED!								   ||
-||																			   ||
+||                           Learning Git                                      ||
+||                                by                                           ||
+||                           Erik Karlsson                                     ||
+||                                                                             ||
+||                  Last Modified: 02/23/2015                                  ||
+||                                                                             ||
+||  About:                                                                     ||
+||                                                                             ||
+||      This is reference manual, git tutorials, and git documentation made    ||
+||  for beginners and soon enough advanced topics will be covered. My name     ||
+||  Erik, I am a student who intends on majoring in both Computer Science and  ||
+||  Mathematics. The purpose for this text is to help students at my school    ||
+||  but I am becoming a strong and stronger proponent of open source software  ||
+||  and wanting to share everything I learn for free.                          ||
+||                                                                             ||
+||      I will be trying to make tutorials (documentation and videos) as well, ||
+||  to be supplement for learning how to program. This will be an ongoing and  ||
+||  very slow process. Updates for the time being will be when I can find time ||
+||  and clearly explain what I want to add.                                    ||
+||                                                                             ||
+||      CONSTRUCTIVE SUGGESTIONS APPRECIATED!                                  ||
+||                                                                             ||
 || =========================================================================== ||
 || =========================================================================== ||
-||	Disclaimer:																   ||
-||		I don't know everything, nor will I claim to know everything. If there ||
-||		is an error or something that I have missed. PLEASE LET ME KNOW!!!	   ||
+||  Disclaimer:                                                                ||
+||      I don't know everything, nor will I claim to know everything. If there ||
+||      is an error or something that I have missed. PLEASE LET ME KNOW!!!     ||
 || =========================================================================== ||
 || =========================================================================== ||
-||																			   ||
-||		CONTACT ME AT :   spikeyblondehaircomputerguy@gmail.com				   ||
-||																			   ||
-||		(^^ Come's from when some students can't remember my name when)		   ||
-||																			   ||
-||																			   ||
-||			******************************************************			   ||
-||			>>>>>>>>>>>---------------------------------<<<<<<<<<<			   ||
-||			>>>>>>>>>>----THIS IS A WORK IN PROGRESS----<<<<<<<<<<			   ||
-||			>>>>>>>>>>>---------------------------------<<<<<<<<<<			   ||
-||			******************************************************			   ||
-||																			   ||
+||                                                                             ||
+||      CONTACT ME AT :   spikeyblondehaircomputerguy@gmail.com                ||
+||                                                                             ||
+||      (^^ Come's from when some students can't remember my name when)        ||
+||                                                                             ||
+||                                                                             ||
+||          ******************************************************             ||
+||          >>>>>>>>>>>---------------------------------<<<<<<<<<<             ||
+||          >>>>>>>>>>----THIS IS A WORK IN PROGRESS----<<<<<<<<<<             ||
+||          >>>>>>>>>>>---------------------------------<<<<<<<<<<             ||
+||          ******************************************************             ||
+||                                                                             ||
  \\>=========================================================================>//
    ***************************************************************************
 
 />============================================================================>\
-							Table of Contents
+                            Table of Contents
 \>============================================================================>/
 
 --------------------------------------------------------------------------------
-TAG 	- CATEGORY ID
-[####]	- INDEX ID
+TAG     - CATEGORY ID
+[####]  - INDEX ID
 SKILL## - Skill level (Difficulty)
 
 [TCSMMYY]
 --------------------------------------------------------------------------------
 
-#TITLEPG-[0000]		-	Title Page
-#CPYRGHT-[0001]		-	COPYRIGHT
-#BASHREF-[0002]		-
-#BEGINNR-[0003]		-	First time use
+#TITLEPG-[0000]     -   Title Page
+#CPYRGHT-[0001]     -   COPYRIGHT
+#BASHREF-[0002]     -
+#BEGINNR-[0003]     -   First time use
 
 
 
@@ -76,7 +76,7 @@ SKILL## - Skill level (Difficulty)
 
 />============================================================================>\
 |*******************************************************************************|
-|{#CPRGHT-[000]}				COPYRIGHT										|
+|{#CPRGHT-[000]}                COPYRIGHT                                       |
 |*******************************************************************************|
 \>============================================================================>/
 
@@ -91,7 +91,7 @@ Copyright (C)  2015  DAN(ERIK) KARLSSON.
 
 />============================================================================>\
 |*******************************************************************************|
-|#BEGINNR-[0003]																|
+|#BEGINNR-[0003]                                                                |
 |*******************************************************************************|
 \>============================================================================>/
 First time use:
@@ -107,7 +107,7 @@ these directions.
 *****************************************************************************
 
 4) git checkout -b "Name your branch"
-	a.
+    a.
 
 Basic Use:
 
@@ -118,83 +118,83 @@ been modified inside the local git repository.
 
 When in project folder - MASTER BRANCH:
 1) git status
-	a. Check for anything that is out of the ordinary such as files that should
-		not be commited.
+    a. Check for anything that is out of the ordinary such as files that should
+        not be commited.
 2) git fetch origin
-	a. This will download the most recent project commit to be compared against
-		the user's current project.
+    a. This will download the most recent project commit to be compared against
+        the user's current project.
 3) git status
-	a. If there are changes, type git add "File Name" to stage the file to be
-		committed.
-	b. If it states that there are no changes compared to the master branch, then
-		the online repository was update to most recent commit without actually
-		having any commits published. Solutions to this may vary and best to
-		consult for help. Easiest way to fix this however would be to go to the
-		files that have been modified and add NON-DETRIMENTAL WHITE SPACES and
-		save file. This will force the file to appear as modified. Be careful
-		not to accidently override code by forcing a push or merge.
+    a. If there are changes, type git add "File Name" to stage the file to be
+        committed.
+    b. If it states that there are no changes compared to the master branch, then
+        the online repository was update to most recent commit without actually
+        having any commits published. Solutions to this may vary and best to
+        consult for help. Easiest way to fix this however would be to go to the
+        files that have been modified and add NON-DETRIMENTAL WHITE SPACES and
+        save file. This will force the file to appear as modified. Be careful
+        not to accidently override code by forcing a push or merge.
 ********************************************************************************
 EVERYTHING IS COMPARED TO THE BRANCH ORIGIN (IN THIS CASE THE REPOSITORY MASTER
 BRANCH) IF A FILE HAS NOT BEEN MODIFIED IT WILL NOT APPEAR WHEN ASKED TO STAGE
 FILES!
 ********************************************************************************
 4) Use:
-	a. git add "File name" to stage a single file
-	b. git add --all to stage all modified files.
-	****************************************************************************
-	CAREFUL BECAUSE YOU MIGHT NOT WANT TO UPLOAD ECLIPSE META DATA IT CAN CAUSE
-	PROBLEMS WHEN CHANGING COMPUTERS. PC <=> MAC AND DIFFERENT VERSIONS ECLIPSE.
-	YOU CAN RESEARCH gitignore TO LEARN HOW TO WORK AROUND THIS.
-	I WILL COVER THIS TOPIC LATER ON [Stated: (2015/2/23)]
-	****************************************************************************
-	http://git-scm.com/docs/gitignore
+    a. git add "File name" to stage a single file
+    b. git add --all to stage all modified files.
+    ****************************************************************************
+    CAREFUL BECAUSE YOU MIGHT NOT WANT TO UPLOAD ECLIPSE META DATA IT CAN CAUSE
+    PROBLEMS WHEN CHANGING COMPUTERS. PC <=> MAC AND DIFFERENT VERSIONS ECLIPSE.
+    YOU CAN RESEARCH gitignore TO LEARN HOW TO WORK AROUND THIS.
+    I WILL COVER THIS TOPIC LATER ON [Stated: (2015/2/23)]
+    ****************************************************************************
+    http://git-scm.com/docs/gitignore
 
 5) Use:
-	**************** THERE HAS TO BE A COMMIT MESSAGE!!!!****************
-	a. git commit -m "message" <- Allows message to be entered at the same time
+    **************** THERE HAS TO BE A COMMIT MESSAGE!!!!****************
+    a. git commit -m "message" <- Allows message to be entered at the same time
 
-	IF -m is left out, the user will enter the shell text editor called ViM
-	Navigating ViM:
-		h - left
-		j - up
-		k - down
-		l - right
-		i - insert (TYPE TEXT)
-		a - append
-		ESC - Exit current mode to ViM command line
+    IF -m is left out, the user will enter the shell text editor called ViM
+    Navigating ViM:
+        h - left
+        j - up
+        k - down
+        l - right
+        i - insert (TYPE TEXT)
+        a - append
+        ESC - Exit current mode to ViM command line
 
-	The user will start out in the command line of ViM,
+    The user will start out in the command line of ViM,
 
-	TO EXIT ViM:
-		1) Press ESC
-		2) Shift + :
-		3) type in the letter q
-			a. If something has been modified, or it will not let you quit
-				- add ! to the end of the letter q then press enter
+    TO EXIT ViM:
+        1) Press ESC
+        2) Shift + :
+        3) type in the letter q
+            a. If something has been modified, or it will not let you quit
+                - add ! to the end of the letter q then press enter
 
-		Ex ViM interface:
-		~
-		~                  VIM - Vi IMproved
-		~
-		~                     version 7.3
-		~              by Bram Moolenaar et al.
-		~     Vim is open source and freely distributable
-		~
-		~            Help poor children in Uganda!
-		~   type  :help iccf<Enter>       for information
-		~
-		~   type  :q<Enter>               to exit
-		~   type  :help<Enter>  or  <F1>  for on-line help
-		~   type  :help version7<Enter>   for version info
+        Ex ViM interface:
+        ~
+        ~                  VIM - Vi IMproved
+        ~
+        ~                     version 7.3
+        ~              by Bram Moolenaar et al.
+        ~     Vim is open source and freely distributable
+        ~
+        ~            Help poor children in Uganda!
+        ~   type  :help iccf<Enter>       for information
+        ~
+        ~   type  :q<Enter>               to exit
+        ~   type  :help<Enter>  or  <F1>  for on-line help
+        ~   type  :help version7<Enter>   for version info
 
-	:q!    (<--- command to quit after pressing shift + :)
+    :q!    (<--- command to quit after pressing shift + :)
 
-	Use ESC key to
+    Use ESC key to
 
 6) Once the project has been committed, just as a safety precaution
-	a. git status
-	b. git fetch
-	c. If everything is good
-		- git push origin
+    a. git status
+    b. git fetch
+    c. If everything is good
+        - git push origin
 
 -------------------------

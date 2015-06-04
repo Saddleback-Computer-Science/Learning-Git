@@ -1,0 +1,1618 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Pro Git</title>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script>
+    <link rel="stylesheet" type="text/css" href="theme/html/html.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <body data-type="book">
+    <div class="navbar">
+      <h1>Pro Git</h1>
+      <p><a href="toc01.html">Table of Contents</a></p>
+    </div>
+    <section data-type="chapter" data-pdf-bookmark="Chapter 5. Distributed Git" id="_distributed_git">
+<h1>Distributed Git</h1>
+
+
+<p><a data-type="indexterm" data-primary="distributed git" id="idp13132448"/>
+Now that you have a remote Git repository set up as a point for all the developers to share their code, and you’re familiar with basic Git commands in a local workflow, you’ll look at how to utilize some of the distributed workflows that Git affords you.</p>
+
+<p>In this chapter, you’ll see how to work with Git in a distributed environment as a contributor and an integrator.
+That is, you’ll learn how to contribute code successfully to a project and make it as easy on you and the project maintainer as possible, and also how to maintain a project successfully with a number of developers contributing.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Distributed Workflows" id="idp13134432">
+<h1>Distributed Workflows</h1>
+
+<p><a data-type="indexterm" data-primary="workflows" id="idp13135872"/>
+Unlike Centralized Version Control Systems (CVCSs), the distributed nature of Git allows you to be far more flexible in how developers collaborate on projects.
+In centralized systems, every developer is a node working more or less equally on a central hub.
+In Git, however, every developer is potentially both a node and a hub – that is, every developer can both contribute code to other repositories and maintain a public repository on which others can base their work and which they can contribute to.
+This opens a vast range of workflow possibilities for your project and/or your team, so we’ll cover a few common paradigms that take advantage of this flexibility.
+We’ll go over the strengths and possible weaknesses of each design; you can choose a single one to use, or you can mix and match features from each.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Centralized Workflow" id="idp13137664">
+<h2>Centralized Workflow</h2>
+
+<p><a data-type="indexterm" data-primary="workflows" data-secondary="centralized" id="idp13157136"/>
+In centralized systems, there is generally a single collaboration model–the centralized workflow.
+One central hub, or repository, can accept code, and everyone synchronizes their work to it.
+A number of developers are nodes – consumers of that hub – and synchronize to that one place.</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/centralized_workflow.png" alt="Centralized workflow."/></div><figcaption>Centralized workflow.</figcaption></figure>
+
+<p>This means that if two developers clone from the hub and both make changes, the first developer to push their changes back up can do so with no problems.
+The second developer must merge in the first one’s work before pushing changes up, so as not to overwrite the first developer’s changes.
+This concept is as true in Git as it is in Subversion<a data-type="indexterm" data-primary="Subversion" id="idp13160992"/> (or any CVCS), and this model works perfectly well in Git.</p>
+
+<p>If you are already comfortable with a centralized workflow in your company or team, you can easily continue using that workflow with Git.
+Simply set up a single repository, and give everyone on your team push access; Git won’t let users overwrite each other.
+Say John and Jessica both start working at the same time.
+John finishes his change and pushes it to the server.
+Then Jessica tries to push her changes, but the server rejects them.
+She is told that she’s trying to push non-fast-forward changes and that she won’t be able to do so until she fetches and merges.
+This workflow is attractive to a lot of people because it’s a paradigm that many are familiar and comfortable with.</p>
+
+<p>This is also not limited to small teams. With Git’s branching model, it’s possible for hundreds of developers to successfully work on a single project through dozens of branches simultaneously.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Integration-Manager Workflow" id="_integration_manager">
+<h2>Integration-Manager Workflow</h2>
+
+<p><a data-type="indexterm" data-primary="workflows" data-secondary="integration manager" id="idp13165344"/>
+Because Git allows you to have multiple remote repositories, it’s possible to have a workflow where each developer has write access to their own public repository and read access to everyone else’s.
+This scenario often includes a canonical repository that represents the “official” project.
+To contribute to that project, you create your own public clone of the project and push your changes to it.
+Then, you can send a request to the maintainer of the main project to pull in your changes.
+The maintainer can then add your repository as a remote, test your changes locally, merge them into their branch, and push back to their repository.
+The process works as follows (see <a data-type="xref" href="#wfdiag_b">Figure 5-2</a>):</p>
+<ol>
+<li>
+<p>The project maintainer pushes to their public repository.</p>
+</li>
+<li>
+<p>A contributor clones that repository and makes changes.</p>
+</li>
+<li>
+<p>The contributor pushes to their own public copy.</p>
+</li>
+<li>
+<p>The contributor sends the maintainer an e-mail asking them to pull changes.</p>
+</li>
+<li>
+<p>The maintainer adds the contributor’s repo as a remote and merges locally.</p>
+</li>
+<li>
+<p>The maintainer pushes merged changes to the main repository.</p>
+</li>
+
+</ol>
+
+<figure id="wfdiag_b"><div class="border-box"><img src="book/05-distributed-git/images/integration-manager.png" alt="Integration-manager workflow."/></div><figcaption>Integration-manager workflow.</figcaption></figure>
+
+<p><a data-type="indexterm" data-primary="forking" id="idp13176000"/>
+This is a very common workflow with hub-based tools like GitHub or GitLab, where it’s easy to fork a project and push your changes into your fork for everyone to see.
+One of the main advantages of this approach is that you can continue to work, and the maintainer of the main repository can pull in your changes at any time.
+Contributors don’t have to wait for the project to incorporate their changes – each party can work at their own pace.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Dictator and Lieutenants Workflow" id="idp13177424">
+<h2>Dictator and Lieutenants Workflow</h2>
+
+<p><a data-type="indexterm" data-primary="workflows" data-secondary="dictator and lieutenants" id="idp13178800"/>
+This is a variant of a multiple-repository workflow.
+It’s generally used by huge projects with hundreds of collaborators; one famous example is the Linux kernel.
+Various integration managers are in charge of certain parts of the repository; they’re called lieutenants.
+All the lieutenants have one integration manager known as the benevolent dictator.
+The benevolent dictator’s repository serves as the reference repository from which all the collaborators need to pull.
+The process works like this (see <a data-type="xref" href="#wfdiag_c">Figure 5-3</a>):</p>
+<ol>
+<li>
+<p>Regular developers work on their topic branch and rebase their work on top of <code>master</code>.
+The <code>master</code> branch is that of the dictator.</p>
+</li>
+<li>
+<p>Lieutenants merge the developers’ topic branches into their <code>master</code> branch.</p>
+</li>
+<li>
+<p>The dictator merges the lieutenants’ <code>master</code> branches into the dictator’s <code>master</code> branch.</p>
+</li>
+<li>
+<p>The dictator pushes their <code>master</code> to the reference repository so the other developers can rebase on it.</p>
+</li>
+
+</ol>
+
+<figure id="wfdiag_c"><div class="border-box"><img src="book/05-distributed-git/images/benevolent-dictator.png" alt="Benevolent dictator workflow."/></div><figcaption>Benevolent dictator workflow.</figcaption></figure>
+
+<p>This kind of workflow isn’t common, but can be useful in very big projects, or in highly hierarchical environments.
+It allows the project leader (the dictator) to delegate much of the work and collect large subsets of code at multiple points before integrating them.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Workflows Summary" id="idp13190480">
+<h2>Workflows Summary</h2>
+
+<p>These are some commonly used workflows that are possible with a distributed system like Git, but you can see that many variations are possible to suit your particular real-world workflow.
+Now that you can (hopefully) determine which workflow combination may work for you, we’ll cover some more specific examples of how to accomplish the main roles that make up the different flows.
+In the next section, you’ll learn about a few common patterns for contributing to a project.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Contributing to a Project" id="_contributing_project">
+<h1>Contributing to a Project</h1>
+
+<p><a data-type="indexterm" data-primary="contributing" id="idp13194400"/>
+The main difficulty with describing how to contribute to a project is that there are a huge number of variations on how it’s done.
+Because Git is very flexible, people can and do work together in many ways, and it’s problematic to describe how you should contribute – every project is a bit different.
+Some of the variables involved are active contributor count, chosen workflow, your commit access, and possibly the external contribution method.</p>
+
+<p>The first variable is active contributor count – how many users are actively contributing code to this project, and how often?
+In many instances, you’ll have two or three developers with a few commits a day, or possibly less for somewhat dormant projects.
+For larger companies or projects, the number of developers could be in the thousands, with hundreds or thousands of commits coming in each day.
+This is important because with more and more developers, you run into more issues with making sure your code applies cleanly or can be easily merged.
+Changes you submit may be rendered obsolete or severely broken by work that is merged in while you were working or while your changes were waiting to be approved or applied.
+How can you keep your code consistently up to date and your commits valid?</p>
+
+<p>The next variable is the workflow in use for the project.
+Is it centralized, with each developer having equal write access to the main codeline?
+Does the project have a maintainer or integration manager who checks all the patches?
+Are all the patches peer-reviewed and approved?
+Are you involved in that process?
+Is a lieutenant system in place, and do you have to submit your work to them first?</p>
+
+<p>The next issue is your commit access.
+The workflow required in order to contribute to a project is much different if you have write access to the project than if you don’t.
+If you don’t have write access, how does the project prefer to accept contributed work?
+Does it even have a policy?
+How much work are you contributing at a time?
+How often do you contribute?</p>
+
+<p>All these questions can affect how you contribute effectively to a project and what workflows are preferred or available to you.
+We’ll cover aspects of each of these in a series of use cases, moving from simple to more complex; you should be able to construct the specific workflows you need in practice from these examples.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Commit Guidelines" id="_commit_guidelines">
+<h2>Commit Guidelines</h2>
+
+<p>Before we start looking at the specific use cases, here’s a quick note about commit messages.
+Having a good guideline for creating commits and sticking to it makes working with Git and collaborating with others a lot easier.
+The Git project provides a document that lays out a number of good tips for creating commits from which to submit patches – you can read it in the Git source code in the <code>Documentation/SubmittingPatches</code> file.</p>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="diff" data-tertiary="check" id="idp13202528"/>
+First, you don’t want to submit any whitespace errors.
+Git provides an easy way to check for this – before you commit, run <code>git diff --check</code>, which identifies possible whitespace errors and lists them for you.</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/git-diff-check.png" alt="Output of `git diff --check`."/></div><figcaption>Output of <code>git diff --check</code>.</figcaption></figure>
+
+<p>If you run that command before committing, you can tell if you’re about to commit whitespace issues that may annoy other developers.</p>
+
+<p>Next, try to make each commit a logically separate changeset.
+If you can, try to make your changes digestible – don’t code for a whole weekend on five different issues and then submit them all as one massive commit on Monday.
+Even if you don’t commit during the weekend, use the staging area on Monday to split your work into at least one commit per issue, with a useful message per commit.
+If some of the changes modify the same file, try to use <code>git add --patch</code> to partially stage files (covered in detail in <a data-type="xref" href="ch07.html#_interactive_staging">“Interactive Staging”</a>).
+The project snapshot at the tip of the branch is identical whether you do one commit or five, as long as all the changes are added at some point, so try to make things easier on your fellow developers when they have to review your changes.
+This approach also makes it easier to pull out or revert one of the changesets if you need to later.
+<a data-type="xref" href="ch07.html#_rewriting_history">“Rewriting History”</a> describes a number of useful Git tricks for rewriting history and interactively staging files – use these tools to help craft a clean and understandable history before sending the work to someone else.</p>
+
+<p>The last thing to keep in mind is the commit message.
+Getting in the habit of creating quality commit messages makes using and collaborating with Git a lot easier.
+As a general rule, your messages should start with a single line that’s no more than about 50 characters and that describes the changeset concisely, followed by a blank line, followed by a more detailed explanation.
+The Git project requires that the more detailed explanation include your motivation for the change and contrast its implementation with previous behavior – this is a good guideline to follow.
+It’s also a good idea to use the imperative present tense in these messages.
+In other words, use commands.
+Instead of “I added tests for” or “Adding tests for,” use “Add tests for.”
+Here is a template originally written by Tim Pope:</p>
+
+<pre data-type="programlisting" data-code-language="text">Short (50 chars or less) summary of changes
+
+More detailed explanatory text, if necessary.  Wrap it to
+about 72 characters or so.  In some contexts, the first
+line is treated as the subject of an email and the rest of
+the text as the body.  The blank line separating the
+summary from the body is critical (unless you omit the body
+entirely); tools like rebase can get confused if you run
+the two together.
+
+Further paragraphs come after blank lines.
+
+  - Bullet points are okay, too
+
+  - Typically a hyphen or asterisk is used for the bullet,
+    preceded by a single space, with blank lines in
+    between, but conventions vary here</pre>
+
+<p>If all your commit messages look like this, things will be a lot easier for you and the developers you work with.
+The Git project has well-formatted commit messages – try running <code>git log --no-merges</code> there to see what a nicely formatted project-commit history looks like.</p>
+
+<p>In the following examples, and throughout most of this book, for the sake of brevity this book doesn’t have nicely-formatted messages like this; instead, we use the <code>-m</code> option to <code>git commit</code>.
+Do as we say, not as we do.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Private Small Team" id="_private_team">
+<h2>Private Small Team</h2>
+
+<p><a data-type="indexterm" data-primary="contributing" data-secondary="private small team" id="idp13217056"/>
+The simplest setup you’re likely to encounter is a private project with one or two other developers.
+“Private,” in this context, means closed-source – not accessible to the outside world.
+You and the other developers all have push access to the repository.</p>
+
+<p>In this environment, you can follow a workflow similar to what you might do when using Subversion or another centralized system.
+You still get the advantages of things like offline committing and vastly simpler branching and merging, but the workflow can be very similar; the main difference is that merges happen client-side rather than on the server at commit time.
+Let’s see what it might look like when two developers start to work together with a shared repository.
+The first developer, John, clones the repository, makes a change, and commits locally.
+(The protocol messages have been replaced with <code>...</code> in these examples to shorten them somewhat.)</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">#</code> John<code class="err">'</code>s Machine
+<code class="gp">$</code> git clone john@githost:simplegit.git
+<code class="go">Initialized empty Git repository in /home/john/simplegit/.git/</code>
+<code class="go">...</code>
+<code class="gp">$</code> <code class="nb">cd </code>simplegit/
+<code class="gp">$</code> vim lib/simplegit.rb
+<code class="gp">$</code> git commit -am <code class="s1">'removed invalid default value'</code>
+<code class="go">[master 738ee87] removed invalid default value</code>
+<code class="go"> 1 files changed, 1 insertions(+), 1 deletions(-)</code></pre>
+
+<p>The second developer, Jessica, does the same thing – clones the repository and commits a change:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">#</code> Jessica<code class="err">'</code>s Machine
+<code class="gp">$</code> git clone jessica@githost:simplegit.git
+<code class="go">Initialized empty Git repository in /home/jessica/simplegit/.git/</code>
+<code class="go">...</code>
+<code class="gp">$</code> <code class="nb">cd </code>simplegit/
+<code class="gp">$</code> vim TODO
+<code class="gp">$</code> git commit -am <code class="s1">'add reset task'</code>
+<code class="go">[master fbff5bc] add reset task</code>
+<code class="go"> 1 files changed, 1 insertions(+), 0 deletions(-)</code></pre>
+
+<p>Now, Jessica pushes her work up to the server:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">#</code> Jessica<code class="err">'</code>s Machine
+<code class="gp">$</code> git push origin master
+<code class="go">...</code>
+<code class="go">To jessica@githost:simplegit.git</code>
+<code class="go">   1edee6b..fbff5bc  master -&gt; master</code></pre>
+
+<p>John tries to push his change up, too:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">#</code> John<code class="err">'</code>s Machine
+<code class="gp">$</code> git push origin master
+<code class="go">To john@githost:simplegit.git</code>
+<code class="go"> ! [rejected]        master -&gt; master (non-fast forward)</code>
+<code class="go">error: failed to push some refs to 'john@githost:simplegit.git'</code></pre>
+
+<p>John isn’t allowed to push because Jessica has pushed in the meantime.
+This is especially important to understand if you’re used to Subversion, because you’ll notice that the two developers didn’t edit the same file.
+Although Subversion automatically does such a merge on the server if different files are edited, in Git you must merge the commits locally.
+John has to fetch Jessica’s changes and merge them in before he will be allowed to push:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git fetch origin
+<code class="go">...</code>
+<code class="go">From john@githost:simplegit</code>
+<code class="go"> + 049d078...fbff5bc master     -&gt; origin/master</code></pre>
+
+<p>At this point, John’s local repository looks something like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/small-team-1.png" alt="John's divergent history."/></div><figcaption>John’s divergent history.</figcaption></figure>
+
+<p>John has a reference to the changes Jessica pushed up, but he has to merge them into his own work before he is allowed to push:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git merge origin/master
+<code class="go">Merge made by recursive.</code>
+<code class="go"> TODO |    1 +</code>
+<code class="go"> 1 files changed, 1 insertions(+), 0 deletions(-)</code></pre>
+
+<p>The merge goes smoothly – John’s commit history now looks like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/small-team-2.png" alt="John's repository after merging `origin/master`."/></div><figcaption>John’s repository after merging <code>origin/master</code>.</figcaption></figure>
+
+<p>Now, John can test his code to make sure it still works properly, and then he can push his new merged work up to the server:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git push origin master
+<code class="go">...</code>
+<code class="go">To john@githost:simplegit.git</code>
+<code class="go">   fbff5bc..72bbc59  master -&gt; master</code></pre>
+
+<p>Finally, John’s commit history looks like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/small-team-3.png" alt="John's history after pushing to the `origin` server."/></div><figcaption>John’s history after pushing to the <code>origin</code> server.</figcaption></figure>
+
+<p>In the meantime, Jessica has been working on a topic branch.
+She’s created a topic branch called <code>issue54</code> and done three commits on that branch.
+She hasn’t fetched John’s changes yet, so her commit history looks like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/small-team-4.png" alt="Jessica's topic branch."/></div><figcaption>Jessica’s topic branch.</figcaption></figure>
+
+<p>Jessica wants to sync up with John, so she fetches:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">#</code> Jessica<code class="err">'</code>s Machine
+<code class="gp">$</code> git fetch origin
+<code class="go">...</code>
+<code class="go">From jessica@githost:simplegit</code>
+<code class="go">   fbff5bc..72bbc59  master     -&gt; origin/master</code></pre>
+
+<p>That pulls down the work John has pushed up in the meantime.
+Jessica’s history now looks like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/small-team-5.png" alt="Jessica's history after fetching John's changes."/></div><figcaption>Jessica’s history after fetching John’s changes.</figcaption></figure>
+
+<p>Jessica thinks her topic branch is ready, but she wants to know what she has to merge into her work so that she can push.
+She runs <code>git log</code> to find out:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log --no-merges issue54..origin/master
+<code class="go">commit 738ee872852dfaa9d6634e0dea7a324040193016</code>
+<code class="go">Author: John Smith &lt;jsmith@example.com&gt;</code>
+<code class="go">Date:   Fri May 29 16:01:27 2009 -0700</code>
+
+<code class="go">   removed invalid default value</code></pre>
+
+<p>The <code>issue54..origin/master</code> syntax is a log filter that asks Git to only show the list of commits that are on the latter branch (in this case <code>origin/master</code>) that are not on the first branch (in this case <code>issue54</code>). We’ll go over this syntax in detail in <a data-type="xref" href="ch07.html#_commit_ranges">“Commit Ranges”</a>.</p>
+
+<p>For now, we can see from the output that there is a single commit that John has made that Jessica has not merged in. If she merges <code>origin/master</code>, that is the single commit that will modify her local work.</p>
+
+<p>Now, Jessica can merge her topic work into her master branch, merge John’s work (<code>origin/master</code>) into her <code>master</code> branch, and then push back to the server again.
+First, she switches back to her master branch to integrate all this work:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout master
+<code class="go">Switched to branch 'master'</code>
+<code class="go">Your branch is behind 'origin/master' by 2 commits, and can be fast-forwarded.</code></pre>
+
+<p>She can merge either <code>origin/master</code> or <code>issue54</code> first – they’re both upstream, so the order doesn’t matter.
+The end snapshot should be identical no matter which order she chooses; only the history will be slightly different.
+She chooses to merge in <code>issue54</code> first:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git merge issue54
+<code class="go">Updating fbff5bc..4af4298</code>
+<code class="go">Fast forward</code>
+<code class="go"> README           |    1 +</code>
+<code class="go"> lib/simplegit.rb |    6 +++++-</code>
+<code class="go"> 2 files changed, 6 insertions(+), 1 deletions(-)</code></pre>
+
+<p>No problems occur; as you can see it was a simple fast-forward.
+Now Jessica merges in John’s work (<code>origin/master</code>):</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git merge origin/master
+<code class="go">Auto-merging lib/simplegit.rb</code>
+<code class="go">Merge made by recursive.</code>
+<code class="go"> lib/simplegit.rb |    2 +-</code>
+<code class="go"> 1 files changed, 1 insertions(+), 1 deletions(-)</code></pre>
+
+<p>Everything merges cleanly, and Jessica’s history looks like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/small-team-6.png" alt="Jessica's history after merging John's changes."/></div><figcaption>Jessica’s history after merging John’s changes.</figcaption></figure>
+
+<p>Now <code>origin/master</code> is reachable from Jessica’s <code>master</code> branch, so she should be able to successfully push (assuming John hasn’t pushed again in the meantime):</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git push origin master
+<code class="go">...</code>
+<code class="go">To jessica@githost:simplegit.git</code>
+<code class="go">   72bbc59..8059c15  master -&gt; master</code></pre>
+
+<p>Each developer has committed a few times and merged each other’s work successfully.</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/small-team-7.png" alt="Jessica's history after pushing all changes back to the server."/></div><figcaption>Jessica’s history after pushing all changes back to the server.</figcaption></figure>
+
+<p>That is one of the simplest workflows.
+You work for a while, generally in a topic branch, and merge into your master branch when it’s ready to be integrated.
+When you want to share that work, you merge it into your own master branch, then fetch and merge <code>origin/master</code> if it has changed, and finally push to the <code>master</code> branch on the server.
+The general sequence is something like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/small-team-flow.png" alt="General sequence of events for a simple multiple-developer Git workflow."/></div><figcaption>General sequence of events for a simple multiple-developer Git workflow.</figcaption></figure>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Private Managed Team" id="idp13258880">
+<h2>Private Managed Team</h2>
+
+<p><a data-type="indexterm" data-primary="contributing" data-secondary="private managed team" id="idp13697680"/>
+In this next scenario, you’ll look at contributor roles in a larger private group.
+You’ll learn how to work in an environment where small groups collaborate on features and then those team-based contributions are integrated by another party.</p>
+
+<p>Let’s say that John and Jessica are working together on one feature, while Jessica and Josie are working on a second.
+In this case, the company is using a type of integration-manager workflow where the work of the individual groups is integrated only by certain engineers, and the <code>master</code> branch of the main repo can be updated only by those engineers.
+In this scenario, all work is done in team-based branches and pulled together by the integrators later.</p>
+
+<p>Let’s follow Jessica’s workflow as she works on her two features, collaborating in parallel with two different developers in this environment.
+Assuming she already has her repository cloned, she decides to work on <code>featureA</code> first.
+She creates a new branch for the feature and does some work on it there:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">#</code> Jessica<code class="err">'</code>s Machine
+<code class="gp">$</code> git checkout -b featureA
+<code class="go">Switched to a new branch 'featureA'</code>
+<code class="gp">$</code> vim lib/simplegit.rb
+<code class="gp">$</code> git commit -am <code class="s1">'add limit to log function'</code>
+<code class="go">[featureA 3300904] add limit to log function</code>
+<code class="go"> 1 files changed, 1 insertions(+), 1 deletions(-)</code></pre>
+
+<p>At this point, she needs to share her work with John, so she pushes her <code>featureA</code> branch commits up to the server.
+Jessica doesn’t have push access to the <code>master</code> branch – only the integrators do – so she has to push to another branch in order to collaborate with John:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git push -u origin featureA
+<code class="go">...</code>
+<code class="go">To jessica@githost:simplegit.git</code>
+<code class="go"> * [new branch]      featureA -&gt; featureA</code></pre>
+
+<p>Jessica e-mails John to tell him that she’s pushed some work into a branch named <code>featureA</code> and he can look at it now.
+While she waits for feedback from John, Jessica decides to start working on <code>featureB</code> with Josie.
+To begin, she starts a new feature branch, basing it off the server’s <code>master</code> branch:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">#</code> Jessica<code class="err">'</code>s Machine
+<code class="gp">$</code> git fetch origin
+<code class="gp">$</code> git checkout -b featureB origin/master
+<code class="go">Switched to a new branch 'featureB'</code></pre>
+
+<p>Now, Jessica makes a couple of commits on the <code>featureB</code> branch:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> vim lib/simplegit.rb
+<code class="gp">$</code> git commit -am <code class="s1">'made the ls-tree function recursive'</code>
+<code class="go">[featureB e5b0fdc] made the ls-tree function recursive</code>
+<code class="go"> 1 files changed, 1 insertions(+), 1 deletions(-)</code>
+<code class="gp">$</code> vim lib/simplegit.rb
+<code class="gp">$</code> git commit -am <code class="s1">'add ls-files'</code>
+<code class="go">[featureB 8512791] add ls-files</code>
+<code class="go"> 1 files changed, 5 insertions(+), 0 deletions(-)</code></pre>
+
+<p>Jessica’s repository looks like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/managed-team-1.png" alt="Jessica's initial commit history."/></div><figcaption>Jessica’s initial commit history.</figcaption></figure>
+
+<p>She’s ready to push up her work, but gets an e-mail from Josie that a branch with some initial work on it was already pushed to the server as <code>featureBee</code>.
+Jessica first needs to merge those changes in with her own before she can push to the server.
+She can then fetch Josie’s changes down with <code>git fetch</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git fetch origin
+<code class="go">...</code>
+<code class="go">From jessica@githost:simplegit</code>
+<code class="go"> * [new branch]      featureBee -&gt; origin/featureBee</code></pre>
+
+<p>Jessica can now merge this into the work she did with <code>git merge</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git merge origin/featureBee
+<code class="go">Auto-merging lib/simplegit.rb</code>
+<code class="go">Merge made by recursive.</code>
+<code class="go"> lib/simplegit.rb |    4 ++++</code>
+<code class="go"> 1 files changed, 4 insertions(+), 0 deletions(-)</code></pre>
+
+<p>There is a bit of a problem – she needs to push the merged work in her <code>featureB</code> branch to the <code>featureBee</code> branch on the server.
+She can do so by specifying the local branch followed by a colon (:) followed by the remote branch to the <code>git push</code> command:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git push -u origin featureB:featureBee
+<code class="go">...</code>
+<code class="go">To jessica@githost:simplegit.git</code>
+<code class="go">   fba9af8..cd685d1  featureB -&gt; featureBee</code></pre>
+
+<p>This is called a <em>refspec</em>.
+See <a data-type="xref" href="ch10.html#_refspec">“The Refspec”</a> for a more detailed discussion of Git refspecs and different things you can do with them.
+Also notice the <code>-u</code> flag; this is short for <code>--set-upstream</code>, which configures the branches for easier pushing and pulling later.</p>
+
+<p>Next, John e-mails Jessica to say he’s pushed some changes to the <code>featureA</code> branch and asks her to verify them.
+She runs a <code>git fetch</code> to pull down those changes:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git fetch origin
+<code class="go">...</code>
+<code class="go">From jessica@githost:simplegit</code>
+<code class="go">   3300904..aad881d  featureA   -&gt; origin/featureA</code></pre>
+
+<p>Then, she can see what has been changed with <code>git log</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log featureA..origin/featureA
+<code class="go">commit aad881d154acdaeb2b6b18ea0e827ed8a6d671e6</code>
+<code class="go">Author: John Smith &lt;jsmith@example.com&gt;</code>
+<code class="go">Date:   Fri May 29 19:57:33 2009 -0700</code>
+
+<code class="go">    changed log output to 30 from 25</code></pre>
+
+<p>Finally, she merges John’s work into her own <code>featureA</code> branch:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout featureA
+<code class="go">Switched to branch 'featureA'</code>
+<code class="gp">$</code> git merge origin/featureA
+<code class="go">Updating 3300904..aad881d</code>
+<code class="go">Fast forward</code>
+<code class="go"> lib/simplegit.rb |   10 +++++++++-</code>
+<code class="go">1 files changed, 9 insertions(+), 1 deletions(-)</code></pre>
+
+<p>Jessica wants to tweak something, so she commits again and then pushes this back up to the server:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git commit -am <code class="s1">'small tweak'</code>
+<code class="go">[featureA 774b3ed] small tweak</code>
+<code class="go"> 1 files changed, 1 insertions(+), 1 deletions(-)</code>
+<code class="gp">$</code> git push
+<code class="go">...</code>
+<code class="go">To jessica@githost:simplegit.git</code>
+<code class="go">   3300904..774b3ed  featureA -&gt; featureA</code></pre>
+
+<p>Jessica’s commit history now looks something like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/managed-team-2.png" alt="Jessica's history after committing on a feature branch."/></div><figcaption>Jessica’s history after committing on a feature branch.</figcaption></figure>
+
+<p>Jessica, Josie, and John inform the integrators that the <code>featureA</code> and <code>featureBee</code> branches on the server are ready for integration into the mainline.
+After the integrators merge these branches into the mainline, a fetch will bring down the new merge commit, making the history look like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/managed-team-3.png" alt="Jessica's history after merging both her topic branches."/></div><figcaption>Jessica’s history after merging both her topic branches.</figcaption></figure>
+
+<p>Many groups switch to Git because of this ability to have multiple teams working in parallel, merging the different lines of work late in the process.
+The ability of smaller subgroups of a team to collaborate via remote branches without necessarily having to involve or impede the entire team is a huge benefit of Git.
+The sequence for the workflow you saw here is something like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/managed-team-flow.png" alt="Basic sequence of this managed-team workflow."/></div><figcaption>Basic sequence of this managed-team workflow.</figcaption></figure>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Forked Public Project" id="_public_project">
+<h2>Forked Public Project</h2>
+
+<p><a data-type="indexterm" data-primary="contributing" data-secondary="public small project" id="idp13919232"/>
+Contributing to public projects is a bit different.
+Because you don’t have the permissions to directly update branches on the project, you have to get the work to the maintainers some other way.
+This first example describes contributing via forking on Git hosts that support easy forking.
+Many hosting sites support this (including GitHub, BitBucket, Google Code, repo.or.cz, and others), and many project maintainers expect this style of contribution.
+The next section deals with projects that prefer to accept contributed patches via e-mail.</p>
+
+<p>First, you’ll probably want to clone the main repository, create a topic branch for the patch or patch series you’re planning to contribute, and do your work there.
+The sequence looks basically like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone <code class="o">(</code>url<code class="o">)</code>
+<code class="gp">$</code> <code class="nb">cd </code>project
+<code class="gp">$</code> git checkout -b featureA
+<code class="gp">#</code> <code class="o">(</code>work<code class="o">)</code>
+<code class="gp">$</code> git commit
+<code class="gp">#</code> <code class="o">(</code>work<code class="o">)</code>
+<code class="gp">$</code> git commit</pre>
+<div data-type="note">
+<p>You may want to use <code>rebase -i</code> to squash your work down to a single commit, or rearrange the work in the commits to make the patch easier for the maintainer to review – see <a data-type="xref" href="ch07.html#_rewriting_history">“Rewriting History”</a> for more information about interactive rebasing.</p>
+</div>
+
+<p>When your branch work is finished and you’re ready to contribute it back to the maintainers, go to the original project page and click the “Fork” button, creating your own writable fork of the project.
+You then need to add in this new repository URL as a second remote, in this case named <code>myfork</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote add myfork <code class="o">(</code>url<code class="o">)</code></pre>
+
+<p>Then you need to push your work up to it.
+It’s easiest to push the topic branch you’re working on up to your repository, rather than merging into your master branch and pushing that up.
+The reason is that if the work isn’t accepted or is cherry picked, you don’t have to rewind your master branch.
+If the maintainers merge, rebase, or cherry-pick your work, you’ll eventually get it back via pulling from their repository anyhow:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git push -u myfork featureA</pre>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="request-pull" id="idp14107808"/>
+When your work has been pushed up to your fork, you need to notify the maintainer.
+This is often called a pull request, and you can either generate it via the website – GitHub has its own Pull Request mechanism that we’ll go over in <a data-type="xref" href="ch06.html#_github">Chapter 6</a> – or you can run the <code>git request-pull</code> command and e-mail the output to the project maintainer manually.</p>
+
+<p>The <code>request-pull</code> command takes the base branch into which you want your topic branch pulled and the Git repository URL you want them to pull from, and outputs a summary of all the changes you’re asking to be pulled in.
+For instance, if Jessica wants to send John a pull request, and she’s done two commits on the topic branch she just pushed up, she can run this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git request-pull origin/master myfork
+<code class="go">The following changes since commit 1edee6b1d61823a2de3b09c160d7080b8d1b3a40:</code>
+<code class="go">  John Smith (1):</code>
+<code class="go">        added a new function</code>
+
+<code class="go">are available in the git repository at:</code>
+
+<code class="go">  git://githost/simplegit.git featureA</code>
+
+<code class="go">Jessica Smith (2):</code>
+<code class="go">      add limit to log function</code>
+<code class="go">      change log output to 30 from 25</code>
+
+<code class="go"> lib/simplegit.rb |   10 +++++++++-</code>
+<code class="go"> 1 files changed, 9 insertions(+), 1 deletions(-)</code></pre>
+
+<p>The output can be sent to the maintainer–it tells them where the work was branched from, summarizes the commits, and tells where to pull this work from.</p>
+
+<p>On a project for which you’re not the maintainer, it’s generally easier to have a branch like <code>master</code> always track <code>origin/master</code> and to do your work in topic branches that you can easily discard if they’re rejected.
+Having work themes isolated into topic branches also makes it easier for you to rebase your work if the tip of the main repository has moved in the meantime and your commits no longer apply cleanly.
+For example, if you want to submit a second topic of work to the project, don’t continue working on the topic branch you just pushed up – start over from the main repository’s <code>master</code> branch:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout -b featureB origin/master
+<code class="gp">#</code> <code class="o">(</code>work<code class="o">)</code>
+<code class="gp">$</code> git commit
+<code class="gp">$</code> git push myfork featureB
+<code class="gp">#</code> <code class="o">(</code>email maintainer<code class="o">)</code>
+<code class="gp">$</code> git fetch origin</pre>
+
+<p>Now, each of your topics is contained within a silo – similar to a patch queue – that you can rewrite, rebase, and modify without the topics interfering or interdepending on each other, like so:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/public-small-1.png" alt="Initial commit history with `featureB` work."/></div><figcaption>Initial commit history with <code>featureB</code> work.</figcaption></figure>
+
+<p>Let’s say the project maintainer has pulled in a bunch of other patches and tried your first branch, but it no longer cleanly merges.
+In this case, you can try to rebase that branch on top of <code>origin/master</code>, resolve the conflicts for the maintainer, and then resubmit your changes:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout featureA
+<code class="gp">$</code> git rebase origin/master
+<code class="gp">$</code> git push -f myfork featureA</pre>
+
+<p>This rewrites your history to now look like <a data-type="xref" href="#psp_b">Figure 5-18</a>.</p>
+
+<figure id="psp_b"><div class="border-box"><img src="book/05-distributed-git/images/public-small-2.png" alt="Commit history after `featureA` work."/></div><figcaption>Commit history after <code>featureA</code> work.</figcaption></figure>
+
+<p>Because you rebased the branch, you have to specify the <code>-f</code> to your push command in order to be able to replace the <code>featureA</code> branch on the server with a commit that isn’t a descendant of it.
+An alternative would be to push this new work to a different branch on the server (perhaps called <code>featureAv2</code>).</p>
+
+<p>Let’s look at one more possible scenario: the maintainer has looked at work in your second branch and likes the concept but would like you to change an implementation detail.
+You’ll also take this opportunity to move the work to be based off the project’s current <code>master</code> branch.
+You start a new branch based off the current <code>origin/master</code> branch, squash the <code>featureB</code> changes there, resolve any conflicts, make the implementation change, and then push that up as a new branch:</p>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="merge" data-tertiary="squash" id="idp14153312"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout -b featureBv2 origin/master
+<code class="gp">$</code> git merge --squash featureB
+<code class="gp">#</code> <code class="o">(</code>change implementation<code class="o">)</code>
+<code class="gp">$</code> git commit
+<code class="gp">$</code> git push myfork featureBv2</pre>
+
+<p>The <code>--squash</code> option takes all the work on the merged branch and squashes it into one changeset producing the repository state as if a real merge happened, without actually making a merge commit.
+This means your future commit will have one parent only and allows you to introduce all the changes from another branch and then make more changes before recording the new commit.
+Also the <code>--no-commit</code> option can be useful to delay the merge commit in case of the default merge process.</p>
+
+<p>Now you can send the maintainer a message that you’ve made the requested changes and they can find those changes in your <code>featureBv2</code> branch.</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/public-small-3.png" alt="Commit history after `featureBv2` work."/></div><figcaption>Commit history after <code>featureBv2</code> work.</figcaption></figure>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Public Project over E-Mail" id="_project_over_email">
+<h2>Public Project over E-Mail</h2>
+
+<p><a data-type="indexterm" data-primary="contributing" data-secondary="public large project" id="idp14131392"/>
+Many projects have established procedures for accepting patches – you’ll need to check the specific rules for each project, because they will differ.
+Since there are several older, larger projects which accept patches via a developer mailing list, we’ll go over an example of that now.</p>
+
+<p>The workflow is similar to the previous use case – you create topic branches for each patch series you work on.
+The difference is how you submit them to the project.
+Instead of forking the project and pushing to your own writable version, you generate e-mail versions of each commit series and e-mail them to the developer mailing list:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout -b topicA
+<code class="gp">#</code> <code class="o">(</code>work<code class="o">)</code>
+<code class="gp">$</code> git commit
+<code class="gp">#</code> <code class="o">(</code>work<code class="o">)</code>
+<code class="gp">$</code> git commit</pre>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="format-patch" id="idp14179200"/>
+Now you have two commits that you want to send to the mailing list.
+You use <code>git format-patch</code> to generate the mbox-formatted files that you can e-mail to the list – it turns each commit into an e-mail message with the first line of the commit message as the subject and the rest of the message plus the patch that the commit introduces as the body.
+The nice thing about this is that applying a patch from an e-mail generated with <code>format-patch</code> preserves all the commit information properly.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git format-patch -M origin/master
+<code class="go">0001-add-limit-to-log-function.patch</code>
+<code class="go">0002-changed-log-output-to-30-from-25.patch</code></pre>
+
+<p>The <code>format-patch</code> command prints out the names of the patch files it creates.
+The <code>-M</code> switch tells Git to look for renames.
+The files end up looking like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat 0001-add-limit-to-log-function.patch
+<code class="go">From 330090432754092d704da8e76ca5c05c198e71a8 Mon Sep 17 00:00:00 2001</code>
+<code class="go">From: Jessica Smith &lt;jessica@example.com&gt;</code>
+<code class="go">Date: Sun, 6 Apr 2008 10:17:23 -0700</code>
+<code class="go">Subject: [PATCH 1/2] add limit to log function</code>
+
+<code class="go">Limit log functionality to the first 20</code>
+
+<code class="go">---</code>
+<code class="go"> lib/simplegit.rb |    2 +-</code>
+<code class="go"> 1 files changed, 1 insertions(+), 1 deletions(-)</code>
+
+<code class="go">diff --git a/lib/simplegit.rb b/lib/simplegit.rb</code>
+<code class="go">index 76f47bc..f9815f1 100644</code>
+<code class="go">--- a/lib/simplegit.rb</code>
+<code class="go">+++ b/lib/simplegit.rb</code>
+<code class="go">@@ -14,7 +14,7 @@ class SimpleGit</code>
+<code class="go">   end</code>
+
+<code class="go">   def log(treeish = 'master')</code>
+<code class="go">-    command("git log #{treeish}")</code>
+<code class="go">+    command("git log -n 20 #{treeish}")</code>
+<code class="go">   end</code>
+
+<code class="go">   def ls_tree(treeish = 'master')</code>
+<code class="go">--</code>
+<code class="go">2.1.0</code></pre>
+
+<p>You can also edit these patch files to add more information for the e-mail list that you don’t want to show up in the commit message.
+If you add text between the <code>---</code> line and the beginning of the patch (the <code>diff --git</code> line), then developers can read it; but applying the patch excludes it.</p>
+
+<p>To e-mail this to a mailing list, you can either paste the file into your e-mail program or send it via a command-line program.
+Pasting the text often causes formatting issues, especially with “smarter” clients that don’t preserve newlines and other whitespace appropriately.
+Luckily, Git provides a tool to help you send properly formatted patches via IMAP, which may be easier for you.
+We’ll demonstrate how to send a patch via Gmail, which happens to be the e-mail agent we know best; you can read detailed instructions for a number of mail programs at the end of the aforementioned <code>Documentation/SubmittingPatches</code> file in the Git source code.</p>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="config" id="idp14274688"/><a data-type="indexterm" data-primary="email" id="idp14275520"/>
+First, you need to set up the imap section in your <code>~/.gitconfig</code> file.
+You can set each value separately with a series of <code>git config</code> commands, or you can add them manually, but in the end your config file should look something like this:</p>
+
+<pre data-type="programlisting" data-code-language="ini"><code class="k">[imap]</code>
+  <code class="na">folder</code> <code class="o">=</code> <code class="s">"[Gmail]/Drafts"</code>
+<code class="s">  host = imaps://imap.gmail.com</code>
+<code class="s">  user = user@gmail.com</code>
+<code class="s">  pass = p4ssw0rd</code>
+<code class="s">  port = 993</code>
+<code class="s">  sslverify = false</code></pre>
+
+<p>If your IMAP server doesn’t use SSL, the last two lines probably aren’t necessary, and the host value will be <code>imap://</code> instead of <code>imaps://</code>.
+When that is set up, you can use <code>git imap-send</code> to place the patch series in the Drafts folder of the specified IMAP server:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat *.patch <code class="p">|</code>git imap-send
+<code class="go">Resolving imap.gmail.com... ok</code>
+<code class="go">Connecting to [74.125.142.109]:993... ok</code>
+<code class="go">Logging in...</code>
+<code class="go">sending 2 messages</code>
+<code class="go">100% (2/2) done</code></pre>
+
+<p>At this point, you should be able to go to your Drafts folder, change the To field to the mailing list you’re sending the patch to, possibly CC the maintainer or person responsible for that section, and send it off.</p>
+
+<p>You can also send the patches through an SMTP server. As before, you can set each value separately with a series of <code>git config</code> commands, or you can add them manually in the sendemail section in your <code>~/.gitconfig</code> file:</p>
+
+<pre data-type="programlisting" data-code-language="ini"><code class="k">[sendemail]</code>
+  <code class="na">smtpencryption</code> <code class="o">=</code> <code class="s">tls</code>
+<code class="s">  smtpserver = smtp.gmail.com</code>
+<code class="s">  smtpuser = user@gmail.com</code>
+<code class="s">  smtpserverport = 587</code></pre>
+
+<p>After this is done, you can use <code>git send-email</code> to send your patches:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git send-email *.patch
+<code class="go">0001-added-limit-to-log-function.patch</code>
+<code class="go">0002-changed-log-output-to-30-from-25.patch</code>
+<code class="go">Who should the emails appear to be from? [Jessica Smith &lt;jessica@example.com&gt;]</code>
+<code class="go">Emails will be sent from: Jessica Smith &lt;jessica@example.com&gt;</code>
+<code class="go">Who should the emails be sent to? jessica@example.com</code>
+<code class="go">Message-ID to be used as In-Reply-To for the first email? y</code></pre>
+
+<p>Then, Git spits out a bunch of log information looking something like this for each patch you’re sending:</p>
+
+<pre data-type="programlisting" data-code-language="text">(mbox) Adding cc: Jessica Smith &lt;jessica@example.com&gt; from
+  \line 'From: Jessica Smith &lt;jessica@example.com&gt;'
+OK. Log says:
+Sendmail: /usr/sbin/sendmail -i jessica@example.com
+From: Jessica Smith &lt;jessica@example.com&gt;
+To: jessica@example.com
+Subject: [PATCH 1/2] added limit to log function
+Date: Sat, 30 May 2009 13:29:15 -0700
+Message-Id: &lt;1243715356-61726-1-git-send-email-jessica@example.com&gt;
+X-Mailer: git-send-email 1.6.2.rc1.20.g8c5b.dirty
+In-Reply-To: &lt;y&gt;
+References: &lt;y&gt;
+
+Result: OK</pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Summary" id="idp14525424">
+<h2>Summary</h2>
+
+<p>This section has covered a number of common workflows for dealing with several very different types of Git projects you’re likely to encounter, and introduced a couple of new tools to help you manage this process.
+Next, you’ll see how to work the other side of the coin: maintaining a Git project.
+You’ll learn how to be a benevolent dictator or integration manager.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Maintaining a Project" id="idp13193184">
+<h1>Maintaining a Project</h1>
+
+<p><a data-type="indexterm" data-primary="maintaining a project" id="idp14407600"/>
+In addition to knowing how to effectively contribute to a project, you’ll likely need to know how to maintain one.
+This can consist of accepting and applying patches generated via <code>format-patch</code> and e-mailed to you, or integrating changes in remote branches for repositories you’ve added as remotes to your project.
+Whether you maintain a canonical repository or want to help by verifying or approving patches, you need to know how to accept work in a way that is clearest for other contributors and sustainable by you over the long run.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Working in Topic Branches" id="idp14522944">
+<h2>Working in Topic Branches</h2>
+
+<p><a data-type="indexterm" data-primary="branches" data-secondary="topic" id="idp14524352"/>
+When you’re thinking of integrating new work, it’s generally a good idea to try it out in a topic branch – a temporary branch specifically made to try out that new work.
+This way, it’s easy to tweak a patch individually and leave it if it’s not working until you have time to come back to it.
+If you create a simple branch name based on the theme of the work you’re going to try, such as <code>ruby_client</code> or something similarly descriptive, you can easily remember it if you have to abandon it for a while and come back later.
+The maintainer of the Git project tends to namespace these branches as well – such as <code>sc/ruby_client</code>, where <code>sc</code> is short for the person who contributed the work.
+As you’ll remember, you can create the branch based off your master branch like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git branch sc/ruby_client master</pre>
+
+<p>Or, if you want to also switch to it immediately, you can use the <code>checkout -b</code> option:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git checkout -b sc/ruby_client master</pre>
+
+<p>Now you’re ready to add your contributed work into this topic branch and determine if you want to merge it into your longer-term branches.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Applying Patches from E-mail" id="_patches_from_email">
+<h2>Applying Patches from E-mail</h2>
+
+<p><a data-type="indexterm" data-primary="email" data-secondary="applying patches from" id="idp14474352"/>
+If you receive a patch over e-mail that you need to integrate into your project, you need to apply the patch in your topic branch to evaluate it.
+There are two ways to apply an e-mailed patch: with <code>git apply</code> or with <code>git am</code>.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Applying a Patch with apply" id="idp14464960">
+<h3>Applying a Patch with apply</h3>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="apply" id="idp14466240"/>
+If you received the patch from someone who generated it with the <code>git diff</code> or a Unix <code>diff</code> command (which is not recommended; see the next section), you can apply it with the <code>git apply</code> command.
+Assuming you saved the patch at <code>/tmp/patch-ruby-client.patch</code>, you can apply the patch like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git apply /tmp/patch-ruby-client.patch</pre>
+
+<p>This modifies the files in your working directory.
+It’s almost identical to running a <code>patch -p1</code> command to apply the patch, although it’s more paranoid and accepts fewer fuzzy matches than patch.
+It also handles file adds, deletes, and renames if they’re described in the <code>git diff</code> format, which <code>patch</code> won’t do.
+Finally, <code>git apply</code> is an “apply all or abort all” model where either everything is applied or nothing is, whereas <code>patch</code> can partially apply patchfiles, leaving your working directory in a weird state.
+<code>git apply</code> is overall much more conservative than <code>patch</code>.
+It won’t create a commit for you – after running it, you must stage and commit the changes introduced manually.</p>
+
+<p>You can also use git apply to see if a patch applies cleanly before you try actually applying it – you can run <code>git apply --check</code> with the patch:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git apply --check 0001-seeing-if-this-helps-the-gem.patch
+<code class="go">error: patch failed: ticgit.gemspec:1</code>
+<code class="go">error: ticgit.gemspec: patch does not apply</code></pre>
+
+<p>If there is no output, then the patch should apply cleanly.
+This command also exits with a non-zero status if the check fails, so you can use it in scripts if you want.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Applying a Patch with am" id="_git_am">
+<h3>Applying a Patch with <code>am</code></h3>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="am" id="idp14612288"/>
+If the contributor is a Git user and was good enough to use the <code>format-patch</code> command to generate their patch, then your job is easier because the patch contains author information and a commit message for you.
+If you can, encourage your contributors to use <code>format-patch</code> instead of <code>diff</code> to generate patches for you.
+You should only have to use <code>git apply</code> for legacy patches and things like that.</p>
+
+<p>To apply a patch generated by <code>format-patch</code>, you use <code>git am</code>.
+Technically, <code>git am</code> is built to read an mbox file, which is a simple, plain-text format for storing one or more e-mail messages in one text file.
+It looks something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">From 330090432754092d704da8e76ca5c05c198e71a8 Mon Sep 17 00:00:00 2001</code>
+<code class="go">From: Jessica Smith &lt;jessica@example.com&gt;</code>
+<code class="go">Date: Sun, 6 Apr 2008 10:17:23 -0700</code>
+<code class="go">Subject: [PATCH 1/2] add limit to log function</code>
+
+<code class="go">Limit log functionality to the first 20</code></pre>
+
+<p>This is the beginning of the output of the format-patch command that you saw in the previous section.
+This is also a valid mbox e-mail format.
+If someone has e-mailed you the patch properly using git send-email, and you download that into an mbox format, then you can point git am to that mbox file, and it will start applying all the patches it sees.
+If you run a mail client that can save several e-mails out in mbox format, you can save entire patch series into a file and then use git am to apply them one at a time.</p>
+
+<p>However, if someone uploaded a patch file generated via <code>format-patch</code> to a ticketing system or something similar, you can save the file locally and then pass that file saved on your disk to <code>git am</code> to apply it:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git am 0001-limit-log-function.patch
+<code class="go">Applying: add limit to log function</code></pre>
+
+<p>You can see that it applied cleanly and automatically created the new commit for you.
+The author information is taken from the e-mail’s <code>From</code> and <code>Date</code> headers, and the message of the commit is taken from the <code>Subject</code> and body (before the patch) of the e-mail.
+For example, if this patch was applied from the mbox example above, the commit generated would look something like this:</p>
+
+<pre data-type="programlisting">$ git log --pretty=fuller -1
+commit 6c5e70b984a60b3cecd395edd5b48a7575bf58e0
+Author:     Jessica Smith &lt;jessica@example.com&gt;
+AuthorDate: Sun Apr 6 10:17:23 2008 -0700
+Commit:     Scott Chacon &lt;schacon@gmail.com&gt;
+CommitDate: Thu Apr 9 09:19:06 2009 -0700
+
+   add limit to log function
+
+   Limit log functionality to the first 20</pre>
+
+<p>The <code>Commit</code> information indicates the person who applied the patch and the time it was applied.
+The <code>Author</code> information is the individual who originally created the patch and when it was originally created.</p>
+
+<p>But it’s possible that the patch won’t apply cleanly.
+Perhaps your main branch has diverged too far from the branch the patch was built from, or the patch depends on another patch you haven’t applied yet.
+In that case, the <code>git am</code> process will fail and ask you what you want to do:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git am 0001-seeing-if-this-helps-the-gem.patch
+<code class="go">Applying: seeing if this helps the gem</code>
+<code class="go">error: patch failed: ticgit.gemspec:1</code>
+<code class="go">error: ticgit.gemspec: patch does not apply</code>
+<code class="go">Patch failed at 0001.</code>
+<code class="go">When you have resolved this problem run "git am --resolved".</code>
+<code class="go">If you would prefer to skip this patch, instead run "git am --skip".</code>
+<code class="go">To restore the original branch and stop patching run "git am --abort".</code></pre>
+
+<p>This command puts conflict markers in any files it has issues with, much like a conflicted merge or rebase operation.
+You solve this issue much the same way – edit the file to resolve the conflict, stage the new file, and then run <code>git am --resolved</code> to continue to the next patch:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="o">(</code>fix the file<code class="o">)</code>
+<code class="gp">$</code> git add ticgit.gemspec
+<code class="gp">$</code> git am --resolved
+<code class="go">Applying: seeing if this helps the gem</code></pre>
+
+<p>If you want Git to try a bit more intelligently to resolve the conflict, you can pass a <code>-3</code> option to it, which makes Git attempt a three-way merge.
+This option isn’t on by default because it doesn’t work if the commit the patch says it was based on isn’t in your repository.
+If you do have that commit – if the patch was based on a public commit – then the <code>-3</code> option is generally much smarter about applying a conflicting patch:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git am -3 0001-seeing-if-this-helps-the-gem.patch
+<code class="go">Applying: seeing if this helps the gem</code>
+<code class="go">error: patch failed: ticgit.gemspec:1</code>
+<code class="go">error: ticgit.gemspec: patch does not apply</code>
+<code class="go">Using index info to reconstruct a base tree...</code>
+<code class="go">Falling back to patching base and 3-way merge...</code>
+<code class="go">No changes -- Patch already applied.</code></pre>
+
+<p>In this case, this patch had already been applied.
+Without the <code>-3</code> option, it looks like a conflict.</p>
+
+<p>If you’re applying a number of patches from an mbox, you can also run the <code>am</code> command in interactive mode, which stops at each patch it finds and asks if you want to apply it:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git am -3 -i mbox
+<code class="go">Commit Body is:</code>
+<code class="go">--------------------------</code>
+<code class="go">seeing if this helps the gem</code>
+<code class="go">--------------------------</code>
+<code class="go">Apply? [y]es/[n]o/[e]dit/[v]iew patch/[a]ccept all</code></pre>
+
+<p>This is nice if you have a number of patches saved, because you can view the patch first if you don’t remember what it is, or not apply the patch if you’ve already done so.</p>
+
+<p>When all the patches for your topic are applied and committed into your branch, you can choose whether and how to integrate them into a longer-running branch.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Checking Out Remote Branches" id="_checking_out_remotes">
+<h2>Checking Out Remote Branches</h2>
+
+<p><a data-type="indexterm" data-primary="branches" data-secondary="remote" id="idp14573664"/>
+If your contribution came from a Git user who set up their own repository, pushed a number of changes into it, and then sent you the URL to the repository and the name of the remote branch the changes are in, you can add them as a remote and do merges locally.</p>
+
+<p>For instance, if Jessica sends you an e-mail saying that she has a great new feature in the <code>ruby-client</code> branch of her repository, you can test it by adding the remote and checking out that branch locally:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote add jessica git://github.com/jessica/myproject.git
+<code class="gp">$</code> git fetch jessica
+<code class="gp">$</code> git checkout -b rubyclient jessica/ruby-client</pre>
+
+<p>If she e-mails you again later with another branch containing another great feature, you can fetch and check out because you already have the remote setup.</p>
+
+<p>This is most useful if you’re working with a person consistently.
+If someone only has a single patch to contribute once in a while, then accepting it over e-mail may be less time consuming than requiring everyone to run their own server and having to continually add and remove remotes to get a few patches.
+You’re also unlikely to want to have hundreds of remotes, each for someone who contributes only a patch or two.
+However, scripts and hosted services may make this easier – it depends largely on how you develop and how your contributors develop.</p>
+
+<p>The other advantage of this approach is that you get the history of the commits as well.
+Although you may have legitimate merge issues, you know where in your history their work is based; a proper three-way merge is the default rather than having to supply a <code>-3</code> and hope the patch was generated off a public commit to which you have access.</p>
+
+<p>If you aren’t working with a person consistently but still want to pull from them in this way, you can provide the URL of the remote repository to the <code>git pull</code> command.
+This does a one-time pull and doesn’t save the URL as a remote reference:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git pull https://github.com/onetimeguy/project
+<code class="go">From https://github.com/onetimeguy/project</code>
+<code class="go"> * branch            HEAD       -&gt; FETCH_HEAD</code>
+<code class="go">Merge made by recursive.</code></pre>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Determining What Is Introduced" id="_what_is_introduced">
+<h2>Determining What Is Introduced</h2>
+
+<p><a data-type="indexterm" data-primary="branches" data-secondary="diffing" id="idp14908960"/>
+Now you have a topic branch that contains contributed work.
+At this point, you can determine what you’d like to do with it.
+This section revisits a couple of commands so you can see how you can use them to review exactly what you’ll be introducing if you merge this into your main branch.</p>
+
+<p>It’s often helpful to get a review of all the commits that are in this branch but that aren’t in your master branch.
+You can exclude commits in the master branch by adding the <code>--not</code> option before the branch name.
+This does the same thing as the <code>master..contrib</code> format that we used earlier.
+For example, if your contributor sends you two patches and you create a branch called <code>contrib</code> and applied those patches there, you can run this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git log contrib --not master
+<code class="go">commit 5b6235bd297351589efc4d73316f0a68d484f118</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gmail.com&gt;</code>
+<code class="go">Date:   Fri Oct 24 09:53:59 2008 -0700</code>
+
+<code class="go">    seeing if this helps the gem</code>
+
+<code class="go">commit 7482e0d16d04bea79d0dba8988cc78df655f16a0</code>
+<code class="go">Author: Scott Chacon &lt;schacon@gmail.com&gt;</code>
+<code class="go">Date:   Mon Oct 22 19:38:36 2008 -0700</code>
+
+<code class="go">    updated the gemspec to hopefully work better</code></pre>
+
+<p>To see what changes each commit introduces, remember that you can pass the <code>-p</code> option to <code>git log</code> and it will append the diff introduced to each commit.</p>
+
+<p>To see a full diff of what would happen if you were to merge this topic branch with another branch, you may have to use a weird trick to get the correct results.
+You may think to run this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git diff master</pre>
+
+<p>This command gives you a diff, but it may be misleading.
+If your <code>master</code> branch has moved forward since you created the topic branch from it, then you’ll get seemingly strange results.
+This happens because Git directly compares the snapshots of the last commit of the topic branch you’re on and the snapshot of the last commit on the <code>master</code> branch.
+For example, if you’ve added a line in a file on the <code>master</code> branch, a direct comparison of the snapshots will look like the topic branch is going to remove that line.</p>
+
+<p>If <code>master</code> is a direct ancestor of your topic branch, this isn’t a problem; but if the two histories have diverged, the diff will look like you’re adding all the new stuff in your topic branch and removing everything unique to the <code>master</code> branch.</p>
+
+<p>What you really want to see are the changes added to the topic branch – the work you’ll introduce if you merge this branch with master.
+You do that by having Git compare the last commit on your topic branch with the first common ancestor it has with the master branch.</p>
+
+<p>Technically, you can do that by explicitly figuring out the common ancestor and then running your diff on it:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git merge-base contrib master
+<code class="go">36c7dba2c95e6bbb78dfa822519ecfec6e1ca649</code>
+<code class="gp">$</code> git diff 36c7db</pre>
+
+<p>However, that isn’t convenient, so Git provides another shorthand for doing the same thing: the triple-dot syntax.
+In the context of the <code>diff</code> command, you can put three periods after another branch to do a <code>diff</code> between the last commit of the branch you’re on and its common ancestor with another branch:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git diff master...contrib</pre>
+
+<p>This command shows you only the work your current topic branch has introduced since its common ancestor with master.
+That is a very useful syntax to remember.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Integrating Contributed Work" id="idp14861136">
+<h2>Integrating Contributed Work</h2>
+
+<p><a data-type="indexterm" data-primary="integrating work" id="idp14890656"/>
+When all the work in your topic branch is ready to be integrated into a more mainline branch, the question is how to do it.
+Furthermore, what overall workflow do you want to use to maintain your project?
+You have a number of choices, so we’ll cover a few of them.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Merging Workflows" id="idp14825696">
+<h3>Merging Workflows</h3>
+
+<p><a data-type="indexterm" data-primary="workflows" data-secondary="merging" id="idp14827264"/>
+One simple workflow merges your work into your <code>master</code> branch.
+In this scenario, you have a <code>master</code> branch that contains basically stable code.
+When you have work in a topic branch that you’ve done or that someone has contributed and you’ve verified, you merge it into your master branch, delete the topic branch, and then continue the process.
+If we have a repository with work in two branches named <code>ruby_client</code> and <code>php_client</code> that looks like <a data-type="xref" href="#merwf_a">Figure 5-20</a> and merge <code>ruby_client</code> first and then <code>php_client</code> next, then your history will end up looking like <a data-type="xref" href="#merwf_b">Figure 5-21</a>.</p>
+
+<figure id="merwf_a"><div class="border-box"><img src="book/05-distributed-git/images/merging-workflows-1.png" alt="History with several topic branches."/></div><figcaption>History with several topic branches.</figcaption></figure>
+
+<figure id="merwf_b"><div class="border-box"><img src="book/05-distributed-git/images/merging-workflows-2.png" alt="After a topic branch merge."/></div><figcaption>After a topic branch merge.</figcaption></figure>
+
+<p>That is probably the simplest workflow, but it can possibly be problematic if you’re dealing with larger or more stable projects where you want to be really careful about what you introduce.</p>
+
+<p>If you have a more important project, you might want to use a two-phase merge cycle.
+In this scenario, you have two long-running branches, <code>master</code> and <code>develop</code>, in which you determine that <code>master</code> is updated only when a very stable release is cut and all new code is integrated into the <code>develop</code> branch.
+You regularly push both of these branches to the public repository.
+Each time you have a new topic branch to merge in (<a data-type="xref" href="#merwf_c">Figure 5-22</a>), you merge it into <code>develop</code> (<a data-type="xref" href="#merwf_d">Figure 5-23</a>); then, when you tag a release, you fast-forward <code>master</code> to wherever the now-stable <code>develop</code> branch is (<a data-type="xref" href="#merwf_e">Figure 5-24</a>).</p>
+
+<figure id="merwf_c"><div class="border-box"><img src="book/05-distributed-git/images/merging-workflows-3.png" alt="Before a topic branch merge."/></div><figcaption>Before a topic branch merge.</figcaption></figure>
+
+<figure id="merwf_d"><div class="border-box"><img src="book/05-distributed-git/images/merging-workflows-4.png" alt="After a topic branch merge."/></div><figcaption>After a topic branch merge.</figcaption></figure>
+
+<figure id="merwf_e"><div class="border-box"><img src="book/05-distributed-git/images/merging-workflows-5.png" alt="After a topic branch release."/></div><figcaption>After a project release.</figcaption></figure>
+
+<p>This way, when people clone your project’s repository, they can either check out master to build the latest stable version and keep up to date on that easily, or they can check out develop, which is the more cutting-edge stuff.
+You can also continue this concept, having an integrate branch where all the work is merged together.
+Then, when the codebase on that branch is stable and passes tests, you merge it into a develop branch; and when that has proven itself stable for a while, you fast-forward your master branch.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Large-Merging Workflows" id="idp14826288">
+<h3>Large-Merging Workflows</h3>
+
+<p><a data-type="indexterm" data-primary="workflows" data-secondary="merging (large)" id="idp15032512"/>
+The Git project has four long-running branches: <code>master</code>, <code>next</code>, and <code>pu</code> (proposed updates) for new work, and <code>maint</code> for maintenance backports.
+When new work is introduced by contributors, it’s collected into topic branches in the maintainer’s repository in a manner similar to what we’ve described (see <a data-type="xref" href="#merwf_f">Figure 5-25</a>).
+At this point, the topics are evaluated to determine whether they’re safe and ready for consumption or whether they need more work.
+If they’re safe, they’re merged into <code>next</code>, and that branch is pushed up so everyone can try the topics integrated together.</p>
+
+<figure id="merwf_f"><div class="border-box"><img src="book/05-distributed-git/images/large-merges-1.png" alt="Managing a complex series of parallel contributed topic branches."/></div><figcaption>Managing a complex series of parallel contributed topic branches.</figcaption></figure>
+
+<p>If the topics still need work, they’re merged into <code>pu</code> instead.
+When it’s determined that they’re totally stable, the topics are re-merged into <code>master</code> and are then rebuilt from the topics that were in <code>next</code> but didn’t yet graduate to <code>master</code>.
+This means <code>master</code> almost always moves forward, <code>next</code> is rebased occasionally, and <code>pu</code> is rebased even more often:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/large-merges-2.png" alt="Merging contributed topic branches into long-term integration branches."/></div><figcaption>Merging contributed topic branches into long-term integration branches.</figcaption></figure>
+
+<p>When a topic branch has finally been merged into <code>master</code>, it’s removed from the repository.
+The Git project also has a <code>maint</code> branch that is forked off from the last release to provide backported patches in case a maintenance release is required.
+Thus, when you clone the Git repository, you have four branches that you can check out to evaluate the project in different stages of development, depending on how cutting edge you want to be or how you want to contribute; and the maintainer has a structured workflow to help them vet new contributions.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Rebasing and Cherry Picking Workflows" id="_rebase_cherry_pick">
+<h3>Rebasing and Cherry Picking Workflows</h3>
+
+<p><a data-type="indexterm" data-primary="workflows" data-secondary="rebasing and cherry-picking" id="idp15048096"/>
+Other maintainers prefer to rebase or cherry-pick contributed work on top of their master branch, rather than merging it in, to keep a mostly linear history.
+When you have work in a topic branch and have determined that you want to integrate it, you move to that branch and run the rebase command to rebuild the changes on top of your current master (or <code>develop</code>, and so on) branch.
+If that works well, you can fast-forward your <code>master</code> branch, and you’ll end up with a linear project history.</p>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="cherry-pick" id="idp15050832"/>
+The other way to move introduced work from one branch to another is to cherry-pick it.
+A cherry-pick in Git is like a rebase for a single commit.
+It takes the patch that was introduced in a commit and tries to reapply it on the branch you’re currently on.
+This is useful if you have a number of commits on a topic branch and you want to integrate only one of them, or if you only have one commit on a topic branch and you’d prefer to cherry-pick it rather than run rebase.
+For example, suppose you have a project that looks like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/rebasing-1.png" alt="Example history before a cherry-pick."/></div><figcaption>Example history before a cherry-pick.</figcaption></figure>
+
+<p>If you want to pull commit <code>e43a6</code> into your master branch, you can run</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git cherry-pick e43a6fd3e94888d76779ad79fb568ed180e5fcdf
+<code class="go">Finished one cherry-pick.</code>
+<code class="go">[master]: created a0a41a9: "More friendly message when locking the index fails."</code>
+<code class="go"> 3 files changed, 17 insertions(+), 3 deletions(-)</code></pre>
+
+<p>This pulls the same change introduced in <code>e43a6</code>, but you get a new commit SHA-1 value, because the date applied is different.
+Now your history looks like this:</p>
+
+<figure><div class="border-box"><img src="book/05-distributed-git/images/rebasing-2.png" alt="History after cherry-picking a commit on a topic branch."/></div><figcaption>History after cherry-picking a commit on a topic branch.</figcaption></figure>
+
+<p>Now you can remove your topic branch and drop the commits you didn’t want to pull in.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Rerere" id="idp15046720">
+<h3>Rerere</h3>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="rerere" id="idp14940672"/><a data-type="indexterm" data-primary="rerere" id="idp14941648"/>
+If you’re doing lots of merging and rebasing, or you’re maintaining a long-lived topic branch, Git has a feature called “rerere” that can help.</p>
+
+<p>Rerere stands for “reuse recorded resolution” – it’s a way of shortcutting manual conflict resolution.
+When rerere is enabled, Git will keep a set of pre- and post-images from successful merges, and if it notices that there’s a conflict that looks exactly like one you’ve already fixed, it’ll just use the fix from last time, without bothering you with it.</p>
+
+<p>This feature comes in two parts: a configuration setting and a command.
+The configuration setting is <code>rerere.enabled</code>, and it’s handy enough to put in your global config:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git config --global rerere.enabled <code class="nb">true</code></pre>
+
+<p>Now, whenever you do a merge that resolves conflicts, the resolution will be recorded in the cache in case you need it in the future.</p>
+
+<p>If you need to, you can interact with the rerere cache using the <code>git rerere</code> command.
+When it’s invoked alone, Git checks its database of resolutions and tries to find a match with any current merge conflicts and resolve them (although this is done automatically if <code>rerere.enabled</code> is set to <code>true</code>).
+There are also subcommands to see what will be recorded, to erase specific resolution from the cache, and to clear the entire cache. We will cover rerere in more detail in <a data-type="xref" href="ch07.html#_rerere">“Rerere”</a>.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Tagging Your Releases" id="_tagging_releases">
+<h2>Tagging Your Releases</h2>
+
+<p><a data-type="indexterm" data-primary="tags" id="idp15133952"/><a data-type="indexterm" data-primary="tags" data-secondary="signing" id="idp14949920"/>
+When you’ve decided to cut a release, you’ll probably want to drop a tag so you can re-create that release at any point going forward.
+You can create a new tag as discussed in <a data-type="xref" href="ch02.html#_git_basics_chapter">Chapter 2</a>.
+If you decide to sign the tag as the maintainer, the tagging may look something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git tag -s v1.5 -m <code class="s1">'my signed 1.5 tag'</code>
+<code class="go">You need a passphrase to unlock the secret key for</code>
+<code class="go">user: "Scott Chacon &lt;schacon@gmail.com&gt;"</code>
+<code class="go">1024-bit DSA key, ID F721C45A, created 2009-02-09</code></pre>
+
+<p>If you do sign your tags, you may have the problem of distributing the public PGP key used to sign your tags.
+The maintainer of the Git project has solved this issue by including their public key as a blob in the repository and then adding a tag that points directly to that content.
+To do this, you can figure out which key you want by running <code>gpg --list-keys</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> gpg --list-keys
+<code class="go">/Users/schacon/.gnupg/pubring.gpg</code>
+<code class="go">---------------------------------</code>
+<code class="go">pub   1024D/F721C45A 2009-02-09 [expires: 2010-02-09]</code>
+<code class="go">uid                  Scott Chacon &lt;schacon@gmail.com&gt;</code>
+<code class="go">sub   2048g/45D02282 2009-02-09 [expires: 2010-02-09]</code></pre>
+
+<p>Then, you can directly import the key into the Git database by exporting it and piping that through <code>git hash-object</code>, which writes a new blob with those contents into Git and gives you back the SHA-1 of the blob:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> gpg -a --export F721C45A <code class="p">|</code> git <code class="nb">hash</code>-object -w --stdin
+<code class="go">659ef797d181633c87ec71ac3f9ba29fe5775b92</code></pre>
+
+<p>Now that you have the contents of your key in Git, you can create a tag that points directly to it by specifying the new SHA-1 value that the <code>hash-object</code> command gave you:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git tag -a maintainer-pgp-pub 659ef797d181633c87ec71ac3f9ba29fe5775b92</pre>
+
+<p>If you run <code>git push --tags</code>, the <code>maintainer-pgp-pub</code> tag will be shared with everyone.
+If anyone wants to verify a tag, they can directly import your PGP key by pulling the blob directly out of the database and importing it into GPG:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git show maintainer-pgp-pub <code class="p">|</code> gpg --import</pre>
+
+<p>They can use that key to verify all your signed tags.
+Also, if you include instructions in the tag message, running <code>git show &lt;tag&gt;</code> will let you give the end user more specific instructions about tag verification.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Generating a Build Number" id="_build_number">
+<h2>Generating a Build Number</h2>
+
+<p><a data-type="indexterm" data-primary="build numbers" id="idp15074000"/><a data-type="indexterm" data-primary="git commands" data-secondary="describe" id="idp15262544"/>
+Because Git doesn’t have monotonically increasing numbers like <em>v123</em> or the equivalent to go with each commit, if you want to have a human-readable name to go with a commit, you can run <code>git describe</code> on that commit.
+Git gives you the name of the nearest tag with the number of commits on top of that tag and a partial SHA-1 value of the commit you’re describing:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git describe master
+<code class="go">v1.6.2-rc1-20-g8c5b85c</code></pre>
+
+<p>This way, you can export a snapshot or build and name it something understandable to people.
+In fact, if you build Git from source code cloned from the Git repository, <code>git --version</code> gives you something that looks like this.
+If you’re describing a commit that you have directly tagged, it gives you the tag name.</p>
+
+<p>The <code>git describe</code> command favors annotated tags (tags created with the <code>-a</code> or <code>-s</code> flag), so release tags should be created this way if you’re using <code>git describe</code>, to ensure the commit is named properly when described.
+You can also use this string as the target of a checkout or show command, although it relies on the abbreviated SHA-1 value at the end, so it may not be valid forever.
+For instance, the Linux kernel recently jumped from 8 to 10 characters to ensure SHA-1 object uniqueness, so older <code>git describe</code> output names were invalidated.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Preparing a Release" id="_preparing_release">
+<h2>Preparing a Release</h2>
+
+<p><a data-type="indexterm" data-primary="releasing" id="idp15084272"/><a data-type="indexterm" data-primary="git commands" data-secondary="archive" id="idp15084976"/>
+Now you want to release a build.
+One of the things you’ll want to do is create an archive of the latest snapshot of your code for those poor souls who don’t use Git.
+The command to do this is <code>git archive</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git archive master --prefix<code class="o">=</code><code class="s1">'project/'</code> <code class="p">|</code> gzip &gt; <code class="sb">`</code>git describe master<code class="sb">`</code>.tar.gz
+<code class="gp">$</code> ls *.tar.gz
+<code class="go">v1.6.2-rc1-20-g8c5b85c.tar.gz</code></pre>
+
+<p>If someone opens that tarball, they get the latest snapshot of your project under a project directory.
+You can also create a zip archive in much the same way, but by passing the <code>--format=zip</code> option to <code>git archive</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git archive master --prefix<code class="o">=</code><code class="s1">'project/'</code> --format<code class="o">=</code>zip &gt; <code class="sb">`</code>git describe master<code class="sb">`</code>.zip</pre>
+
+<p>You now have a nice tarball and a zip archive of your project release that you can upload to your website or e-mail to people.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The Shortlog" id="_the_shortlog">
+<h2>The Shortlog</h2>
+
+<p><a data-type="indexterm" data-primary="git commands" data-secondary="shortlog" id="idp15287216"/>
+It’s time to e-mail your mailing list of people who want to know what’s happening in your project.
+A nice way of quickly getting a sort of changelog of what has been added to your project since your last release or e-mail is to use the <code>git shortlog</code> command.
+It summarizes all the commits in the range you give it; for example, the following gives you a summary of all the commits since your last release, if your last release was named v1.0.1:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git shortlog --no-merges master --not v1.0.1
+<code class="go">Chris Wanstrath (8):</code>
+<code class="go">      Add support for annotated tags to Grit::Tag</code>
+<code class="go">      Add packed-refs annotated tag support.</code>
+<code class="go">      Add Grit::Commit#to_patch</code>
+<code class="go">      Update version and History.txt</code>
+<code class="go">      Remove stray `puts`</code>
+<code class="go">      Make ls_tree ignore nils</code>
+
+<code class="go">Tom Preston-Werner (4):</code>
+<code class="go">      fix dates in history</code>
+<code class="go">      dynamic version method</code>
+<code class="go">      Version bump to 1.0.2</code>
+<code class="go">      Regenerated gemspec for version 1.0.2</code></pre>
+
+<p>You get a clean summary of all the commits since v1.0.1, grouped by author, that you can e-mail to your list.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Summary" id="idp14406624">
+<h1>Summary</h1>
+
+<p>You should feel fairly comfortable contributing to a project in Git as well as maintaining your own project or integrating other users’ contributions.
+Congratulations on being an effective Git developer!
+In the next chapter, you’ll learn about how to use the largest and most popular Git hosting service, GitHub.</p>
+</section>
+
+
+
+
+
+
+
+</section>
+    <div class="navigation">
+      <ul>
+        <li><a href="ch06.html">Next</a></li>
+        <li><a href="ch04.html">Previous</a></li>
+      </ul>
+    </div>
+  </body>
+</html>

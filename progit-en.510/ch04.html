@@ -1,0 +1,1225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Pro Git</title>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script>
+    <link rel="stylesheet" type="text/css" href="theme/html/html.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <body data-type="book">
+    <div class="navbar">
+      <h1>Pro Git</h1>
+      <p><a href="toc01.html">Table of Contents</a></p>
+    </div>
+    <section data-type="chapter" data-pdf-bookmark="Chapter 4. Git on the Server" id="idp4572976">
+<h1>Git on the Server</h1>
+
+
+<p><a data-type="indexterm" data-primary="serving repositories" id="idp11876048"/>
+At this point, you should be able to do most of the day-to-day tasks for which you’ll be using Git.
+However, in order to do any collaboration in Git, you’ll need to have a remote Git repository.
+Although you can technically push changes to and pull changes from individuals’ repositories, doing so is discouraged because you can fairly easily confuse what they’re working on if you’re not careful.
+Furthermore, you want your collaborators to be able to access the repository even if your computer is offline – having a more reliable common repository is often useful.
+Therefore, the preferred method for collaborating with someone is to set up an intermediate repository that you both have access to, and push to and pull from that.</p>
+
+<p>Running a Git server is fairly straightforward.
+First, you choose which protocols you want your server to communicate with.
+The first section of this chapter will cover the available protocols and the pros and cons of each.
+The next sections will explain some typical setups using those protocols and how to get your server running with them.
+Last, we’ll go over a few hosted options, if you don’t mind hosting your code on someone else’s server and don’t want to go through the hassle of setting up and maintaining your own server.</p>
+
+<p>If you have no interest in running your own server, you can skip to the last section of the chapter to see some options for setting up a hosted account and then move on to the next chapter, where we discuss the various ins and outs of working in a distributed source control environment.</p>
+
+<p>A remote repository is generally a <em>bare repository</em> – a Git repository that has no working directory.
+Because the repository is only used as a collaboration point, there is no reason to have a snapshot checked out on disk; it’s just the Git data.
+In the simplest terms, a bare repository is the contents of your project’s <code>.git</code> directory and nothing else.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="The Protocols" id="idp11880976">
+<h1>The Protocols</h1>
+
+<p>Git can use four major protocols to transfer data: Local, HTTP, Secure Shell (SSH) and Git.
+Here we’ll discuss what they are and in what basic circumstances you would want (or not want) to use them.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Local Protocol" id="idp11882896">
+<h2>Local Protocol</h2>
+
+<p><a data-type="indexterm" data-primary="protocols" data-secondary="local" id="idp11884496"/>
+The most basic is the <em>Local protocol</em>, in which the remote repository is in another directory on disk.
+This is often used if everyone on your team has access to a shared filesystem such as an NFS mount, or in the less likely case that everyone logs in to the same computer.
+The latter wouldn’t be ideal, because all your code repository instances would reside on the same computer, making a catastrophic loss much more likely.</p>
+
+<p>If you have a shared mounted filesystem, then you can clone, push to, and pull from a local file-based repository.
+To clone a repository like this or to add one as a remote to an existing project, use the path to the repository as the URL.
+For example, to clone a local repository, you can run something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone /opt/git/project.git</pre>
+
+<p>Or you can do this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone file:///opt/git/project.git</pre>
+
+<p>Git operates slightly differently if you explicitly specify <code>file://</code> at the beginning of the URL.
+If you just specify the path, Git tries to use hardlinks or directly copy the files it needs.
+If you specify <code>file://</code>, Git fires up the processes that it normally uses to transfer data over a network which is generally a lot less efficient method of transferring the data.
+The main reason to specify the <code>file://</code> prefix is if you want a clean copy of the repository with extraneous references or objects left out – generally after an import from another version-control system or something similar (see <a data-type="xref" href="ch10.html#_git_internals">Chapter 10</a> for maintenance tasks).
+We’ll use the normal path here because doing so is almost always faster.</p>
+
+<p>To add a local repository to an existing Git project, you can run something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote add local_proj /opt/git/project.git</pre>
+
+<p>Then, you can push to and pull from that remote as though you were doing so over a network.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="The Pros" id="idp11989104">
+<h3>The Pros</h3>
+
+<p>The pros of file-based repositories are that they’re simple and they use existing file permissions and network access.
+If you already have a shared filesystem to which your whole team has access, setting up a repository is very easy.
+You stick the bare repository copy somewhere everyone has shared access to and set the read/write permissions as you would for any other shared directory.
+We’ll discuss how to export a bare repository copy for this purpose in <a data-type="xref" href="#_git_on_the_server">“Getting Git on a Server”</a>.</p>
+
+<p>This is also a nice option for quickly grabbing work from someone else’s working repository.
+If you and a co-worker are working on the same project and they want you to check something out, running a command like <code>git pull /home/john/project</code> is often easier than them pushing to a remote server and you pulling down.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="The Cons" id="idp11994304">
+<h3>The Cons</h3>
+
+<p>The cons of this method are that shared access is generally more difficult to set up and reach from multiple locations than basic network access.
+If you want to push from your laptop when you’re at home, you have to mount the remote disk, which can be difficult and slow compared to network-based access.</p>
+
+<p>It’s also important to mention that this isn’t necessarily the fastest option if you’re using a shared mount of some kind.
+A local repository is fast only if you have fast access to the data.
+A repository on NFS is often slower than the repository over SSH on the same server, allowing Git to run off local disks on each system.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The HTTP Protocols" id="idp11883520">
+<h2>The HTTP Protocols</h2>
+
+<p>Git can communicate over HTTP in two different modes.
+Prior to Git 1.6.6 there was only one way it could do this which was very simple and generally read-only.
+In version 1.6.6 a new, smarter protocol was introduced that involved Git being able to intelligently negotiate data transfer in a manner similar to how it does over SSH.
+In the last few years, this new HTTP protocol has become very popular since it’s simpler for the user and smarter about how it communicates.
+The newer version is often referred to as the “Smart” HTTP protocol and the older way as “Dumb” HTTP.
+We’ll cover the newer “smart” HTTP protocol first.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Smart HTTP" id="idp11999136">
+<h3>Smart HTTP</h3>
+
+<p><a data-type="indexterm" data-primary="protocols" data-secondary="smart HTTP" id="idp12064176"/>
+The “smart” HTTP protocol operates very similarly to the SSH or Git protocols but runs over standard HTTP/S ports and can use various HTTP authentication mechanisms, meaning it’s often easier on the user than something like SSH, since you can use things like username/password basic authentication rather than having to set up SSH keys.</p>
+
+<p>It has probably become the most popular way to use Git now, since it can be set up to both serve anonymously like the <code>git://</code> protocol, and can also be pushed over with authentication and encryption like the SSH protocol. Instead of having to set up different URLs for these things, you can now use a single URL for both. If you try to push and the repository requires authentication (which it normally should), the server can prompt for a username and password. The same goes for read access.</p>
+
+<p>In fact, for services like GitHub, the URL you use to view the repository online (for example, “<a href="https://github.com/schacon/simplegit"><em class="hyperlink">https://github.com/schacon/simplegit</em></a>”) is the same URL you can use to clone and, if you have access, push over.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Dumb HTTP" id="idp12068816">
+<h3>Dumb HTTP</h3>
+
+<p><a data-type="indexterm" data-primary="protocols" data-secondary="dumb HTTP" id="idp12070192"/>
+If the server does not respond with a Git HTTP smart service, the Git client will try to fall back to the simpler “dumb” HTTP protocol.
+The Dumb protocol expects the bare Git repository to be served like normal files from the web server.
+The beauty of the Dumb HTTP protocol is the simplicity of setting it up.
+Basically, all you have to do is put a bare Git repository under your HTTP document root and set up a specific <code>post-update</code> hook, and you’re done (See <a data-type="xref" href="ch08.html#_git_hooks">“Git Hooks”</a>).
+At that point, anyone who can access the web server under which you put the repository can also clone your repository.
+To allow read access to your repository over HTTP, do something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">cd</code> /var/www/htdocs/
+<code class="gp">$</code> git clone --bare /path/to/git_project gitproject.git
+<code class="gp">$</code> <code class="nb">cd </code>gitproject.git
+<code class="gp">$</code> mv hooks/post-update.sample hooks/post-update
+<code class="gp">$</code> chmod a+x hooks/post-update</pre>
+
+<p>That’s all.<a data-type="indexterm" data-primary="hooks" data-secondary="post-update" id="idp12008720"/>
+The <code>post-update</code> hook that comes with Git by default runs the appropriate command (<code>git update-server-info</code>) to make HTTP fetching and cloning work properly.
+This command is run when you push to this repository (over SSH perhaps); then, other people can clone via something like</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone https://example.com/gitproject.git</pre>
+
+<p>In this particular case, we’re using the <code>/var/www/htdocs</code> path that is common for Apache setups, but you can use any static web server – just put the bare repository in its path.
+The Git data is served as basic static files (see <a data-type="xref" href="ch10.html#_git_internals">Chapter 10</a> for details about exactly how it’s served).</p>
+
+<p>Generally you would either choose to run a read/write Smart HTTP server or simply have the files accessible as read-only in the Dumb manner. It’s rare to run a mix of the two services.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="The Pros" id="idp12040336">
+<h3>The Pros</h3>
+
+<p>We’ll concentrate on the pros of the Smart version of the HTTP protocol.</p>
+
+<p>The simplicity of having a single URL for all types of access and having the server prompt only when authentication is needed makes things very easy for the end user.
+Being able to authenticate with a username and password is also a big advantage over SSH, since users don’t have to generate SSH keys locally and upload their public key to the server before being able to interact with it.
+For less sophisticated users, or users on systems where SSH is less common, this is a major advantage in usability.
+It is also a very fast and efficient protocol, similar to the SSH one.</p>
+
+<p>You can also serve your repositories read-only over HTTPS, which means you can encrypt the content transfer; or you can go so far as to make the clients use specific signed SSL certificates.</p>
+
+<p>Another nice thing is that HTTP/S are such commonly used protocols that corporate firewalls are often set up to allow traffic through these ports.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="The Cons" id="idp12193616">
+<h3>The Cons</h3>
+
+<p>Git over HTTP/S can be a little more tricky to set up compared to SSH on some servers.
+Other than that, there is very little advantage that other protocols have over the “Smart” HTTP protocol for serving Git.</p>
+
+<p>If you’re using HTTP for authenticated pushing, providing your credentials is sometimes more complicated than using keys over SSH. There are however several credential caching tools you can use, including Keychain access on OSX and Credential Manager on Windows, to make this pretty painless. Read <a data-type="xref" href="ch07.html#_credential_caching">“Credential Storage”</a> to see how to set up secure HTTP password caching on your system.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The SSH Protocol" id="idp12021856">
+<h2>The SSH Protocol</h2>
+
+<p><a data-type="indexterm" data-primary="protocols" data-secondary="SSH" id="idp12023264"/>
+A common transport protocol for Git when self-hosting is over SSH.
+This is because SSH access to servers is already set up in most places – and if it isn’t, it’s easy to do.
+SSH is also an authenticated network protocol; and because it’s ubiquitous, it’s generally easy to set up and use.</p>
+
+<p>To clone a Git repository over SSH, you can specify ssh:// URL like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone ssh://user@server/project.git</pre>
+
+<p>Or you can use the shorter scp-like syntax for the SSH protocol:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone user@server:project.git</pre>
+
+<p>You can also not specify a user, and Git assumes the user you’re currently logged in as.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="The Pros" id="idp12156880">
+<h3>The Pros</h3>
+
+<p>The pros of using SSH are many.
+First, SSH is relatively easy to set up – SSH daemons are commonplace, many network admins have experience with them, and many OS distributions are set up with them or have tools to manage them.
+Next, access over SSH is secure – all data transfer is encrypted and authenticated.
+Last, like the HTTP/S, Git and Local protocols, SSH is efficient, making the data as compact as possible before transferring it.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="The Cons" id="idp12158768">
+<h3>The Cons</h3>
+
+<p>The negative aspect of SSH is that you can’t serve anonymous access of your repository over it.
+People must have access to your machine over SSH to access it, even in a read-only capacity, which doesn’t make SSH access conducive to open source projects.
+If you’re using it only within your corporate network, SSH may be the only protocol you need to deal with.
+If you want to allow anonymous read-only access to your projects and also want to use SSH, you’ll have to set up SSH for you to push over but something else for others to fetch over.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The Git Protocol" id="idp12028272">
+<h2>The Git Protocol</h2>
+
+<p><a data-type="indexterm" data-primary="protocols" data-secondary="git" id="idp12029472"/>
+Next is the Git protocol.
+This is a special daemon that comes packaged with Git; it listens on a dedicated port (9418) that provides a service similar to the SSH protocol, but with absolutely no authentication.
+In order for a repository to be served over the Git protocol, you must create the <code>git-daemon-export-ok</code> file – the daemon won’t serve a repository without that file in it – but other than that there is no security.
+Either the Git repository is available for everyone to clone or it isn’t.
+This means that there is generally no pushing over this protocol.
+You can enable push access; but given the lack of authentication, if you turn on push access, anyone on the internet who finds your project’s URL could push to your project.
+Suffice it to say that this is rare.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="The Pros" id="idp12032416">
+<h3>The Pros</h3>
+
+<p>The Git protocol is often the fastest network transfer protocol available.
+If you’re serving a lot of traffic for a public project or serving a very large project that doesn’t require user authentication for read access, it’s likely that you’ll want to set up a Git daemon to serve your project.
+It uses the same data-transfer mechanism as the SSH protocol but without the encryption and authentication overhead.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="The Cons" id="idp12034432">
+<h3>The Cons</h3>
+
+<p>The downside of the Git protocol is the lack of authentication.
+It’s generally undesirable for the Git protocol to be the only access to your project.
+Generally, you’ll pair it with SSH or HTTPS access for the few developers who have push (write) access and have everyone else use <code>git://</code> for read-only access.
+It’s also probably the most difficult protocol to set up.
+It must run its own daemon, which requires <code>xinetd</code> configuration or the like, which isn’t always a walk in the park.
+It also requires firewall access to port 9418, which isn’t a standard port that corporate firewalls always allow.
+Behind big corporate firewalls, this obscure port is commonly blocked.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Getting Git on a Server" id="_git_on_the_server">
+<h1>Getting Git on a Server</h1>
+
+<p>Now we’ll cover setting up a Git service running these protocols on your own server.</p>
+<div data-type="note">
+<p>Here we’ll be demonstrating the commands and steps needed to do basic, simplified installations on a Linux based server, though it’s also possible to run these services on Mac or Windows servers too.
+Actually setting up a production server within your infrastructure will certainly entail differences in security measures or operating system tools, but hopefully this will give you the general idea of what’s involved.</p>
+</div>
+
+<p>In order to initially set up any Git server, you have to export an existing repository into a new bare repository – a repository that doesn’t contain a working directory.
+This is generally straightforward to do.
+In order to clone your repository to create a new bare repository, you run the clone command with the <code>--bare</code> option.<a data-type="indexterm" data-primary="git commands" data-secondary="clone" data-tertiary="bare" id="idp12216656"/>
+By convention, bare repository directories end in <code>.git</code>, like so:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone --bare my_project my_project.git
+<code class="go">Cloning into bare repository 'my_project.git'...</code>
+<code class="go">done.</code></pre>
+
+<p>You should now have a copy of the Git directory data in your <code>my_project.git</code> directory.</p>
+
+<p>This is roughly equivalent to something like</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cp -Rf my_project/.git my_project.git</pre>
+
+<p>There are a couple of minor differences in the configuration file; but for your purpose, this is close to the same thing.
+It takes the Git repository by itself, without a working directory, and creates a directory specifically for it alone.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Putting the Bare Repository on a Server" id="_bare_repo">
+<h2>Putting the Bare Repository on a Server</h2>
+
+<p>Now that you have a bare copy of your repository, all you need to do is put it on a server and set up your protocols.
+Let’s say you’ve set up a server called <code>git.example.com</code> that you have SSH access to, and you want to store all your Git repositories under the <code>/opt/git</code> directory.
+Assuming that <code>/opt/git</code> exists on that server, you can set up your new repository by copying your bare repository over:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> scp -r my_project.git user@git.example.com:/opt/git</pre>
+
+<p>At this point, other users who have SSH access to the same server which has read-access to the <code>/opt/git</code> directory can clone your repository by running</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone user@git.example.com:/opt/git/my_project.git</pre>
+
+<p>If a user SSHs into a server and has write access to the <code>/opt/git/my_project.git</code> directory, they will also automatically have push access.</p>
+
+<p>Git will automatically add group write permissions to a repository properly if you run the <code>git init</code> command with the <code>--shared</code> option.<a data-type="indexterm" data-primary="git commands" data-secondary="init" data-tertiary="bare" id="idp12264080"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> ssh user@git.example.com
+<code class="gp">$</code> <code class="nb">cd</code> /opt/git/my_project.git
+<code class="gp">$</code> git init --bare --shared</pre>
+
+<p>You see how easy it is to take a Git repository, create a bare version, and place it on a server to which you and your collaborators have SSH access.
+Now you’re ready to collaborate on the same project.</p>
+
+<p>It’s important to note that this is literally all you need to do to run a useful Git server to which several people have access – just add SSH-able accounts on a server, and stick a bare repository somewhere that all those users have read and write access to.
+You’re ready to go – nothing else needed.</p>
+
+<p>In the next few sections, you’ll see how to expand to more sophisticated setups.
+This discussion will include not having to create user accounts for each user, adding public read access to repositories, setting up web UIs and more.
+However, keep in mind that to collaborate with a couple of people on a private project, all you <em>need</em> is an SSH server and a bare repository.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Small Setups" id="idp12224896">
+<h2>Small Setups</h2>
+
+<p>If you’re a small outfit or are just trying out Git in your organization and have only a few developers, things can be simple for you.
+One of the most complicated aspects of setting up a Git server is user management.
+If you want some repositories to be read-only to certain users and read/write to others, access and permissions can be a bit more difficult to arrange.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="SSH Access" id="idp12333488">
+<h3>SSH Access</h3>
+
+<p><a data-type="indexterm" data-primary="serving repositories" data-secondary="SSH" id="idp12334928"/>
+If you have a server to which all your developers already have SSH access, it’s generally easiest to set up your first repository there, because you have to do almost no work (as we covered in the last section).
+If you want more complex access control type permissions on your repositories, you can handle them with the normal filesystem permissions of the operating system your server runs.</p>
+
+<p>If you want to place your repositories on a server that doesn’t have accounts for everyone on your team whom you want to have write access, then you must set up SSH access for them.
+We assume that if you have a server with which to do this, you already have an SSH server installed, and that’s how you’re accessing the server.</p>
+
+<p>There are a few ways you can give access to everyone on your team.
+The first is to set up accounts for everybody, which is straightforward but can be cumbersome.
+You may not want to run <code>adduser</code> and set temporary passwords for every user.</p>
+
+<p>A second method is to create a single <em>git</em> user on the machine, ask every user who is to have write access to send you an SSH public key, and add that key to the <code>~/.ssh/authorized_keys</code> file of your new <em>git</em> user.
+At that point, everyone will be able to access that machine via the <em>git</em> user.
+This doesn’t affect the commit data in any way – the SSH user you connect as doesn’t affect the commits you’ve recorded.</p>
+
+<p>Another way to do it is to have your SSH server authenticate from an LDAP server or some other centralized authentication source that you may already have set up.
+As long as each user can get shell access on the machine, any SSH authentication mechanism you can think of should work.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Generating Your SSH Public Key" id="_generate_ssh_key">
+<h1>Generating Your SSH Public Key</h1>
+
+<p><a data-type="indexterm" data-primary="SSH keys" id="idp12289808"/>
+That being said, many Git servers authenticate using SSH public keys.
+In order to provide a public key, each user in your system must generate one if they don’t already have one.
+This process is similar across all operating systems.
+First, you should check to make sure you don’t already have a key.
+By default, a user’s SSH keys are stored in that user’s <code>~/.ssh</code> directory.
+You can easily check to see if you have a key already by going to that directory and listing the contents:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">cd</code> ~/.ssh
+<code class="gp">$</code> ls
+<code class="go">authorized_keys2  id_dsa       known_hosts</code>
+<code class="go">config            id_dsa.pub</code></pre>
+
+<p>You’re looking for a pair of files named something like <code>id_dsa</code> or <code>id_rsa</code> and a matching file with a <code>.pub</code> extension.
+The <code>.pub</code> file is your public key, and the other file is your private key.
+If you don’t have these files (or you don’t even have a <code>.ssh</code> directory), you can create them by running a program called <code>ssh-keygen</code>, which is provided with the SSH package on Linux/Mac systems and comes with the MSysGit package on Windows:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> ssh-keygen
+<code class="go">Generating public/private rsa key pair.</code>
+<code class="go">Enter file in which to save the key (/home/schacon/.ssh/id_rsa):</code>
+<code class="go">Created directory '/home/schacon/.ssh'.</code>
+<code class="go">Enter passphrase (empty for no passphrase):</code>
+<code class="go">Enter same passphrase again:</code>
+<code class="go">Your identification has been saved in /home/schacon/.ssh/id_rsa.</code>
+<code class="go">Your public key has been saved in /home/schacon/.ssh/id_rsa.pub.</code>
+<code class="go">The key fingerprint is:</code>
+<code class="go">d0:82:24:8e:d7:f1:bb:9b:33:53:96:93:49:da:9b:e3 schacon@mylaptop.local</code></pre>
+
+<p>First it confirms where you want to save the key (<code>.ssh/id_rsa</code>), and then it asks twice for a passphrase, which you can leave empty if you don’t want to type a password when you use the key.</p>
+
+<p>Now, each user that does this has to send their public key to you or whoever is administrating the Git server (assuming you’re using an SSH server setup that requires public keys).
+All they have to do is copy the contents of the <code>.pub</code> file and e-mail it.
+The public keys look something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat ~/.ssh/id_rsa.pub
+<code class="go">ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSU</code>
+<code class="go">GPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3</code>
+<code class="go">Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XA</code>
+<code class="go">t3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/En</code>
+<code class="go">mZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbx</code>
+<code class="go">NrRFi9wrf+M7Q== schacon@mylaptop.local</code></pre>
+
+<p>For a more in-depth tutorial on creating an SSH key on multiple operating systems, see the GitHub guide on SSH keys at <a href="https://help.github.com/articles/generating-ssh-keys"><em class="hyperlink">https://help.github.com/articles/generating-ssh-keys</em></a>.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Setting Up the Server" id="_setting_up_server">
+<h1>Setting Up the Server</h1>
+
+<p>Let’s walk through setting up SSH access on the server side.
+In this example, you’ll use the <code>authorized_keys</code> method for authenticating your users.
+We also assume you’re running a standard Linux distribution like Ubuntu.
+First, you create a <code>git</code> user and a <code>.ssh</code> directory for that user.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> sudo adduser git
+<code class="gp">$</code> su git
+<code class="gp">$</code> <code class="nb">cd</code>
+<code class="gp">$</code><code class="nb"> </code>mkdir .ssh <code class="o">&amp;&amp;</code> chmod <code class="m">700</code> .ssh
+<code class="gp">$</code> touch .ssh/authorized_keys <code class="o">&amp;&amp;</code> chmod <code class="m">600</code> .ssh/authorized_keys</pre>
+
+<p>Next, you need to add some developer SSH public keys to the <code>authorized_keys</code> file for the <code>git</code> user.
+Let’s assume you have some trusted public keys and have saved them to temporary files.
+Again, the public keys look something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat /tmp/id_rsa.john.pub
+<code class="go">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCB007n/ww+ouN4gSLKssMxXnBOvf9LGt4L</code>
+<code class="go">ojG6rs6hPB09j9R/T17/x4lhJA0F3FR1rP6kYBRsWj2aThGw6HXLm9/5zytK6Ztg3RPKK+4k</code>
+<code class="go">Yjh6541NYsnEAZuXz0jTTyAUfrtU3Z5E003C4oxOj6H0rfIF1kKI9MAQLMdpGW1GYEIgS9Ez</code>
+<code class="go">Sdfd8AcCIicTDWbqLAcU4UpkaX8KyGlLwsNuuGztobF8m72ALC/nLF6JLtPofwFBlgc+myiv</code>
+<code class="go">O7TCUSBdLQlgMVOFq1I2uPWQOkOWQAHukEOmfjy2jctxSDBQ220ymjaNsHT4kgtZg2AYYgPq</code>
+<code class="go">dAv8JggJICUvax2T9va5 gsg-keypair</code></pre>
+
+<p>You just append them to the <code>git</code> user’s <code>authorized_keys</code> file in its <code>.ssh</code> directory:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat /tmp/id_rsa.john.pub &gt;&gt; ~/.ssh/authorized_keys
+<code class="gp">$</code> cat /tmp/id_rsa.josie.pub &gt;&gt; ~/.ssh/authorized_keys
+<code class="gp">$</code> cat /tmp/id_rsa.jessica.pub &gt;&gt; ~/.ssh/authorized_keys</pre>
+
+<p>Now, you can set up an empty repository for them by running <code>git init</code> with the <code>--bare</code> option, which initializes the repository without a working directory:<a data-type="indexterm" data-primary="git commands" data-secondary="init" data-tertiary="bare" id="idp12427728"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">cd</code> /opt/git
+<code class="gp">$</code> mkdir project.git
+<code class="gp">$</code> <code class="nb">cd </code>project.git
+<code class="gp">$</code> git init --bare
+<code class="go">Initialized empty Git repository in /opt/git/project.git/</code></pre>
+
+<p>Then, John, Josie, or Jessica can push the first version of their project into that repository by adding it as a remote and pushing up a branch.
+Note that someone must shell onto the machine and create a bare repository every time you want to add a project.
+Let’s use <code>gitserver</code> as the hostname of the server on which you’ve set up your <code>git</code> user and repository.
+If you’re running it internally, and you set up DNS for <code>gitserver</code> to point to that server, then you can use the commands pretty much as is (assuming that <code>myproject</code> is an existing project with files in it):</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">#</code> on Johns computer
+<code class="gp">$</code> <code class="nb">cd </code>myproject
+<code class="gp">$</code> git init
+<code class="gp">$</code> git add .
+<code class="gp">$</code> git commit -m <code class="s1">'initial commit'</code>
+<code class="gp">$</code> git remote add origin git@gitserver:/opt/git/project.git
+<code class="gp">$</code> git push origin master</pre>
+
+<p>At this point, the others can clone it down and push changes back up just as easily:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone git@gitserver:/opt/git/project.git
+<code class="gp">$</code> <code class="nb">cd </code>project
+<code class="gp">$</code> vim README
+<code class="gp">$</code> git commit -am <code class="s1">'fix for the README file'</code>
+<code class="gp">$</code> git push origin master</pre>
+
+<p>With this method, you can quickly get a read/write Git server up and running for a handful of developers.</p>
+
+<p>You should note that currently all these users can also log into the server and get a shell as the <code>git</code> user. If you want to restrict that, you will have to change the shell to something else in the <code>passwd</code> file.</p>
+
+<p>You can easily restrict the <code>git</code> user to only doing Git activities with a limited shell tool called <code>git-shell</code> that comes with Git.
+If you set this as your <code>git</code> user’s login shell, then the <code>git</code> user can’t have normal shell access to your server.
+To use this, specify <code>git-shell</code> instead of bash or csh for your user’s login shell.
+To do so, you must first add <code>git-shell</code> to <code>/etc/shells</code> if it’s not already there:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> cat /etc/shells   <code class="c"># see if `git-shell` is already in there.  If not...</code>
+<code class="gp">$</code> which git-shell   <code class="c"># make sure git-shell is installed on your system.</code>
+<code class="gp">$</code> sudo vim /etc/shells  <code class="c"># and add the path to git-shell from last command</code></pre>
+
+<p>Now you can edit the shell for a user using <code>chsh &lt;username&gt;</code>:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> sudo chsh git  <code class="c"># and enter the path to git-shell, usually: /usr/bin/git-shell</code></pre>
+
+<p>Now, the <code>git</code> user can only use the SSH connection to push and pull Git repositories and can’t shell onto the machine.
+If you try, you’ll see a login rejection like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> ssh git@gitserver
+<code class="go">fatal: Interactive git shell is not enabled.</code>
+<code class="go">hint: ~/git-shell-commands should exist and have read and execute access.</code>
+<code class="go">Connection to gitserver closed.</code></pre>
+
+<p>Now Git network commands will still work just fine but the users won’t be able to get a shell.
+As the output states, you can also set up a directory in the <code>git</code> user’s home directory that customizes the <code>git-shell</code> command a bit.
+For instance, you can restrict the Git commands that the server will accept or you can customize the message that users see if they try to SSH in like that.
+Run <code>git help shell</code> for more information on customizing the shell.<a data-type="indexterm" data-primary="git commands" data-secondary="help" id="idp12564752"/></p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Git Daemon" id="idp12452672">
+<h1>Git Daemon</h1>
+
+<p><a data-type="indexterm" data-primary="serving repositories" data-secondary="git protocol" id="idp12566576"/>
+Next we’ll set up a daemon serving repositories over the “Git” protocol. This is common choice for fast, unauthenticated access to your Git data. Remember that since it’s not an authenticated service, anything you serve over this protocol is public within its network.</p>
+
+<p>If you’re running this on a server outside your firewall, it should only be used for projects that are publicly visible to the world.
+If the server you’re running it on is inside your firewall, you might use it for projects that a large number of people or computers (continuous integration or build servers) have read-only access to, when you don’t want to have to add an SSH key for each.</p>
+
+<p>In any case, the Git protocol is relatively easy to set up.
+Basically, you need to run this command in a daemonized manner:<a data-type="indexterm" data-primary="git commands" data-secondary="daemon" id="idp12664432"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">git daemon --reuseaddr --base-path=/opt/git/ /opt/git/</code></pre>
+
+<p><code>--reuseaddr</code> allows the server to restart without waiting for old connections to time out, the <code>--base-path</code> option allows people to clone projects without specifying the entire path, and the path at the end tells the Git daemon where to look for repositories to export.
+If you’re running a firewall, you’ll also need to punch a hole in it at port 9418 on the box you’re setting this up on.</p>
+
+<p>You can daemonize this process a number of ways, depending on the operating system you’re running.
+On an Ubuntu machine, you can use an Upstart script.
+So, in the following file</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">/etc/event.d/local-git-daemon</code></pre>
+
+<p>you put this script:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">start on startup</code>
+<code class="go">stop on shutdown</code>
+<code class="go">exec /usr/bin/git daemon \</code>
+<code class="go">    --user=git --group=git \</code>
+<code class="go">    --reuseaddr \</code>
+<code class="go">    --base-path=/opt/git/ \</code>
+<code class="go">    /opt/git/</code>
+<code class="go">respawn</code></pre>
+
+<p>For security reasons, it is strongly encouraged to have this daemon run as a user with read-only permissions to the repositories – you can easily do this by creating a new user <em>git-ro</em> and running the daemon as them.
+For the sake of simplicity we’ll simply run it as the same <em>git</em> user that <code>git-shell</code> is running as.</p>
+
+<p>When you restart your machine, your Git daemon will start automatically and respawn if it goes down.
+To get it running without having to reboot, you can run this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">initctl start local-git-daemon</code></pre>
+
+<p>On other systems, you may want to use <code>xinetd</code>, a script in your <code>sysvinit</code> system, or something else – as long as you get that command daemonized and watched somehow.</p>
+
+<p>Next, you have to tell Git which repositories to allow unauthenticated Git server-based access to. You can do this in each repository by creating a file named <code>git-daemon-export-ok</code>.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> <code class="nb">cd</code> /path/to/project.git
+<code class="gp">$</code> touch git-daemon-export-ok</pre>
+
+<p>The presence of that file tells Git that it’s OK to serve this project without authentication.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Smart HTTP" id="idp12565728">
+<h1>Smart HTTP</h1>
+
+<p><a data-type="indexterm" data-primary="serving repositories" data-secondary="HTTP" id="idp12612768"/>
+We now have authenticated access though SSH and unauthenticated access through <code>git://</code>, but there is also a protocol that can do both at the same time.
+Setting up Smart HTTP is basically just enabling a CGI script that is provided with Git called <code>git-http-backend</code> on the server.<a data-type="indexterm" data-primary="git commands" data-secondary="http-backend" id="idp12802816"/>
+This CGI will read the path and headers sent by a <code>git fetch</code> or <code>git push</code> to an HTTP URL and determine if the client can communicate over HTTP (which is true for any client since version 1.6.6).
+If the CGI sees that the client is smart, it will communicate smartly with it, otherwise it will fall back to the dumb behavior (so it is backward compatible for reads with older clients).</p>
+
+<p>Let’s walk through a very basic setup. We’ll set this up with Apache as the CGI server. If you don’t have Apache setup, you can do so on a Linux box with something like this:<a data-type="indexterm" data-primary="Apache" id="idp12805424"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> sudo apt-get install apache2 apache2-utils
+<code class="gp">$</code> a2enmod cgi <code class="nb">alias </code>env</pre>
+
+<p>This also enables the <code>mod_cgi</code>, <code>mod_alias</code>, and <code>mod_env</code> modules, which are all needed for this to work properly.</p>
+
+<p>Next we need to add some things to the Apache configuration to run the <code>git-http-backend</code> as the handler for anything coming into the <code>/git</code> path of your web server.</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">SetEnv GIT_PROJECT_ROOT /opt/git</code>
+<code class="go">SetEnv GIT_HTTP_EXPORT_ALL</code>
+<code class="go">ScriptAlias /git/ /usr/lib/git-core/git-http-backend/</code></pre>
+
+<p>If you leave out <code>GIT_HTTP_EXPORT_ALL</code> environment variable, then Git will only serve to unauthenticated clients the repositories with the <code>git-daemon-export-ok</code> file in them, just like the Git daemon did.</p>
+
+<p>Then you’ll have to tell Apache to allow requests to that path with something like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">&lt;Directory "/usr/lib/git-core*"&gt;</code>
+<code class="go">   Options ExecCGI Indexes</code>
+<code class="go">   Order allow,deny</code>
+<code class="go">   Allow from all</code>
+<code class="go">   Require all granted</code>
+<code class="go">&lt;/Directory&gt;</code></pre>
+
+<p>Finally you’ll want to make writes be authenticated somehow, possibly with an Auth block like this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">&lt;LocationMatch "^/git/.*/git-receive-pack$"&gt;</code>
+<code class="go">    AuthType Basic</code>
+<code class="go">    AuthName "Git Access"</code>
+<code class="go">    AuthUserFile /opt/git/.htpasswd</code>
+<code class="go">    Require valid-user</code>
+<code class="go">&lt;/LocationMatch&gt;</code></pre>
+
+<p>That will require you to create a <code>.htaccess</code> file containing the passwords of all the valid users. Here is an example of adding a “schacon” user to the file:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> htdigest -c /opt/git/.htpasswd <code class="s2">"Git Access"</code> schacon</pre>
+
+<p>There are tons of ways to have Apache authenticate users, you’ll have to choose and implement one of them. This is just the simplest example we could come up with. You’ll also almost certainly want to set this up over SSL so all this data is encrypted.</p>
+
+<p>We don’t want to go too far down the rabbit hole of Apache configuration specifics, since you could well be using a different server or have different authentication needs. The idea is that Git comes with a CGI called <code>git-http-backend</code> that when invoked will do all the negotiation to send and receive data over HTTP. It does not implement any authentication itself, but that can easily be controlled at the layer of the web server that invokes it. You can do this with nearly any CGI-capable web server, so go with the one that you know best.</p>
+<div data-type="note">
+<p>For more information on configuring authentication in Apache, check out the Apache docs here: <a href="http://httpd.apache.org/docs/current/howto/auth.html"><em class="hyperlink">http://httpd.apache.org/docs/current/howto/auth.html</em></a></p>
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="GitWeb" id="idp12611856">
+<h1>GitWeb</h1>
+
+<p><a data-type="indexterm" data-primary="serving repositories" data-secondary="GitWeb" id="idp12988592"/><a data-type="indexterm" data-primary="GitWeb" id="idp12989568"/>
+Now that you have basic read/write and read-only access to your project, you may want to set up a simple web-based visualizer.
+Git comes with a CGI script called GitWeb that is sometimes used for this.</p>
+
+<figure id="gitweb"><div class="border-box"><img src="book/04-git-server/images/git-instaweb.png" alt="The GitWeb web-based user interface."/></div><figcaption>The GitWeb web-based user interface.</figcaption></figure>
+
+<p>If you want to check out what GitWeb would look like for your project, Git comes with a command to fire up a temporary instance if you have a lightweight server on your system like <code>lighttpd</code> or <code>webrick</code>.
+On Linux machines, <code>lighttpd</code> is often installed, so you may be able to get it to run by typing <code>git instaweb</code> in your project directory.
+If you’re running a Mac, Leopard comes preinstalled with Ruby, so <code>webrick</code> may be your best bet.
+To start <code>instaweb</code> with a non-lighttpd handler, you can run it with the <code>--httpd</code> option.<a data-type="indexterm" data-primary="git commands" data-secondary="instaweb" id="idp12919552"/></p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git instaweb --httpd<code class="o">=</code>webrick
+<code class="go">[2009-02-21 10:02:21] INFO  WEBrick 1.3.1</code>
+<code class="go">[2009-02-21 10:02:21] INFO  ruby 1.8.6 (2008-03-03) [universal-darwin9.0]</code></pre>
+
+<p>That starts up an HTTPD server on port 1234 and then automatically starts a web browser that opens on that page.
+It’s pretty easy on your part.
+When you’re done and want to shut down the server, you can run the same command with the <code>--stop</code> option:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git instaweb --httpd<code class="o">=</code>webrick --stop</pre>
+
+<p>If you want to run the web interface on a server all the time for your team or for an open source project you’re hosting, you’ll need to set up the CGI script to be served by your normal web server.
+Some Linux distributions have a <code>gitweb</code> package that you may be able to install via <code>apt</code> or <code>yum</code>, so you may want to try that first.
+We’ll walk through installing GitWeb manually very quickly.
+First, you need to get the Git source code, which GitWeb comes with, and generate the custom CGI script:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone git://git.kernel.org/pub/scm/git/git.git
+<code class="gp">$</code> <code class="nb">cd </code>git/
+<code class="gp">$</code> make <code class="nv">GITWEB_PROJECTROOT</code><code class="o">=</code><code class="s2">"/opt/git"</code> <code class="nv">prefix</code><code class="o">=</code>/usr gitweb
+<code class="go">    SUBDIR gitweb</code>
+<code class="go">    SUBDIR ../</code>
+<code class="go">make[2]: `GIT-VERSION-FILE' is up to date.</code>
+<code class="go">    GEN gitweb.cgi</code>
+<code class="go">    GEN static/gitweb.js</code>
+<code class="gp">$</code> sudo cp -Rf gitweb /var/www/</pre>
+
+<p>Notice that you have to tell the command where to find your Git repositories with the <code>GITWEB_PROJECTROOT</code> variable.
+Now, you need to make Apache use CGI for that script, for which you can add a VirtualHost:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="go">&lt;VirtualHost *:80&gt;</code>
+<code class="go">    ServerName gitserver</code>
+<code class="go">    DocumentRoot /var/www/gitweb</code>
+<code class="go">    &lt;Directory /var/www/gitweb&gt;</code>
+<code class="go">        Options ExecCGI +FollowSymLinks +SymLinksIfOwnerMatch</code>
+<code class="go">        AllowOverride All</code>
+<code class="go">        order allow,deny</code>
+<code class="go">        Allow from all</code>
+<code class="go">        AddHandler cgi-script cgi</code>
+<code class="go">        DirectoryIndex gitweb.cgi</code>
+<code class="go">    &lt;/Directory&gt;</code>
+<code class="go">&lt;/VirtualHost&gt;</code></pre>
+
+<p>Again, GitWeb can be served with any CGI or Perl capable web server; if you prefer to use something else, it shouldn’t be difficult to set up.
+At this point, you should be able to visit <code>http://gitserver/</code> to view your repositories online.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="GitLab" id="idp12987616">
+<h1>GitLab</h1>
+
+<p><a data-type="indexterm" data-primary="serving repositories" data-secondary="GitLab" id="idp13058336"/><a data-type="indexterm" data-primary="GitLab" id="idp13059312"/>
+GitWeb is pretty simplistic though.
+If you’re looking for a more modern, fully featured Git server, there are some several open source solutions out there that you can install instead.
+As GitLab is one of the more popular ones, we’ll cover installing and using it as an example.
+This is a bit more complex than the GitWeb option and likely requires more maintenance, but it is a much more fully featured option.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Installation" id="idp13060672">
+<h2>Installation</h2>
+
+<p>GitLab is a database-backed web application, so its installation is a bit more involved than some other git servers.
+Fortunately, this process is very well-documented and supported.</p>
+
+<p>There are a few methods you can pursue to install GitLab.
+To get something up and running quickly, you can download a virtual machine image or a one-click installer from <a href="https://bitnami.com/stack/gitlab"><em class="hyperlink">https://bitnami.com/stack/gitlab</em></a>, and tweak the configuration to match your particular environment.<a data-type="indexterm" data-primary="bitnami" id="idp13064144"/>
+One nice touch Bitnami has included is the login screen (accessed by typing alt-→); it tells you the IP address and default username and password for the installed GitLab.</p>
+
+<figure id="bitnami"><div class="border-box"><img src="book/04-git-server/images/bitnami.png" alt="The Bitnami GitLab virtual machine login screen."/></div><figcaption>The Bitnami GitLab virtual machine login screen.</figcaption></figure>
+
+<p>For anything else, follow the guidance in the GitLab Community Edition readme, which can be found at <a href="https://gitlab.com/gitlab-org/gitlab-ce/tree/master"><em class="hyperlink">https://gitlab.com/gitlab-org/gitlab-ce/tree/master</em></a>.
+There you’ll find assistance for installing GitLab using Chef recipes, a virtual machine on Digital Ocean, and RPM and DEB packages (which, as of this writing, are in beta).
+There’s also “unofficial” guidance on getting GitLab running with non-standard operating systems and databases, a fully-manual installation script, and many other topics.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Administration" id="idp12875696">
+<h2>Administration</h2>
+
+<p>GitLab’s administration interface is accessed over the web.
+Simply point your browser to the hostname or IP address where GitLab is installed, and log in as an admin user.
+The default username is <code>admin@local.host</code>, and the default password is <code>5iveL!fe</code> (which you will be prompted to change as soon as you enter it).
+Once logged in, click the “Admin area” icon in the menu at the top right.</p>
+
+<figure id="gitlab_menu"><div class="border-box"><img src="book/04-git-server/images/gitlab-menu.png" alt="The ``Admin area'' item in the GitLab menu."/></div><figcaption>The “Admin area” item in the GitLab menu.</figcaption></figure>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Users" id="idp12880560">
+<h3>Users</h3>
+
+<p>Users in GitLab are accounts that correspond to people.
+User accounts don’t have a lot of complexity; mainly it’s a collection of personal information attached to login data.
+Each user account comes with a <strong>namespace</strong>, which is a logical grouping of projects that belong to that user.
+If the user <code>jane</code> had a project named <code>project</code>, that project’s url would be <a href="http://server/jane/project"><em class="hyperlink">http://server/jane/project</em></a>.</p>
+
+<figure id="gitlab_users"><div class="border-box"><img src="book/04-git-server/images/gitlab-users.png" alt="The GitLab user administration screen."/></div><figcaption>The GitLab user administration screen.</figcaption></figure>
+
+<p>Removing a user can be done in two ways.
+“Blocking” a user prevents them from logging into the GitLab instance, but all of the data under that user’s namespace will be preserved, and commits signed with that user’s email address will still link back to their profile.</p>
+
+<p>“Destroying” a user, on the other hand, completely removes them from the database and filesystem.
+All projects and data in their namespace is removed, and any groups they own will also be removed.
+This is obviously a much more permanent and destructive action, and its uses are rare.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Groups" id="_gitlab_groups_section">
+<h3>Groups</h3>
+
+<p>A GitLab group is an assemblage of projects, along with data about how users can access those projects.
+Each group has a project namespace (the same way that users do), so if the group <code>training</code> has a project <code>materials</code>, its url would be <a href="http://server/training/materials"><em class="hyperlink">http://server/training/materials</em></a>.</p>
+
+<figure id="gitlab_groups"><div class="border-box"><img src="book/04-git-server/images/gitlab-groups.png" alt="The GitLab group administration screen."/></div><figcaption>The GitLab group administration screen.</figcaption></figure>
+
+<p>Each group is associated with a number of users, each of which has a level of permissions for the group’s projects and the group itself.
+These range from “Guest” (issues and chat only) to “Owner” (full control of the group, its members, and its projects).
+The types of permissions are too numerous to list here, but GitLab has a helpful link on the administration screen.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Projects" id="idp13107552">
+<h3>Projects</h3>
+
+<p>A GitLab project roughly corresponds to a single git repository.
+Every project belongs to a single namespace, either a user or a group.
+If the project belongs to a user, the owner of the project has direct control over who has access to the project; if the project belongs to a group, the group’s user-level permissions will also take effect.</p>
+
+<p>Every project also has a visibility level, which controls who has read access to that project’s pages and repository.
+If a project is <em>Private</em>, the project’s owner must explicitly grant access to specific users.
+An <em>Internal</em> project is visible to any logged-in user, and a <em>Public</em> project is visible to anyone.
+Note that this controls both git “fetch” access as well as access to the web UI for that project.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Hooks" id="idp13111472">
+<h3>Hooks</h3>
+
+<p>GitLab includes support for hooks, both at a project or system level.
+For either of these, the GitLab server will perform an HTTP POST with some descriptive JSON whenever relevant events occur.
+This is a great way to connect your git repositories and GitLab instance to the rest of your development automation, such as CI servers, chat rooms, or deployment tools.</p>
+</section>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Basic Usage" id="idp13113440">
+<h2>Basic Usage</h2>
+
+<p>The first thing you’ll want to do with GitLab is create a new project.
+This is accomplished by clicking the “+” icon on the toolbar.
+You’ll be asked for the project’s name, which namespace it should belong to, and what its visibility level should be.
+Most of what you specify here isn’t permanent, and can be re-adjusted later through the settings interface.
+Click “Create Project”, and you’re done.</p>
+
+<p>Once the project exists, you’ll probably want to connect it with a local Git repository.
+Each project is accessible over HTTPS or SSH, either of which can be used to configure a Git remote.
+The URLs are visible at the top of the project’s home page.
+For an existing local repository, this command will create a remote named <code>gitlab</code> to the hosted location:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git remote add gitlab https://server/namespace/project.git</pre>
+
+<p>If you don’t have a local copy of the repository, you can simply do this:</p>
+
+<pre data-type="programlisting" data-code-language="console"><code class="gp">$</code> git clone https://server/namespace/project.git</pre>
+
+<p>The web UI provides access to several useful views of the repository itself.
+Each project’s home page shows recent activity, and links along the top will lead you to views of the project’s files and commit log.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Working Together" id="idp13122080">
+<h2>Working Together</h2>
+
+<p>The simplest way of working together on a GitLab project is by giving another user direct push access to the git repository.
+You can add a user to a project by going to the “Members” section of that project’s settings, and associating the new user with an access level (the different access levels are discussed a bit in <a data-type="xref" href="#_gitlab_groups_section">“Groups”</a>).
+By giving a user an access level of “Developer” or above, that user can push commits and branches directly to the repository with impunity.</p>
+
+<p>Another, more decoupled way of collaboration is by using merge requests.
+This feature enables any user that can see a project to contribute to it in a controlled way.
+Users with direct access can simply create a branch, push commits to it, and open a merge request from their branch back into <code>master</code> or any other branch.
+Users who don’t have push permissions for a repository can “fork” it (create their own copy), push commits to <em>that</em> copy, and open a merge request from their fork back to the main project.
+This model allows the owner to be in full control of what goes into the repository and when, while allowing contributions from untrusted users.</p>
+
+<p>Merge requests and issues are the main units of long-lived discussion in GitLab.
+Each merge request allows a line-by-line discussion of the proposed change (which supports a lightweight kind of code review), as well as a general overall discussion thread.
+Both can be assigned to users, or organized into milestones.</p>
+
+<p>This section is focused mainly on the Git-related features of GitLab, but as a mature project, it provides many other features to help your team work together, such as project wikis and system maintenance tools.
+One benefit to GitLab is that, once the server is set up and running, you’ll rarely need to tweak a configuration file or access the server via SSH; most administration and general usage can be accomplished through the in-browser interface.</p>
+</section>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Third Party Hosted Options" id="idp13240912">
+<h1>Third Party Hosted Options</h1>
+
+<p>If you don’t want to go through all of the work involved in setting up your own Git server, you have several options for hosting your Git projects on an external dedicated hosting site.
+Doing so offers a number of advantages: a hosting site is generally quick to set up and easy to start projects on, and no server maintenance or monitoring is involved.
+Even if you set up and run your own server internally, you may still want to use a public hosting site for your open source code – it’s generally easier for the open source community to find and help you with.</p>
+
+<p>These days, you have a huge number of hosting options to choose from, each with different advantages and disadvantages.
+To see an up-to-date list, check out the GitHosting page on the main Git wiki at <a href="https://git.wiki.kernel.org/index.php/GitHosting"><em class="hyperlink">https://git.wiki.kernel.org/index.php/GitHosting</em></a></p>
+
+<p>We’ll cover using GitHub in detail in <a data-type="xref" href="ch06.html#_github">Chapter 6</a>, as it is the largest Git host out there and you may need to interact with projects hosted on it in any case, but there are dozens more to choose from should you not want to set up your own Git server.</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Summary" id="idp13126560">
+<h1>Summary</h1>
+
+<p>You have several options to get a remote Git repository up and running so that you can collaborate with others or share your work.</p>
+
+<p>Running your own server gives you a lot of control and allows you to run the server within your own firewall, but such a server generally requires a fair amount of your time to set up and maintain.
+If you place your data on a hosted server, it’s easy to set up and maintain; however, you have to be able to keep your code on someone else’s servers, and some organizations don’t allow that.</p>
+
+<p>It should be fairly straightforward to determine which solution or combination of solutions is appropriate for you and your organization.</p>
+</section>
+
+
+
+
+
+
+
+</section>
+    <div class="navigation">
+      <ul>
+        <li><a href="ch05.html">Next</a></li>
+        <li><a href="ch03.html">Previous</a></li>
+      </ul>
+    </div>
+  </body>
+</html>
