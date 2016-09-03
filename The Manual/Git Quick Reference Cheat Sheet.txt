@@ -18,17 +18,10 @@ breif so the utility of certain commands exceed the scope of this reference shee
 
  **Constructive criticism and contributions are welcomed!**
  If you ever feel lost in the command line, 
-enter 'git help', utilize Google, stackoverflow.com (really any programming forum) or feel free to email me.
+enter 'git help', utilize Google, stackoverflow.com (really any programming forum).
 Include Git Command Cheat Sheet in subject heading of email.
 
-Remember to have fun and embrace the learning experience. 
-Git may be intimidating, but you can do it! Be patient and diligent and you will be succesful!
 
-Cheers,
-Anthony R.
-
-
-aramirez7412@gmail.com
 
 _______________________________________________________________________________________________
 Key
@@ -117,7 +110,7 @@ ________________________________________________________________________________
 					  progress, additions, and contributions to the repositoty at a glance. 
 	
 
-	git push -u origin master -> Wohooo! Name our our remote is origin and the default 
+	git push -u origin master -> Name our our remote is origin and the default 
 				     branch name is master. The -u tells git to remember the
 				     parameters, so next time we can simply use
 				     git push origin
